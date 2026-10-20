@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --color-bg: #0c1410;
+  --color-surface: #142019;
+  --color-surface-2: #1c2b22;
+  --color-fg: #e8f2e4;
+  --color-muted: #8ea396;
+  --color-line: #2a3d32;
+  --color-signal: #d6f25c;
+  --color-heat: #e07a4c;
+  --radius-card: 0.9rem;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  body {
+    background:
+      radial-gradient(900px 420px at 0% -10%, color-mix(in oklab, var(--color-signal) 10%, transparent), transparent 55%),
+      var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+}
+
+@keyframes swamp-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.swamp-pulse {
+  animation: swamp-pulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swamp-pulse {
+    animation: none;
+  }
+}

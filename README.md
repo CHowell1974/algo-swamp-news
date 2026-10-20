@@ -1,9 +1,14 @@
-# ALGO Swamp News
+# ALGO Swamp Desk
 
-A financial headline scanner. It pulls the public news wire (and Finnhub when `FINNHUB_API_KEY` is set), then scores each story for heat, tone, and named tickers.
+A markets wire. Six headlines stay free. The full desk is $29 a month or $249 a year, billed through Stripe.
 
-Lanes: Markets, Macro, Tech, Crypto, Energy, Earnings. Search and save from the desk. Heat is a sort, not advice.
+## Server settings
 
-```bash
-npm run dev
-```
+Do not commit secrets. On the host, set:
+
+- `STRIPE_SECRET_KEY` — live secret key (`sk_live_…`)
+- `STRIPE_WEBHOOK_SECRET` — signing secret for `POST /api/stripe/webhook`
+
+Webhook events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`.
+
+The database and sign-in are provisioned by the host. `DATABASE_URL` must be set in production.
