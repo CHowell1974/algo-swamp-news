@@ -11,9 +11,9 @@ export function Masthead() {
   return (
     <header className="border-b border-line">
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 md:gap-3 md:px-8">
-        <Link to="/" className={`shrink-0 font-display text-xl leading-none text-fg ${focusRing}`}>
+        <a href="https://algoswamp.com" className={`shrink-0 font-display text-xl leading-none text-fg ${focusRing}`}>
           ALGO <span className="italic text-signal">Swamp</span>
-        </Link>
+        </a>
         <nav aria-label="Desk" className="flex min-w-0 flex-1 items-center justify-end gap-1 overflow-x-auto">
           <Link
             to="/desk"
