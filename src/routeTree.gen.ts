@@ -14,8 +14,11 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as DeskRouteImport } from './routes/desk'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as WireDotxmlRouteImport } from './routes/wire[.]xml'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiCronPremarketWireRouteImport } from './routes/api/cron/premarket-wire'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
+import { Route as ApiWirePreviewRouteImport } from './routes/api/wire/preview'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -42,14 +45,29 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WireDotxmlRoute = WireDotxmlRouteImport.update({
+  id: '/wire.xml',
+  path: '/wire.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronPremarketWireRoute = ApiCronPremarketWireRouteImport.update({
+  id: '/api/cron/premarket-wire',
+  path: '/api/cron/premarket-wire',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   id: '/api/stripe/webhook',
   path: '/api/stripe/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWirePreviewRoute = ApiWirePreviewRouteImport.update({
+  id: '/api/wire/preview',
+  path: '/api/wire/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -59,8 +77,11 @@ export interface FileRoutesByFullPath {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/wire.xml': typeof WireDotxmlRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/wire/preview': typeof ApiWirePreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,8 +89,11 @@ export interface FileRoutesByTo {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/wire.xml': typeof WireDotxmlRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/wire/preview': typeof ApiWirePreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,8 +102,11 @@ export interface FileRoutesById {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/wire.xml': typeof WireDotxmlRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/wire/preview': typeof ApiWirePreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,8 +116,11 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/wire.xml'
     | '/api/auth/$'
+    | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
+    | '/api/wire/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -98,8 +128,11 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/wire.xml'
     | '/api/auth/$'
+    | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
+    | '/api/wire/preview'
   id:
     | '__root__'
     | '/'
@@ -107,8 +140,11 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/wire.xml'
     | '/api/auth/$'
+    | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
+    | '/api/wire/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,8 +153,11 @@ export interface RootRouteChildren {
   DeskRoute: typeof DeskRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  WireDotxmlRoute: typeof WireDotxmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCronPremarketWireRoute: typeof ApiCronPremarketWireRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
+  ApiWirePreviewRoute: typeof ApiWirePreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -158,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wire.xml': {
+      id: '/wire.xml'
+      path: '/wire.xml'
+      fullPath: '/wire.xml'
+      preLoaderRoute: typeof WireDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -165,11 +211,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/premarket-wire': {
+      id: '/api/cron/premarket-wire'
+      path: '/api/cron/premarket-wire'
+      fullPath: '/api/cron/premarket-wire'
+      preLoaderRoute: typeof ApiCronPremarketWireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/stripe/webhook': {
       id: '/api/stripe/webhook'
       path: '/api/stripe/webhook'
       fullPath: '/api/stripe/webhook'
       preLoaderRoute: typeof ApiStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/wire/preview': {
+      id: '/api/wire/preview'
+      path: '/api/wire/preview'
+      fullPath: '/api/wire/preview'
+      preLoaderRoute: typeof ApiWirePreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -181,8 +241,11 @@ const rootRouteChildren: RootRouteChildren = {
   DeskRoute: DeskRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  WireDotxmlRoute: WireDotxmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCronPremarketWireRoute: ApiCronPremarketWireRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
+  ApiWirePreviewRoute: ApiWirePreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
