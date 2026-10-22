@@ -102,6 +102,22 @@ async function loadWire(): Promise<Omit<WirePayload, "access">> {
   };
 }
 
+/** The same six public lines the desk shows a visitor who is not on a plan. */
+export async function loadPublicTape(): Promise<{
+  ok: boolean;
+  stories: Story[];
+  fetchedAt: string;
+  error: string | null;
+}> {
+  const loaded = await loadWire();
+  return {
+    ok: loaded.ok,
+    stories: loaded.stories.slice(0, OPEN_TAPE),
+    fetchedAt: loaded.fetchedAt,
+    error: loaded.error,
+  };
+}
+
 async function composeWire(userId: string | null): Promise<WirePayload> {
   const loaded = await loadWire();
   let access: WirePayload["access"] = "open";

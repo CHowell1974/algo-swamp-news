@@ -1,5 +1,15 @@
 {
   "framework": null,
   "buildCommand": "npm run build",
-  "installCommand": "npm install --omit=dev --no-audit --no-fund"
+  "installCommand": "npm install --omit=dev --no-audit --no-fund",
+  "crons": [
+    {
+      "path": "/api/cron/premarket-wire",
+      "schedule": "0 12 * * 1-5"
+    },
+    {
+      "path": "/api/cron/premarket-wire",
+      "schedule": "0 13 * * 1-5"
+    }
+  ]
 }
