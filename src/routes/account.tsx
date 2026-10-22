@@ -46,7 +46,7 @@ function AccountPage() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [user?.id, load]);
 
   async function pay(plan: PlanId) {
     setPending(true);
@@ -98,7 +98,8 @@ function AccountPage() {
 
   if (!user) return <RedirectToSignIn to="/login" />;
 
-  const other: PlanId | null = membership?.plan === "annual" ? "monthly" : membership?.plan === "monthly" ? "annual" : null;
+  const other: PlanId | null =
+    membership?.plan === "annual" ? "monthly" : membership?.plan === "monthly" ? "annual" : null;
 
   return (
     <div className="min-h-screen">
@@ -106,7 +107,9 @@ function AccountPage() {
       <main className="mx-auto max-w-xl px-4 py-12 md:px-8">
         <p className="text-xs font-medium tracking-widest text-muted uppercase">Plan</p>
         <h1 className="mt-3 font-display text-5xl text-balance text-fg">Your desk</h1>
-        <p className="mt-3 text-sm text-muted">{user.primaryEmail ?? user.displayName ?? "Signed in"}</p>
+        <p className="mt-3 text-sm text-muted">
+          {user.primaryEmail ?? user.displayName ?? "Signed in"}
+        </p>
 
         <section className="mt-8 rounded-card border border-line bg-surface p-5">
           {!membership ? <div className="h-16 animate-pulse rounded-xl bg-surface-2" /> : null}
@@ -195,10 +198,14 @@ function AccountPage() {
                 ) : null}
               </div>
               {membership.managedByStripe ? (
-                <p className="mt-3 text-xs text-muted">Cancel, switch, or update the card in Stripe. The desk stays up through the paid period.</p>
+                <p className="mt-3 text-xs text-muted">
+                  Cancel in Stripe and the desk stays open until this date. Cancelling during the
+                  monthly trial means no charge.
+                </p>
               ) : (
                 <p className="mt-3 text-xs text-muted">
-                  This period is not a Stripe subscription. Pay with Stripe to bill the {PLANS[membership.plan].label.toLowerCase()} desk.
+                  This period is not a Stripe subscription. Pay with Stripe to bill the{" "}
+                  {PLANS[membership.plan].label.toLowerCase()} desk.
                 </p>
               )}
             </>

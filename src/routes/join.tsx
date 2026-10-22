@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { AuthPanel } from "@/components/auth-panel";
+import { FounderLine } from "@/components/founder-line";
 import { Masthead } from "@/components/masthead";
 import { SignInGate } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { getMembership, openBillingPortal, resumeMembership, beginCheckout, type Membership } from "@/lib/membership.functions";
-import { formatMoney, formatWhen, PLANS, type PlanId } from "@/lib/plans";
+import {
+  getMembership,
+  openBillingPortal,
+  resumeMembership,
+  beginCheckout,
+  type Membership,
+} from "@/lib/membership.functions";
+import { formatMoney, formatWhen, MONTHLY_TRIAL_DAYS, PLANS, type PlanId } from "@/lib/plans";
 
 export const Route = createFileRoute("/join")({
   validateSearch: (search: Record<string, unknown>): { plan: PlanId } => ({
@@ -44,7 +51,7 @@ function JoinPage() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [user?.id, load]);
 
   const samePlan = membership?.active && membership.plan === plan;
   const callbackURL = `/join?plan=${plan}`;
@@ -114,23 +121,40 @@ function JoinPage() {
           {isPending ? <div className="h-11 animate-pulse rounded-full bg-surface-2" /> : null}
           <SignInGate fallback={<AuthPanel callbackURL={callbackURL} />}>
             <div className="space-y-4">
-              <h2 className="font-display text-3xl text-fg">{samePlan ? "Already on this desk" : "Pay on Stripe"}</h2>
+              <h2 className="font-display text-3xl text-fg">
+                {samePlan ? "Already on this desk" : "Pay on Stripe"}
+              </h2>
               {samePlan && membership?.cancelAtPeriodEnd ? (
                 <p className="text-sm text-muted">
-                  This plan is set to end {membership.currentPeriodEnd ? formatWhen(membership.currentPeriodEnd) : "soon"}. Resume it
-                  without starting a new period.
+                  This plan is set to end{" "}
+                  {membership.currentPeriodEnd ? formatWhen(membership.currentPeriodEnd) : "soon"}.
+                  Resume it without starting a new period.
                 </p>
               ) : null}
               {samePlan && !membership?.cancelAtPeriodEnd ? (
                 <p className="text-sm text-muted">
                   You already have the {chosen.label.toLowerCase()} desk
-                  {membership?.currentPeriodEnd ? ` through ${formatWhen(membership.currentPeriodEnd)}` : ""}.
+                  {membership?.currentPeriodEnd
+                    ? ` through ${formatWhen(membership.currentPeriodEnd)}`
+                    : ""}
+                  .
                 </p>
               ) : null}
-              {!samePlan ? (
+              {!samePlan && plan === "monthly" ? (
+                <>
+                  <p className="text-sm text-pretty text-muted">
+                    Try the full desk free for {MONTHLY_TRIAL_DAYS} days, then{" "}
+                    {formatMoney(PLANS.monthly.price)}/mo. Stripe collects a card now and charges
+                    after the trial. Cancel anytime before then and you are not charged. The desk
+                    opens as soon as checkout completes.
+                  </p>
+                  <FounderLine className="text-sm text-signal" />
+                </>
+              ) : null}
+              {!samePlan && plan === "annual" ? (
                 <p className="text-sm text-pretty text-muted">
-                  Stripe hosts the card for the {chosen.label.toLowerCase()} desk at {formatMoney(chosen.price)} {chosen.cadence}. The
-                  desk opens after payment.
+                  Stripe hosts the card for the annual desk at {formatMoney(PLANS.annual.price)} a
+                  year. There is no trial. The desk opens after payment.
                 </p>
               ) : null}
               {error ? <p className="text-sm text-heat">{error}</p> : null}

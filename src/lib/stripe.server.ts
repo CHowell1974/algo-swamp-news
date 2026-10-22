@@ -1,7 +1,16 @@
 import Stripe from "stripe";
 import { getRequest } from "@tanstack/react-start/server";
+import {
+  checkoutCommercials,
+  checkoutIntegrationId,
+  FOUNDER_CACHE_MS,
+  founderOfferFromPromo,
+  grantsDesk,
+  subscriptionAccessEnd,
+  type FounderOffer,
+} from "@/lib/billing";
 import { getSql } from "@/lib/db";
-import { isPlanId, type PlanId } from "@/lib/plans";
+import { isPlanId, PLANS, type PlanId } from "@/lib/plans";
 
 const PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY?.trim() || "price_1USm3aLAdDbAQPuJMuMnMSnw";
 const PRICE_ANNUAL = process.env.STRIPE_PRICE_ANNUAL?.trim() || "price_1USm3aLAdDbAQPuJCgvaQgUw";
@@ -22,9 +31,15 @@ function stripeClient(): Stripe {
 export function requestOrigin(): string {
   const request = getRequest();
   const forwardedHost = request.headers.get("x-forwarded-host");
-  const host = (forwardedHost?.split(",")[0] ?? request.headers.get("host") ?? "localhost:8080").trim();
+  const host = (
+    forwardedHost?.split(",")[0] ??
+    request.headers.get("host") ??
+    "localhost:8080"
+  ).trim();
   const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  const proto = forwardedProto || (host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https");
+  const proto =
+    forwardedProto ||
+    (host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https");
   return `${proto}://${host}`;
 }
 
@@ -33,7 +48,10 @@ function stripeId(value: string | { id: string } | null | undefined): string | n
   return typeof value === "string" ? value : value.id;
 }
 
-function planForPrice(priceId: string | undefined, metadataPlan: string | undefined): PlanId | null {
+function planForPrice(
+  priceId: string | undefined,
+  metadataPlan: string | undefined,
+): PlanId | null {
   if (isPlanId(metadataPlan)) return metadataPlan;
   if (priceId === PRICE_MONTHLY || priceId === "price_1USm3aLAdDbAQPuJMuMnMSnw") return "monthly";
   if (priceId === PRICE_ANNUAL || priceId === "price_1USm3aLAdDbAQPuJCgvaQgUw") return "annual";
@@ -41,16 +59,59 @@ function planForPrice(priceId: string | undefined, metadataPlan: string | undefi
 }
 
 function periodEndIso(sub: Stripe.Subscription): string | null {
-  const ends = sub.items?.data
-    ?.map((item) => item.current_period_end)
-    .filter((value): value is number => typeof value === "number" && value > 0);
-  if (!ends?.length) return null;
-  return new Date(Math.max(...ends) * 1000).toISOString();
+  return subscriptionAccessEnd(sub);
 }
 
 function membershipStatus(stripeStatus: Stripe.Subscription.Status): "active" | "canceled" {
-  if (stripeStatus === "active" || stripeStatus === "trialing" || stripeStatus === "past_due") return "active";
-  return "canceled";
+  return grantsDesk(stripeStatus) ? "active" : "canceled";
+}
+
+let founderCache: { at: number; promoId: string; offer: FounderOffer | null } | null = null;
+
+/** Active founder price, or null when the code is unset, used up, or Stripe cannot be read. */
+export async function readFounderOffer(now = Date.now()): Promise<FounderOffer | null> {
+  const promoId = process.env.STRIPE_FOUNDER_PROMO_ID?.trim() ?? "";
+  if (!promoId || !process.env.STRIPE_SECRET_KEY?.trim()) return null;
+  if (
+    founderCache &&
+    founderCache.promoId === promoId &&
+    now - founderCache.at < FOUNDER_CACHE_MS
+  ) {
+    return founderCache.offer;
+  }
+  let offer: FounderOffer | null = null;
+  try {
+    const promo = await stripeClient().promotionCodes.retrieve(promoId, {
+      expand: ["promotion.coupon"],
+    });
+    const coupon = promo.promotion?.coupon;
+    offer = founderOfferFromPromo(
+      {
+        active: promo.active,
+        timesRedeemed: promo.times_redeemed,
+        maxRedemptions: promo.max_redemptions,
+        expiresAt: promo.expires_at,
+        coupon:
+          coupon && typeof coupon !== "string"
+            ? {
+                valid: coupon.valid,
+                duration: coupon.duration,
+                amountOff: coupon.amount_off,
+                percentOff: coupon.percent_off,
+                currency: coupon.currency,
+              }
+            : null,
+      },
+      PLANS.monthly.price,
+      Math.floor(now / 1000),
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "lookup failed";
+    console.log(`[checkout] founding member lookup skipped: ${message}`);
+    offer = null;
+  }
+  founderCache = { at: now, promoId, offer };
+  return offer;
 }
 
 export async function upsertSubscription(
@@ -101,10 +162,18 @@ async function resolveUserId(sub: Stripe.Subscription): Promise<string | null> {
   return byCustomer[0]?.user_id ?? null;
 }
 
-async function syncSubscription(sub: Stripe.Subscription, userId?: string | null, customerId?: string | null) {
+async function syncSubscription(
+  sub: Stripe.Subscription,
+  userId?: string | null,
+  customerId?: string | null,
+) {
   const owner = userId ?? (await resolveUserId(sub));
   if (!owner) return;
-  await upsertSubscription(owner, sub, customerId === undefined ? stripeId(sub.customer) : customerId);
+  await upsertSubscription(
+    owner,
+    sub,
+    customerId === undefined ? stripeId(sub.customer) : customerId,
+  );
 }
 
 export async function createCheckoutUrl(userId: string, plan: PlanId): Promise<string> {
@@ -115,19 +184,51 @@ export async function createCheckoutUrl(userId: string, plan: PlanId): Promise<s
     select stripe_customer_id from memberships where user_id = ${userId}
   `;
   const customer = rows[0]?.stripe_customer_id || undefined;
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [{ price: plan === "monthly" ? PRICE_MONTHLY : PRICE_ANNUAL, quantity: 1 }],
-    success_url: `${origin}/desk?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/join?plan=${plan}`,
-    client_reference_id: userId,
-    ...(customer ? { customer } : {}),
-    allow_promotion_codes: true,
-    metadata: { user_id: userId, plan },
-    subscription_data: { metadata: { user_id: userId, plan } },
-  });
-  if (!session.url) throw new Error("Stripe did not return a checkout link.");
-  return session.url;
+  const founder = plan === "monthly" ? await readFounderOffer() : null;
+
+  async function openCheckoutSession(applyFounder: boolean): Promise<string> {
+    const promoId = applyFounder ? (process.env.STRIPE_FOUNDER_PROMO_ID?.trim() ?? "") : "";
+    const commercials = checkoutCommercials(plan, promoId || null);
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price: plan === "monthly" ? PRICE_MONTHLY : PRICE_ANNUAL, quantity: 1 }],
+      success_url: `${origin}/desk?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/join?plan=${plan}`,
+      client_reference_id: userId,
+      ...(customer ? { customer } : {}),
+      metadata: { user_id: userId, plan },
+      integration_identifier: checkoutIntegrationId(),
+      ...(commercials.paymentMethodCollection
+        ? { payment_method_collection: commercials.paymentMethodCollection }
+        : {}),
+      ...(commercials.promotionCode
+        ? { discounts: [{ promotion_code: commercials.promotionCode }] }
+        : commercials.allowPromotionCodes
+          ? { allow_promotion_codes: true }
+          : {}),
+      subscription_data: {
+        metadata: { user_id: userId, plan },
+        ...(commercials.trialPeriodDays
+          ? {
+              trial_period_days: commercials.trialPeriodDays,
+              trial_settings: { end_behavior: { missing_payment_method: "cancel" as const } },
+            }
+          : {}),
+      },
+    });
+    if (!session.url) throw new Error("Stripe did not return a checkout link.");
+    return session.url;
+  }
+
+  try {
+    return await openCheckoutSession(Boolean(founder));
+  } catch (error) {
+    if (!founder) throw error;
+    console.log(
+      "[checkout] founding member code was not applied; opening the regular monthly price",
+    );
+    return await openCheckoutSession(false);
+  }
 }
 
 export async function confirmCheckoutSession(userId: string, sessionId: string): Promise<void> {
@@ -146,7 +247,9 @@ export async function confirmCheckoutSession(userId: string, sessionId: string):
   if (!sub) throw new Error("Stripe did not return a subscription.");
   await upsertSubscription(userId, sub, stripeId(session.customer));
   if (membershipStatus(sub.status) !== "active") {
-    throw new Error("Payment is still processing. The desk opens when Stripe marks the subscription active.");
+    throw new Error(
+      "Payment is still processing. The desk opens when Stripe marks the subscription active.",
+    );
   }
 }
 
@@ -173,7 +276,9 @@ export async function assertLocalBilling(userId: string): Promise<void> {
     select stripe_customer_id from memberships where user_id = ${userId}
   `;
   if (rows[0]?.stripe_customer_id) {
-    throw new Error("This desk is billed in Stripe. Use Manage billing to cancel, resume, or switch.");
+    throw new Error(
+      "This desk is billed in Stripe. Use Manage billing to cancel, resume, or switch.",
+    );
   }
 }
 
@@ -203,14 +308,19 @@ export async function handleStripeWebhook(request: Request): Promise<Response> {
           await syncSubscription(sub, userId, stripeId(session.customer));
         }
       }
-    } else if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+    } else if (
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
       await syncSubscription(event.data.object);
     } else if (event.type === "invoice.paid") {
       const subscription = event.data.object.parent?.subscription_details?.subscription;
       const subId = stripeId(subscription);
       if (subId) {
         const sub =
-          subscription && typeof subscription !== "string" ? subscription : await stripeClient().subscriptions.retrieve(subId);
+          subscription && typeof subscription !== "string"
+            ? subscription
+            : await stripeClient().subscriptions.retrieve(subId);
         await syncSubscription(sub);
       }
     }

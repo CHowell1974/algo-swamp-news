@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Bookmark, ExternalLink, Radio, RefreshCw, Search, Snowflake, Flame } from "lucide-react";
+import { FounderLine } from "@/components/founder-line";
 import { FreeWireSignup } from "@/components/free-wire-signup";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { briefWire, fetchMemberWire, fetchWire } from "@/lib/news.functions";
+import { formatMoney, MONTHLY_TRIAL_DAYS, PLANS } from "@/lib/plans";
 import { LANES, rankTickers, type LaneId, type Story } from "@/lib/scan";
 import { useDesk } from "@/lib/desk-store";
 
@@ -37,7 +39,13 @@ function toneLabel(tone: Story["tone"]): string {
   return "Steady";
 }
 
-export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refreshToken?: number }) {
+export function ScannerDesk({
+  initial,
+  refreshToken = 0,
+}: {
+  initial: Wire;
+  refreshToken?: number;
+}) {
   const refreshWire = useServerFn(fetchWire);
   const refreshMember = useServerFn(fetchMemberWire);
   const readBrief = useServerFn(briefWire);
@@ -78,7 +86,7 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
     return () => {
       cancelled = true;
     };
-  }, [user?.id, refreshToken]);
+  }, [user?.id, refreshToken, refreshMember]);
 
   const deskOpen = wire.access === "desk";
   const locked = !deskOpen && !checking && !isPending;
@@ -103,12 +111,20 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
       return [...rows].sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
     }
     if (sort === "heat") {
-      return [...rows].sort((a, b) => b.heat - a.heat || +new Date(b.publishedAt) - +new Date(a.publishedAt));
+      return [...rows].sort(
+        (a, b) => b.heat - a.heat || +new Date(b.publishedAt) - +new Date(a.publishedAt),
+      );
     }
     return rows;
   }, [pool, lane, query, ticker, watchOnly, watch, sort]);
 
-  const tape = useMemo(() => rankTickers(lane === "all" ? wire.stories : wire.stories.filter((s) => s.lanes.includes(lane))), [wire.stories, lane]);
+  const tape = useMemo(
+    () =>
+      rankTickers(
+        lane === "all" ? wire.stories : wire.stories.filter((s) => s.lanes.includes(lane)),
+      ),
+    [wire.stories, lane],
+  );
 
   async function refresh() {
     setRefreshing(true);
@@ -122,7 +138,9 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
   }
 
   async function readDesk() {
-    const headlines = (visible.length ? visible : wire.stories).slice(0, 12).map((story) => story.title);
+    const headlines = (visible.length ? visible : wire.stories)
+      .slice(0, 12)
+      .map((story) => story.title);
     setBriefing(true);
     setBriefError(null);
     try {
@@ -143,7 +161,10 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="flex items-center gap-2 text-xs font-medium tracking-widest text-signal uppercase">
-                <span className="swamp-pulse inline-block size-2 rounded-full bg-signal" aria-hidden="true" />
+                <span
+                  className="swamp-pulse inline-block size-2 rounded-full bg-signal"
+                  aria-hidden="true"
+                />
                 The desk
               </p>
               <h1 className="mt-2 font-display text-4xl leading-none text-fg md:text-6xl">
@@ -179,7 +200,10 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
                 disabled={refreshing}
                 className={`inline-flex min-h-11 items-center gap-2 rounded-full bg-surface px-4 text-sm font-medium text-fg transition-colors duration-200 hover:bg-surface-2 disabled:opacity-50 ${focusRing}`}
               >
-                <RefreshCw className={`size-4 ${refreshing ? "swamp-pulse" : ""}`} aria-hidden="true" />
+                <RefreshCw
+                  className={`size-4 ${refreshing ? "swamp-pulse" : ""}`}
+                  aria-hidden="true"
+                />
                 Refresh
               </button>
             </div>
@@ -218,7 +242,10 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
       </header>
 
       <main className="mx-auto grid max-w-6xl gap-6 px-4 py-5 md:px-8 md:py-7 lg:grid-cols-[11rem_minmax(0,1fr)_16rem]">
-        <nav aria-label="Lanes" className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
+        <nav
+          aria-label="Lanes"
+          className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible"
+        >
           <LaneButton active={lane === "all"} onClick={() => setLane("all")}>
             All wires
           </LaneButton>
@@ -233,7 +260,10 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <label className="relative min-w-0 flex-1">
               <span className="sr-only">Search headlines</span>
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" aria-hidden="true" />
+              <Search
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
+                aria-hidden="true"
+              />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -285,7 +315,9 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
             ) : null}
             <p className="text-xs text-muted">
               {visible.length} on the desk
-              {wire.fetchedAt ? <span suppressHydrationWarning> · {ago(wire.fetchedAt)} old pull</span> : null}
+              {wire.fetchedAt ? (
+                <span suppressHydrationWarning> · {ago(wire.fetchedAt)} old pull</span>
+              ) : null}
             </p>
           </div>
 
@@ -295,7 +327,9 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
             <div className="mt-6 rounded-card border border-dashed border-line px-5 py-10 text-center">
               <p className="font-display text-2xl text-fg">Nothing in this cut.</p>
               <p className="mt-2 text-sm text-muted">
-                {sort === "saved" ? "Pin a headline and it stays on this side of the desk." : "Widen the lane or clear the search."}
+                {sort === "saved"
+                  ? "Pin a headline and it stays on this side of the desk."
+                  : "Widen the lane or clear the search."}
               </p>
             </div>
           ) : (
@@ -306,7 +340,9 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
                   story={story}
                   pinned={savedIds.has(story.id)}
                   onPin={() => toggleSaved(story)}
-                  onTicker={(symbol) => setTicker((current) => (current === symbol ? null : symbol))}
+                  onTicker={(symbol) =>
+                    setTicker((current) => (current === symbol ? null : symbol))
+                  }
                 />
               ))}
             </ul>
@@ -315,11 +351,21 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
           {locked ? (
             <div className="mt-4 grid items-start gap-3 lg:grid-cols-2">
               <section className="rounded-card border border-line bg-surface px-5 py-6">
-                <p className="text-xs font-medium tracking-widest text-signal uppercase">Open tape</p>
-                <h2 className="mt-2 font-display text-3xl text-balance text-fg">The rest of the wire is the desk plan.</h2>
-                <p className="mt-2 max-w-lg text-sm text-pretty text-muted">
-                  Six headlines stay public. Monthly or annual membership opens every lane, the full heat sort, and the night note.
+                <p className="text-xs font-medium tracking-widest text-signal uppercase">
+                  Open tape
                 </p>
+                <h2 className="mt-2 font-display text-3xl text-balance text-fg">
+                  The rest of the wire is the desk plan.
+                </h2>
+                <p className="mt-2 max-w-lg text-sm text-pretty text-muted">
+                  Six headlines stay public. The full desk opens every lane, the full heat sort, and
+                  the night note.
+                </p>
+                <p className="mt-2 max-w-lg text-sm text-pretty text-fg">
+                  Try the full desk free for {MONTHLY_TRIAL_DAYS} days, then{" "}
+                  {formatMoney(PLANS.monthly.price)}/mo. Cancel anytime.
+                </p>
+                <FounderLine className="mt-2 text-sm text-signal" />
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     to="/join"
@@ -344,7 +390,9 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
 
         <aside className="space-y-4">
           <section className="rounded-card border border-line bg-surface p-4">
-            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Named in the wire</h2>
+            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">
+              Named in the wire
+            </h2>
             {tape.length === 0 ? (
               <p className="mt-3 text-sm text-muted">No clear tickers in this cut.</p>
             ) : (
@@ -353,23 +401,34 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
                   <li key={row.symbol} className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => setTicker((current) => (current === row.symbol ? null : row.symbol))}
+                      onClick={() =>
+                        setTicker((current) => (current === row.symbol ? null : row.symbol))
+                      }
                       className={`flex min-h-11 flex-1 items-center justify-between rounded-lg px-2 text-left text-sm transition-colors duration-200 ${focusRing} ${
                         ticker === row.symbol ? "bg-signal text-bg" : "text-fg hover:bg-surface-2"
                       }`}
                     >
                       <span className="font-semibold">{row.symbol}</span>
-                      <span className={ticker === row.symbol ? "text-bg" : "text-muted"}>{row.count}</span>
+                      <span className={ticker === row.symbol ? "text-bg" : "text-muted"}>
+                        {row.count}
+                      </span>
                     </button>
                     <button
                       type="button"
-                      aria-label={watch.includes(row.symbol) ? `Remove ${row.symbol} from watchlist` : `Watch ${row.symbol}`}
+                      aria-label={
+                        watch.includes(row.symbol)
+                          ? `Remove ${row.symbol} from watchlist`
+                          : `Watch ${row.symbol}`
+                      }
                       onClick={() => toggleWatch(row.symbol)}
                       className={`inline-flex size-11 items-center justify-center rounded-lg ${focusRing} ${
                         watch.includes(row.symbol) ? "text-signal" : "text-muted hover:text-fg"
                       }`}
                     >
-                      <Bookmark className="size-4" fill={watch.includes(row.symbol) ? "currentColor" : "none"} />
+                      <Bookmark
+                        className="size-4"
+                        fill={watch.includes(row.symbol) ? "currentColor" : "none"}
+                      />
                     </button>
                   </li>
                 ))}
@@ -377,7 +436,8 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
             )}
           </section>
           <p className="px-1 text-xs leading-relaxed text-muted">
-            Heat mixes freshness, sharp language, and whether a real name is in the headline. It is a sort, not advice.
+            Heat mixes freshness, sharp language, and whether a real name is in the headline. It is
+            a sort, not advice.
           </p>
         </aside>
       </main>
@@ -431,7 +491,9 @@ function StoryCard({
       </div>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className={`flex items-center gap-2 text-xs font-medium tracking-wide uppercase ${toneClass}`}>
+          <p
+            className={`flex items-center gap-2 text-xs font-medium tracking-wide uppercase ${toneClass}`}
+          >
             <ToneIcon className="size-3.5" aria-hidden="true" />
             {toneLabel(story.tone)} · {story.heat}
             <span className="text-muted" suppressHydrationWarning>
@@ -445,7 +507,10 @@ function StoryCard({
             className={`mt-1 block font-display text-xl leading-snug text-fg transition-colors duration-200 hover:text-signal md:text-2xl ${focusRing}`}
           >
             {story.title}
-            <ExternalLink className="ml-1 inline size-3.5 align-baseline text-muted" aria-hidden="true" />
+            <ExternalLink
+              className="ml-1 inline size-3.5 align-baseline text-muted"
+              aria-hidden="true"
+            />
           </a>
           <p className="mt-2 text-sm text-muted">{story.why}</p>
           {story.tickers.length ? (

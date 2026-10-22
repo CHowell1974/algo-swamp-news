@@ -278,7 +278,9 @@ function tokenIdentityKey(token: string): string {
             .digest("base64url");
         }
       }
-    } catch {}
+    } catch {
+      // The token is not a JWT. The hash below still identifies it.
+    }
   }
   return createHash("sha256").update(token).digest("base64url");
 }

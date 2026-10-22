@@ -8,6 +8,7 @@ Do not commit secrets. On the host, set:
 
 - `STRIPE_SECRET_KEY` — live secret key (`sk_live_…`)
 - `STRIPE_WEBHOOK_SECRET` — signing secret for `POST /api/stripe/webhook`
+- `STRIPE_FOUNDER_PROMO_ID` — optional promotion code id (`promo_…`) for the first monthly desks at the founding price. Leave it unset to charge the regular monthly price.
 
 Webhook events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`.
 
