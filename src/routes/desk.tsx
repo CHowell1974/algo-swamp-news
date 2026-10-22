@@ -47,7 +47,7 @@ function DeskPage() {
     return () => {
       cancelled = true;
     };
-  }, [sessionId, user?.id, isPending]);
+  }, [sessionId, user?.id, isPending, confirm, router]);
 
   return (
     <>

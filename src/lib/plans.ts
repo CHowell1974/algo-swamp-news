@@ -1,5 +1,8 @@
 export const OPEN_TAPE = 6;
 
+/** Monthly Checkout collects a card, then waits this many days before the first charge. */
+export const MONTHLY_TRIAL_DAYS = 7;
+
 export const PLANS = {
   monthly: {
     id: "monthly",
@@ -7,7 +10,8 @@ export const PLANS = {
     price: 29,
     cadence: "per month",
     days: 30,
-    detail: "Billed monthly through Stripe. Cancel and the desk stays up until that period ends.",
+    detail:
+      "7 days free, then $29 a month. Stripe collects a card now and charges after the trial. Cancel anytime before then and you are not charged.",
   },
   annual: {
     id: "annual",

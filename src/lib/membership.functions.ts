@@ -38,7 +38,8 @@ function asBool(value: boolean | string | number): boolean {
 }
 
 function checkoutError(cause: unknown, fallback: string): Error {
-  if (cause instanceof Error && cause.message.startsWith("Stripe checkout is not switched on")) return cause;
+  if (cause instanceof Error && cause.message.startsWith("Stripe checkout is not switched on"))
+    return cause;
   if (cause instanceof Error && cause.message.startsWith("This checkout")) return cause;
   if (cause instanceof Error && cause.message.startsWith("Checkout is not")) return cause;
   if (cause instanceof Error && cause.message.startsWith("Payment is still")) return cause;
@@ -71,6 +72,15 @@ export async function readMembership(userId: string): Promise<Membership> {
 export const getMembership = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => readMembership(context.userId));
+
+export const getFounderOffer = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const { readFounderOffer } = await import("./stripe.server");
+    return await readFounderOffer();
+  } catch {
+    return null;
+  }
+});
 
 export const beginCheckout = createServerFn({ method: "POST" })
   .middleware([authMiddleware])

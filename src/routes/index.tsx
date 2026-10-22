@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { FounderLine } from "@/components/founder-line";
 import { Masthead } from "@/components/masthead";
 import { fetchWire } from "@/lib/news.functions";
-import { annualSavings, formatMoney, PLANS } from "@/lib/plans";
+import { annualSavings, formatMoney, MONTHLY_TRIAL_DAYS, PLANS } from "@/lib/plans";
 import type { Story } from "@/lib/scan";
 
 export const Route = createFileRoute("/")({
@@ -24,15 +25,19 @@ function MarketHome() {
         <section className="mx-auto grid max-w-6xl gap-10 px-4 py-10 md:px-8 md:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-end">
           <div>
             <p className="flex items-center gap-2 text-xs font-medium tracking-widest text-signal uppercase">
-              <span className="swamp-pulse inline-block size-2 rounded-full bg-signal" aria-hidden="true" />
+              <span
+                className="swamp-pulse inline-block size-2 rounded-full bg-signal"
+                aria-hidden="true"
+              />
               Markets wire
             </p>
             <h1 className="mt-4 font-display text-5xl leading-none text-balance text-fg md:text-7xl">
               Read the heat before the open.
             </h1>
             <p className="mt-5 max-w-xl text-base text-pretty text-muted md:text-lg">
-              ALGO Swamp scores public headlines for freshness, sharp language, and named tickers. The open tape is free.
-              The desk is {formatMoney(PLANS.monthly.price)} a month.
+              ALGO Swamp scores public headlines for freshness, sharp language, and named tickers.
+              The open tape is free. The monthly desk is free for {MONTHLY_TRIAL_DAYS} days, then{" "}
+              {formatMoney(PLANS.monthly.price)} a month.
             </p>
             <div className="mt-7 flex flex-col items-start gap-3">
               <Link
@@ -40,7 +45,7 @@ function MarketHome() {
                 search={{ plan: "monthly" }}
                 className={`inline-flex min-h-11 items-center rounded-full bg-signal px-5 text-sm font-semibold text-bg ${focusRing}`}
               >
-                Start the desk · {formatMoney(PLANS.monthly.price)}/mo
+                Try the full desk · {MONTHLY_TRIAL_DAYS} days free
               </Link>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                 <Link
@@ -50,7 +55,10 @@ function MarketHome() {
                 >
                   or {formatMoney(PLANS.annual.price)}/yr, save {formatMoney(save)}
                 </Link>
-                <Link to="/desk" className={`inline-flex min-h-11 items-center text-sm text-muted ${focusRing}`}>
+                <Link
+                  to="/desk"
+                  className={`inline-flex min-h-11 items-center text-sm text-muted ${focusRing}`}
+                >
                   Open the tape
                 </Link>
               </div>
@@ -62,11 +70,26 @@ function MarketHome() {
         <section className="border-y border-line">
           <div className="mx-auto grid max-w-6xl md:grid-cols-3">
             {[
-              ["01", "Heat", "Freshness, sharp verbs, and whether a real name is in the line. A sort, not a signal."],
-              ["02", "Lanes", "Markets, macro, tech, crypto, energy, and earnings — cut from the same wire."],
-              ["03", "Night note", "On the desk plan, ask for a four-line read of whatever is on screen."],
+              [
+                "01",
+                "Heat",
+                "Freshness, sharp verbs, and whether a real name is in the line. A sort, not a signal.",
+              ],
+              [
+                "02",
+                "Lanes",
+                "Markets, macro, tech, crypto, energy, and earnings — cut from the same wire.",
+              ],
+              [
+                "03",
+                "Night note",
+                "On the desk plan, ask for a four-line read of whatever is on screen.",
+              ],
             ].map(([index, title, copy]) => (
-              <article key={title} className="border-b border-line px-4 py-8 md:border-b-0 md:border-l md:px-8 first:md:border-l-0">
+              <article
+                key={title}
+                className="border-b border-line px-4 py-8 md:border-b-0 md:border-l md:px-8 first:md:border-l-0"
+              >
                 <p className="font-display text-xl text-signal italic">{index}</p>
                 <h2 className="mt-3 font-display text-3xl text-fg">{title}</h2>
                 <p className="mt-2 text-sm text-pretty text-muted">{copy}</p>
@@ -78,10 +101,13 @@ function MarketHome() {
         <section id="pricing" className="mx-auto max-w-6xl scroll-mt-6 px-4 py-14 md:px-8">
           <div className="max-w-xl">
             <p className="text-xs font-medium tracking-widest text-muted uppercase">Pricing</p>
-            <h2 className="mt-3 font-display text-4xl text-balance text-fg md:text-5xl">One desk. Two ways to keep it.</h2>
+            <h2 className="mt-3 font-display text-4xl text-balance text-fg md:text-5xl">
+              One desk. Two ways to keep it.
+            </h2>
             <p className="mt-3 text-sm text-pretty text-muted">
-              The desk is {formatMoney(PLANS.monthly.price)} a month. Annual is {formatMoney(save)} less than twelve monthly payments.
-              Cancel either and the desk stays up through the period you started.
+              Monthly is free for {MONTHLY_TRIAL_DAYS} days, then {formatMoney(PLANS.monthly.price)}{" "}
+              a month. Annual is {formatMoney(save)} less than twelve monthly payments, with no
+              trial. Cancel and the desk stays up through the trial or the period you started.
             </p>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -103,8 +129,18 @@ function MarketHome() {
             />
           </div>
           <dl className="mt-8 grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2">
-            <Compare title="Open tape" items={["Six headlines", "Heat score on each", "No night note"]} />
-            <Compare title="Desk plan" items={["Full wire and all six lanes", "Ticker tape, pins, watchlist", "Night note on the stories in view"]} />
+            <Compare
+              title="Open tape"
+              items={["Six headlines", "Heat score on each", "No night note"]}
+            />
+            <Compare
+              title="Desk plan"
+              items={[
+                "Full wire and all six lanes",
+                "Ticker tape, pins, watchlist",
+                "Night note on the stories in view",
+              ]}
+            />
           </dl>
         </section>
 
@@ -113,13 +149,17 @@ function MarketHome() {
             <h2 className="font-display text-4xl text-fg">Before you start</h2>
             <div className="mt-6 divide-y divide-line border-y border-line">
               <Faq q="Is this trading advice?">
-                No. Heat is a way to sort public headlines. It is not a recommendation, a price target, or a signal to trade.
+                No. Heat is a way to sort public headlines. It is not a recommendation, a price
+                target, or a signal to trade.
               </Faq>
               <Faq q="What stays free?">
-                The open tape: six headlines with heat, tone, and tickers. Search and lanes work inside that cut.
+                The open tape: six headlines with heat, tone, and tickers. Search and lanes work
+                inside that cut.
               </Faq>
               <Faq q="What happens if I cancel?">
-                The desk stays open until the paid period ends. Cancel, switch, or update the card from Manage billing.
+                During the 7-day monthly trial, cancel in Stripe and the desk stays open until the
+                trial ends. You are not charged. After a paid period starts, the desk stays open
+                until that period ends.
               </Faq>
             </div>
           </div>
@@ -138,19 +178,26 @@ function Tape({ preview, failed }: { preview: Story[]; failed: boolean }) {
   return (
     <section className="rounded-card border border-line bg-surface p-4 md:p-5">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xs font-medium tracking-widest text-muted uppercase">On the tape now</h2>
+        <h2 className="text-xs font-medium tracking-widest text-muted uppercase">
+          On the tape now
+        </h2>
         <Link to="/desk" className={`text-sm text-signal ${focusRing}`}>
           Full tape
         </Link>
       </div>
       {failed || preview.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">The wire is quiet. The desk will fill when the next pull lands.</p>
+        <p className="mt-4 text-sm text-muted">
+          The wire is quiet. The desk will fill when the next pull lands.
+        </p>
       ) : (
         <ul className="mt-3 divide-y divide-line">
           {preview.map((story) => (
             <li key={story.id} className="py-3">
               <div className="mb-2 h-1 overflow-hidden rounded-full bg-surface-2">
-                <div className={`h-full ${story.tone === "hot" ? "bg-heat" : "bg-muted"}`} style={{ width: `${story.heat}%` }} />
+                <div
+                  className={`h-full ${story.tone === "hot" ? "bg-heat" : "bg-muted"}`}
+                  style={{ width: `${story.heat}%` }}
+                />
               </div>
               <p className="text-xs font-medium tracking-wide text-muted uppercase">
                 {story.tone} · {story.heat}
@@ -183,15 +230,20 @@ function PlanCard({
   emphasized?: boolean;
 }) {
   return (
-    <article className={`flex flex-col rounded-card border p-5 ${emphasized ? "border-signal bg-surface" : "border-line bg-surface"}`}>
+    <article
+      className={`flex flex-col rounded-card border p-5 ${emphasized ? "border-signal bg-surface" : "border-line bg-surface"}`}
+    >
       <p className="text-xs font-medium tracking-widest text-signal uppercase">{kicker}</p>
-      <h3 className="mt-3 font-display text-3xl text-fg">{plan === "annual" ? "Annual" : "Monthly"}</h3>
+      <h3 className="mt-3 font-display text-3xl text-fg">
+        {plan === "annual" ? "Annual" : "Monthly"}
+      </h3>
       <p className="mt-4 font-display text-5xl text-fg tabular-nums">
         {price}
         <span className="ml-2 font-sans text-sm font-medium text-muted">{cadence}</span>
       </p>
       {note ? <p className="mt-2 text-sm font-medium text-signal">{note}</p> : null}
       <p className="mt-3 text-sm text-pretty text-muted">{detail}</p>
+      {plan === "monthly" ? <FounderLine className="mt-2 text-sm text-signal" /> : null}
       <Link
         to="/join"
         search={{ plan }}
