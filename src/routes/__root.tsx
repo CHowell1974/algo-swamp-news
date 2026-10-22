@@ -1,9 +1,11 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
+import { formatMoney, PLANS } from "@/lib/plans";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "ALGO Swamp News";
+const DESCRIPTION = `ALGO Swamp scores public headlines for freshness, sharp language, and named tickers. The open tape is free. The desk is ${formatMoney(PLANS.monthly.price)}/mo. A sort, not a signal.`;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -11,10 +13,11 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: APP_NAME },
-      {
-        name: "description",
-        content: "A markets headline desk. The open tape is free. The full wire is a monthly or annual desk.",
-      },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: APP_NAME },
+      { property: "og:description", content: DESCRIPTION },
+      { name: "twitter:title", content: APP_NAME },
+      { name: "twitter:description", content: DESCRIPTION },
       { name: "theme-color", content: "#0c1410" },
     ],
     links: [
