@@ -67,9 +67,14 @@ export function etParts(now: Date): EtParts {
   return { year, month, day, hour, minute, weekday, ymd, label };
 }
 
-/** 8:30am America/New_York, with a few minutes of slack for cron drift. */
+/**
+ * 8:00–9:20am America/New_York, inclusive of 9:20.
+ * Hobby cron fires any time in the scheduled UTC hour, so the window is the
+ * whole 8am hour plus a short overlap into 9am.
+ */
 export function inSendWindow(parts: EtParts): boolean {
-  return parts.hour === 8 && parts.minute >= 25 && parts.minute <= 40;
+  if (parts.hour === 8) return true;
+  return parts.hour === 9 && parts.minute <= 20;
 }
 
 export function isWeekday(parts: EtParts): boolean {
@@ -188,8 +193,8 @@ export type SendGate =
   | { ok: false; reason: "weekend" | "nyse-holiday" | "outside-send-window"; tradingDay: string };
 
 /**
- * Weekday, not an NYSE holiday, and 8:30am Eastern.
- * A miss here must not write the once-a-day row: the other UTC cron slot may be the real open.
+ * Weekday, not an NYSE holiday, and inside 8:00–9:20am Eastern.
+ * A miss here must not write the once-a-day row: the other UTC hour may be the one that lands in the window.
  */
 export function gateSend(now: Date): SendGate {
   const parts = etParts(now);
@@ -221,9 +226,9 @@ export function tapeIsFresh(stories: { publishedAt: string }[], now: Date): bool
   return lines.length >= OPEN_TAPE && freshCount(lines, now) >= MIN_FRESH;
 }
 
-/** sent and dry_run close the day. failed can be retried. pending means a send is in flight. */
+/** A finished send, or one already in flight, closes the day. Anything else can still send. */
 export function blocksAnotherSend(status: string | null | undefined): boolean {
-  return status === "sent" || status === "dry_run" || status === "pending" || status === "skipped";
+  return status === "sent" || status === "pending";
 }
 
 export function escapeHtml(value: string): string {

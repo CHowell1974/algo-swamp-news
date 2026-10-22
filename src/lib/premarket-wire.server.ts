@@ -67,28 +67,25 @@ export async function runPremarketWire(now = new Date()): Promise<WireRun> {
   }
   if (!tapeIsFresh(tape.stories, now)) {
     console.log(`[premarket-wire] skip ${tradingDay}: lines-not-fresh`);
-    await noteSkip(tradingDay, "lines-not-fresh");
     return { ok: true, action: "skipped", reason: "lines-not-fresh", tradingDay, subject: null };
   }
 
   const subject = wireSubject(parts, tape.stories[0]?.title ?? "Markets");
-  const claimed = await claimDay(tradingDay, subject);
-  if (!claimed) {
-    console.log(`[premarket-wire] skip ${tradingDay}: already-recorded`);
-    return { ok: true, action: "skipped", reason: "already-recorded", tradingDay, subject };
-  }
-
   if (process.env.KIT_SEND_ENABLED !== "true") {
     console.log(`[premarket-wire] dry-run ${tradingDay}: ${subject}`);
-    await finish(tradingDay, "dry_run", null, "KIT_SEND_ENABLED is not true");
     return { ok: true, action: "dry_run", reason: "send-disabled", tradingDay, subject };
   }
 
   const apiKey = process.env.KIT_API_KEY;
   if (!apiKey) {
     console.log(`[premarket-wire] fail ${tradingDay}: KIT_API_KEY missing`);
-    await finish(tradingDay, "failed", null, "KIT_API_KEY missing");
     return { ok: false, action: "skipped", reason: "missing-api-key", tradingDay, subject };
+  }
+
+  const claimed = await claimDay(tradingDay, subject);
+  if (!claimed) {
+    console.log(`[premarket-wire] skip ${tradingDay}: already-recorded`);
+    return { ok: true, action: "skipped", reason: "already-recorded", tradingDay, subject };
   }
 
   try {
@@ -99,13 +96,13 @@ export async function runPremarketWire(now = new Date()): Promise<WireRun> {
       previewText: wirePreviewText(),
       now,
     });
-    await finish(tradingDay, "sent", broadcastId, null);
+    await markSent(tradingDay, broadcastId);
     console.log(`[premarket-wire] sent ${tradingDay} broadcast ${broadcastId}`);
     return { ok: true, action: "sent", reason: "broadcast-created", tradingDay, subject };
   } catch (error) {
     const detail = error instanceof Error ? error.message : "Kit request failed";
     console.log(`[premarket-wire] fail ${tradingDay}: ${detail}`);
-    await finish(tradingDay, "failed", null, detail.slice(0, 500));
+    await releaseClaim(tradingDay);
     return { ok: false, action: "skipped", reason: "kit-error", tradingDay, subject };
   }
 }
@@ -123,40 +120,32 @@ async function claimDay(tradingDay: string, subject: string): Promise<boolean> {
   const rows = await sql<{ status: string }>`
     select status from wire_sends where trading_day = ${tradingDay}::date
   `;
-  const status = rows[0]?.status ?? null;
-  if (blocksAnotherSend(status)) return false;
+  const status = rows[0]?.status;
+  if (!status || blocksAnotherSend(status)) return false;
 
   const retried = await sql<{ trading_day: string }>`
     update wire_sends
     set status = 'pending', subject = ${subject}, detail = null, broadcast_id = null, updated_at = now()
-    where trading_day = ${tradingDay}::date and status = 'failed'
+    where trading_day = ${tradingDay}::date and status = ${status}
     returning trading_day::text
   `;
   return retried.length > 0;
 }
 
-async function noteSkip(tradingDay: string, reason: string): Promise<void> {
-  const sql = await getSql();
-  await sql`
-    insert into wire_sends (trading_day, status, detail)
-    values (${tradingDay}::date, 'skipped', ${reason})
-    on conflict (trading_day) do update
-      set status = 'skipped', detail = excluded.detail, updated_at = now()
-      where wire_sends.status = 'failed'
-  `;
-}
-
-async function finish(
-  tradingDay: string,
-  status: "sent" | "dry_run" | "failed",
-  broadcastId: string | null,
-  detail: string | null,
-): Promise<void> {
+async function markSent(tradingDay: string, broadcastId: string): Promise<void> {
   const sql = await getSql();
   await sql`
     update wire_sends
-    set status = ${status}, broadcast_id = ${broadcastId}, detail = ${detail}, updated_at = now()
-    where trading_day = ${tradingDay}::date
+    set status = 'sent', broadcast_id = ${broadcastId}, detail = null, updated_at = now()
+    where trading_day = ${tradingDay}::date and status = 'pending'
+  `;
+}
+
+async function releaseClaim(tradingDay: string): Promise<void> {
+  const sql = await getSql();
+  await sql`
+    delete from wire_sends
+    where trading_day = ${tradingDay}::date and status = 'pending'
   `;
 }
 

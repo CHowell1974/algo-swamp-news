@@ -45,30 +45,38 @@ const parts: EtParts = {
 };
 
 describe("gateSend", () => {
-  it("accepts 12:30 UTC during EDT and rejects the 13:30 UTC slot", () => {
-    const open = gateSend(new Date("2026-07-15T12:30:00Z"));
-    const late = gateSend(new Date("2026-07-15T13:30:00Z"));
-    assert.equal(open.ok, true);
-    if (open.ok) assert.equal(open.parts.ymd, "2026-07-15");
-    assert.deepEqual(late, { ok: false, reason: "outside-send-window", tradingDay: "2026-07-15" });
-  });
-
-  it("accepts 13:30 UTC during EST and rejects the 12:30 UTC slot", () => {
-    const early = gateSend(new Date("2026-01-15T12:30:00Z"));
-    const open = gateSend(new Date("2026-01-15T13:30:00Z"));
-    assert.deepEqual(early, { ok: false, reason: "outside-send-window", tradingDay: "2026-01-15" });
+  it("accepts the whole 8:00–9:20am Eastern window", () => {
+    const open = gateSend(new Date("2026-07-15T12:00:00Z"));
+    const last = gateSend(new Date("2026-07-15T13:20:00Z"));
+    const after = gateSend(new Date("2026-07-15T13:21:00Z"));
     assert.equal(open.ok, true);
     if (open.ok) {
+      assert.equal(open.parts.ymd, "2026-07-15");
       assert.equal(open.parts.hour, 8);
-      assert.equal(open.parts.minute, 30);
+      assert.equal(open.parts.minute, 0);
     }
+    assert.equal(last.ok, true);
+    assert.deepEqual(after, { ok: false, reason: "outside-send-window", tradingDay: "2026-07-15" });
+  });
+
+  it("covers every minute of the 12:00 UTC hour during EDT and the 13:00 UTC hour during EST", () => {
+    for (let minute = 0; minute < 60; minute += 1) {
+      const mm = String(minute).padStart(2, "0");
+      assert.equal(gateSend(new Date(`2026-07-15T12:${mm}:30Z`)).ok, true, `EDT 12:${mm}`);
+      assert.equal(gateSend(new Date(`2026-01-15T13:${mm}:30Z`)).ok, true, `EST 13:${mm}`);
+      assert.equal(gateSend(new Date(`2026-01-15T12:${mm}:30Z`)).ok, false, `EST 12:${mm}`);
+    }
+    assert.equal(gateSend(new Date("2026-07-15T13:20:59Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-01-15T14:20:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-01-15T14:21:00Z")).ok, false);
   });
 
   it("follows the DST switch in March and November", () => {
-    assert.equal(gateSend(new Date("2026-03-09T12:30:00Z")).ok, true);
-    assert.equal(gateSend(new Date("2026-03-09T13:30:00Z")).ok, false);
-    assert.equal(gateSend(new Date("2026-11-02T12:30:00Z")).ok, false);
-    assert.equal(gateSend(new Date("2026-11-02T13:30:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-03-09T12:59:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-03-09T13:21:00Z")).ok, false);
+    assert.equal(gateSend(new Date("2026-11-02T12:59:00Z")).ok, false);
+    assert.equal(gateSend(new Date("2026-11-02T13:00:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-11-02T13:59:00Z")).ok, true);
   });
 
   it("skips weekends without treating them as a holiday", () => {
@@ -199,11 +207,11 @@ describe("email", () => {
 });
 
 describe("idempotency", () => {
-  it("blocks a second send after sent, dry-run, skip, or an in-flight pending row", () => {
+  it("closes the day only for a finished send or one already in flight", () => {
     assert.equal(blocksAnotherSend("sent"), true);
-    assert.equal(blocksAnotherSend("dry_run"), true);
-    assert.equal(blocksAnotherSend("skipped"), true);
     assert.equal(blocksAnotherSend("pending"), true);
+    assert.equal(blocksAnotherSend("dry_run"), false);
+    assert.equal(blocksAnotherSend("skipped"), false);
     assert.equal(blocksAnotherSend("failed"), false);
     assert.equal(blocksAnotherSend(null), false);
   });

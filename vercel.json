@@ -5,11 +5,11 @@
   "crons": [
     {
       "path": "/api/cron/premarket-wire",
-      "schedule": "30 12 * * 1-5"
+      "schedule": "0 12 * * 1-5"
     },
     {
       "path": "/api/cron/premarket-wire",
-      "schedule": "30 13 * * 1-5"
+      "schedule": "0 13 * * 1-5"
     }
   ]
 }
