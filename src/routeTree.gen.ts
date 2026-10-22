@@ -14,6 +14,7 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as DeskRouteImport } from './routes/desk'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as WireDotxmlRouteImport } from './routes/wire[.]xml'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCronPremarketWireRouteImport } from './routes/api/cron/premarket-wire'
@@ -43,6 +44,11 @@ const JoinRoute = JoinRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsRoute = ToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WireDotxmlRoute = WireDotxmlRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/tools': typeof ToolsRoute
   '/wire.xml': typeof WireDotxmlRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/tools': typeof ToolsRoute
   '/wire.xml': typeof WireDotxmlRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/tools': typeof ToolsRoute
   '/wire.xml': typeof WireDotxmlRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/tools'
     | '/wire.xml'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/tools'
     | '/wire.xml'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/tools'
     | '/wire.xml'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   DeskRoute: typeof DeskRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  ToolsRoute: typeof ToolsRoute
   WireDotxmlRoute: typeof WireDotxmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPremarketWireRoute: typeof ApiCronPremarketWireRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools': {
+      id: '/tools'
+      path: '/tools'
+      fullPath: '/tools'
+      preLoaderRoute: typeof ToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wire.xml': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeskRoute: DeskRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  ToolsRoute: ToolsRoute,
   WireDotxmlRoute: WireDotxmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPremarketWireRoute: ApiCronPremarketWireRoute,

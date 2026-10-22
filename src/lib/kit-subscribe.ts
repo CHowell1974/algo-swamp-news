@@ -1,14 +1,27 @@
 /**
- * Key-free subscribe for the Kit form at algo-swamp.kit.com (form 10083135).
+ * Key-free subscribe for Kit forms on algo-swamp.kit.com.
  *
- * The public form endpoint answers browser posts with CORS (`access-control-allow-origin: *`)
+ * The pre-market wire is form 10083135. The free Road Map study is form 10084236
+ * (public page uid 41181b4565). Both post to the same public subscriptions endpoint.
+ *
+ * That endpoint answers browser posts with CORS (`access-control-allow-origin: *`)
  * when the request matches Kit's own form script: multipart fields plus
  * `Accept: application/json` and `X-CKJS-Version`. A server-side proxy from a
  * datacenter address is sent to Kit's captcha gate, so the browser posts directly.
  */
 
 export const KIT_FORM_ID = "10083135";
-export const KIT_SUBSCRIBE_URL = `https://app.kit.com/forms/${KIT_FORM_ID}/subscriptions`;
+/** Free Road Map download. Same endpoint shape as the pre-market wire form. */
+export const ROAD_MAP_FORM_ID = "10084236";
+
+export function kitFormSubscribeUrl(formId: string): string {
+  if (!/^\d+$/.test(formId)) {
+    throw new Error("Invalid Kit form.");
+  }
+  return `https://app.kit.com/forms/${formId}/subscriptions`;
+}
+
+export const KIT_SUBSCRIBE_URL = kitFormSubscribeUrl(KIT_FORM_ID);
 
 const KIT_HOST = "app.kit.com";
 const VISITOR_KEY = "ckid";
@@ -78,7 +91,10 @@ function visitorId(): string {
   }
 }
 
-export async function subscribeToFreeWire(email: string): Promise<KitSubscribeOutcome> {
+export async function subscribeToKitForm(
+  formId: string,
+  email: string,
+): Promise<KitSubscribeOutcome> {
   const body = new FormData();
   body.append("email_address", email.trim());
   body.append("token", "");
@@ -90,7 +106,7 @@ export async function subscribeToFreeWire(email: string): Promise<KitSubscribeOu
 
   let response: Response;
   try {
-    response = await fetch(KIT_SUBSCRIBE_URL, {
+    response = await fetch(kitFormSubscribeUrl(formId), {
       method: "POST",
       body,
       headers: {
@@ -109,4 +125,8 @@ export async function subscribeToFreeWire(email: string): Promise<KitSubscribeOu
     return { kind: "error", raw: null };
   }
   return interpretKitResponse(response.status, payload);
+}
+
+export function subscribeToFreeWire(email: string): Promise<KitSubscribeOutcome> {
+  return subscribeToKitForm(KIT_FORM_ID, email);
 }
