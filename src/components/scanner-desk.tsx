@@ -323,17 +323,17 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     to="/join"
-                    search={{ plan: "annual" }}
+                    search={{ plan: "monthly" }}
                     className={`inline-flex min-h-11 items-center rounded-full bg-signal px-4 text-sm font-semibold text-bg ${focusRing}`}
                   >
-                    Annual desk
+                    Monthly desk
                   </Link>
                   <Link
                     to="/join"
-                    search={{ plan: "monthly" }}
+                    search={{ plan: "annual" }}
                     className={`inline-flex min-h-11 items-center rounded-full bg-surface-2 px-4 text-sm font-medium text-fg ${focusRing}`}
                   >
-                    Monthly desk
+                    Annual desk
                   </Link>
                 </div>
               </section>
