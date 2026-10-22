@@ -32,22 +32,28 @@ function MarketHome() {
             </h1>
             <p className="mt-5 max-w-xl text-base text-pretty text-muted md:text-lg">
               ALGO Swamp scores public headlines for freshness, sharp language, and named tickers. The open tape is free.
-              The full desk is monthly or annual.
+              The desk is {formatMoney(PLANS.monthly.price)} a month.
             </p>
-            <div className="mt-7 flex flex-wrap gap-2">
+            <div className="mt-7 flex flex-col items-start gap-3">
               <Link
                 to="/join"
-                search={{ plan: "annual" }}
+                search={{ plan: "monthly" }}
                 className={`inline-flex min-h-11 items-center rounded-full bg-signal px-5 text-sm font-semibold text-bg ${focusRing}`}
               >
-                Start annual · {formatMoney(PLANS.annual.price)}
+                Start the desk · {formatMoney(PLANS.monthly.price)}/mo
               </Link>
-              <Link
-                to="/desk"
-                className={`inline-flex min-h-11 items-center rounded-full bg-surface px-5 text-sm font-medium text-fg ${focusRing}`}
-              >
-                Open the tape
-              </Link>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <Link
+                  to="/join"
+                  search={{ plan: "annual" }}
+                  className={`inline-flex min-h-11 items-center text-sm font-medium text-fg ${focusRing}`}
+                >
+                  or {formatMoney(PLANS.annual.price)}/yr, save {formatMoney(save)}
+                </Link>
+                <Link to="/desk" className={`inline-flex min-h-11 items-center text-sm text-muted ${focusRing}`}>
+                  Open the tape
+                </Link>
+              </div>
             </div>
           </div>
           <Tape preview={preview} failed={!wire.ok} />
@@ -74,24 +80,26 @@ function MarketHome() {
             <p className="text-xs font-medium tracking-widest text-muted uppercase">Pricing</p>
             <h2 className="mt-3 font-display text-4xl text-balance text-fg md:text-5xl">One desk. Two ways to keep it.</h2>
             <p className="mt-3 text-sm text-pretty text-muted">
-              Annual is {formatMoney(save)} less than twelve monthly payments. Cancel either and the desk stays up through the period you started.
+              The desk is {formatMoney(PLANS.monthly.price)} a month. Annual is {formatMoney(save)} less than twelve monthly payments.
+              Cancel either and the desk stays up through the period you started.
             </p>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <PlanCard
-              plan="annual"
-              kicker="Best rate"
-              price={formatMoney(PLANS.annual.price)}
-              cadence={PLANS.annual.cadence}
-              detail={PLANS.annual.detail}
-              emphasized
-            />
             <PlanCard
               plan="monthly"
               kicker="Month to month"
               price={formatMoney(PLANS.monthly.price)}
               cadence={PLANS.monthly.cadence}
               detail={PLANS.monthly.detail}
+              emphasized
+            />
+            <PlanCard
+              plan="annual"
+              kicker="Best rate"
+              price={formatMoney(PLANS.annual.price)}
+              cadence={PLANS.annual.cadence}
+              detail={PLANS.annual.detail}
+              note={`Save ${formatMoney(save)} versus twelve months.`}
             />
           </div>
           <dl className="mt-8 grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2">
@@ -163,6 +171,7 @@ function PlanCard({
   price,
   cadence,
   detail,
+  note,
   emphasized,
 }: {
   plan: "monthly" | "annual";
@@ -170,6 +179,7 @@ function PlanCard({
   price: string;
   cadence: string;
   detail: string;
+  note?: string;
   emphasized?: boolean;
 }) {
   return (
@@ -180,6 +190,7 @@ function PlanCard({
         {price}
         <span className="ml-2 font-sans text-sm font-medium text-muted">{cadence}</span>
       </p>
+      {note ? <p className="mt-2 text-sm font-medium text-signal">{note}</p> : null}
       <p className="mt-3 text-sm text-pretty text-muted">{detail}</p>
       <Link
         to="/join"
