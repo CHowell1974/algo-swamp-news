@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Bookmark, ExternalLink, Radio, RefreshCw, Search, Snowflake, Flame } from "lucide-react";
+import { FreeWireSignup } from "@/components/free-wire-signup";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { briefWire, fetchMemberWire, fetchWire } from "@/lib/news.functions";
 import { LANES, rankTickers, type LaneId, type Story } from "@/lib/scan";
@@ -312,29 +313,32 @@ export function ScannerDesk({ initial, refreshToken = 0 }: { initial: Wire; refr
           )}
 
           {locked ? (
-            <section className="mt-4 rounded-card border border-line bg-surface px-5 py-6">
-              <p className="text-xs font-medium tracking-widest text-signal uppercase">Open tape</p>
-              <h2 className="mt-2 font-display text-3xl text-balance text-fg">The rest of the wire is the desk plan.</h2>
-              <p className="mt-2 max-w-lg text-sm text-pretty text-muted">
-                Six headlines stay public. Monthly or annual membership opens every lane, the full heat sort, and the night note.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  to="/join"
-                  search={{ plan: "annual" }}
-                  className={`inline-flex min-h-11 items-center rounded-full bg-signal px-4 text-sm font-semibold text-bg ${focusRing}`}
-                >
-                  Annual desk
-                </Link>
-                <Link
-                  to="/join"
-                  search={{ plan: "monthly" }}
-                  className={`inline-flex min-h-11 items-center rounded-full bg-surface-2 px-4 text-sm font-medium text-fg ${focusRing}`}
-                >
-                  Monthly desk
-                </Link>
-              </div>
-            </section>
+            <div className="mt-4 grid items-start gap-3 lg:grid-cols-2">
+              <section className="rounded-card border border-line bg-surface px-5 py-6">
+                <p className="text-xs font-medium tracking-widest text-signal uppercase">Open tape</p>
+                <h2 className="mt-2 font-display text-3xl text-balance text-fg">The rest of the wire is the desk plan.</h2>
+                <p className="mt-2 max-w-lg text-sm text-pretty text-muted">
+                  Six headlines stay public. Monthly or annual membership opens every lane, the full heat sort, and the night note.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link
+                    to="/join"
+                    search={{ plan: "annual" }}
+                    className={`inline-flex min-h-11 items-center rounded-full bg-signal px-4 text-sm font-semibold text-bg ${focusRing}`}
+                  >
+                    Annual desk
+                  </Link>
+                  <Link
+                    to="/join"
+                    search={{ plan: "monthly" }}
+                    className={`inline-flex min-h-11 items-center rounded-full bg-surface-2 px-4 text-sm font-medium text-fg ${focusRing}`}
+                  >
+                    Monthly desk
+                  </Link>
+                </div>
+              </section>
+              <FreeWireSignup />
+            </div>
           ) : null}
         </section>
 
