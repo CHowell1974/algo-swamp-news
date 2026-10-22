@@ -164,11 +164,44 @@ function MarketHome() {
             </div>
           </div>
         </section>
+
+        <section aria-labelledby="tools-teaser-title" className="border-t border-line">
+          <div className="mx-auto grid max-w-6xl items-center gap-5 px-4 py-10 md:grid-cols-[11rem_minmax(0,1fr)] md:px-8 md:py-12">
+            <img
+              src="/road-map.webp"
+              alt="thinkorswim chart with yellow inside bars and an orange outside bar"
+              width={1600}
+              height={900}
+              loading="lazy"
+              decoding="async"
+              className="w-full rounded-card border border-line"
+            />
+            <div>
+              <p className="text-xs font-medium tracking-widest text-muted uppercase">Tools</p>
+              <h2 id="tools-teaser-title" className="mt-2 font-display text-3xl text-fg">
+                Road Map
+              </h2>
+              <p className="mt-2 max-w-xl text-sm text-pretty text-muted">
+                A thinkorswim study. Inside bars in yellow, outside bars in orange. Free, or $39
+                once for Pro.
+              </p>
+              <Link
+                to="/tools"
+                className={`mt-2 inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
+              >
+                See the tools
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
       <footer className="border-t border-line">
-        <p className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted md:px-8">
-          Public wires only. A sort, not a signal.
-        </p>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-6 text-xs text-muted md:px-8">
+          <p>Public wires only. A sort, not a signal.</p>
+          <Link to="/tools" className={`inline-flex min-h-11 items-center ${focusRing}`}>
+            Tools
+          </Link>
+        </div>
       </footer>
     </div>
   );

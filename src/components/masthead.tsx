@@ -11,10 +11,16 @@ export function Masthead() {
   return (
     <header className="border-b border-line">
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 md:gap-3 md:px-8">
-        <a href="https://algoswamp.com" className={`shrink-0 font-display text-xl leading-none text-fg ${focusRing}`}>
+        <a
+          href="https://algoswamp.com"
+          className={`shrink-0 font-display text-xl leading-none text-fg ${focusRing}`}
+        >
           ALGO <span className="italic text-signal">Swamp</span>
         </a>
-        <nav aria-label="Desk" className="flex min-w-0 flex-1 items-center justify-end gap-1 overflow-x-auto">
+        <nav
+          aria-label="Desk"
+          className="flex min-w-0 flex-1 items-center justify-end gap-1 overflow-x-auto"
+        >
           <Link
             to="/desk"
             className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-3 text-sm font-medium text-fg ${focusRing}`}
@@ -27,6 +33,12 @@ export function Masthead() {
             className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-3 text-sm font-medium text-muted ${focusRing}`}
           >
             Pricing
+          </Link>
+          <Link
+            to="/tools"
+            className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-3 text-sm font-medium text-muted ${focusRing}`}
+          >
+            Tools
           </Link>
           {user ? (
             <Link

@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { interpretKitResponse, isKitCheckUrl, isValidEmail } from "./kit-subscribe.ts";
+import {
+  interpretKitResponse,
+  isKitCheckUrl,
+  isValidEmail,
+  kitFormSubscribeUrl,
+  ROAD_MAP_FORM_ID,
+} from "./kit-subscribe.ts";
 
 const success = {
   consent: { enabled: false, url: "https://app.kit.com/forms/consents/abc?redirect=1" },
@@ -15,6 +21,16 @@ describe("isValidEmail", () => {
     assert.equal(isValidEmail("not-an-email"), false);
     assert.equal(isValidEmail("a@b"), false);
     assert.equal(isValidEmail("a b@desk.com"), false);
+  });
+});
+
+describe("kitFormSubscribeUrl", () => {
+  it("builds the public subscriptions endpoint and rejects a non-numeric id", () => {
+    assert.equal(
+      kitFormSubscribeUrl(ROAD_MAP_FORM_ID),
+      "https://app.kit.com/forms/10084236/subscriptions",
+    );
+    assert.throws(() => kitFormSubscribeUrl("41181b4565"), /Invalid Kit form/);
   });
 });
 
