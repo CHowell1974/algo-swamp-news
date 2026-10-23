@@ -6,12 +6,14 @@ import { ScannerDesk } from "@/components/scanner-desk";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { confirmCheckout } from "@/lib/membership.functions";
 import { fetchWire } from "@/lib/news.functions";
+import { DESK_PAGE, routeHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/desk")({
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => {
     const raw = typeof search.session_id === "string" ? search.session_id : "";
     return raw.startsWith("cs_") ? { session_id: raw } : {};
   },
+  head: () => routeHead(DESK_PAGE),
   loader: () => fetchWire(),
   component: DeskPage,
 });

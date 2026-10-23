@@ -1,0 +1,9 @@
+# https://news.algoswamp.com/robots.txt
+User-agent: *
+Allow: /
+
+# Block non-content / build artifacts if crawlers hit them
+Disallow: /assets/
+Disallow: /__grok/
+
+Sitemap: https://news.algoswamp.com/sitemap.xml

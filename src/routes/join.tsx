@@ -14,11 +14,13 @@ import {
   type Membership,
 } from "@/lib/membership.functions";
 import { formatMoney, formatWhen, MONTHLY_TRIAL_DAYS, PLANS, type PlanId } from "@/lib/plans";
+import { joinPage, routeHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/join")({
   validateSearch: (search: Record<string, unknown>): { plan: PlanId } => ({
     plan: search.plan === "monthly" ? "monthly" : "annual",
   }),
+  head: ({ match }) => routeHead(joinPage(match.search.plan)),
   component: JoinPage,
 });
 

@@ -4,18 +4,10 @@ import { KitEmailForm } from "@/components/kit-email-form";
 import { Masthead } from "@/components/masthead";
 import { ROAD_MAP_FORM_ID } from "@/lib/kit-subscribe";
 import { MONTHLY_TRIAL_DAYS } from "@/lib/plans";
+import { TOOLS_PAGE, routeHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/tools")({
-  head: () => ({
-    meta: [
-      { title: "Tools · ALGO Swamp News" },
-      {
-        name: "description",
-        content:
-          "Road Map is a thinkorswim study. Inside bars paint yellow and outside bars paint orange. Free by email, or Pro for $39 once.",
-      },
-    ],
-  }),
+  head: () => routeHead(TOOLS_PAGE),
   component: ToolsPage,
 });
 
