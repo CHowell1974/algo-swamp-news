@@ -351,15 +351,52 @@ function applyCustomCardFromFs(site, cwd) {
   return { ...site, card: "custom", image: disk };
 }
 
+/**
+ * Share-card title. A route `<title>` wins so each page can unfurl its own
+ * headline. `site.json` title remains the fallback when the document has none
+ * (PWA chrome still uses `resolveOgTitle`, which prefers the site name).
+ */
+export function shareTitle(site = {}, appName = DEFAULT_APP_NAME, host = "", documentTitle = "") {
+  const fromDoc = String(documentTitle ?? "").trim();
+  if (fromDoc) return fromDoc;
+  return resolveOgTitle(site, appName, host, "");
+}
+
+/** Absolute URL from `og:url`, otherwise the canonical link. */
+export function pageUrlFromDocument(html) {
+  const source = String(html ?? "");
+  const metas = source.match(/<meta\b[^>]*>/gi) ?? [];
+  for (const tag of metas) {
+    const key = (attrFromTag(tag, "property") || attrFromTag(tag, "name")).toLowerCase();
+    if (key !== "og:url") continue;
+    const content = attrFromTag(tag, "content");
+    if (content) return content;
+  }
+  const links = source.match(/<link\b[^>]*>/gi) ?? [];
+  for (const tag of links) {
+    const rel = attrFromTag(tag, "rel").toLowerCase().split(/\s+/);
+    if (!rel.includes("canonical")) continue;
+    const href = attrFromTag(tag, "href");
+    if (href) return href;
+  }
+  return "";
+}
+
+function attrFromTag(tag, name) {
+  const match = String(tag).match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, "i"));
+  return match ? unescapeHtml(match[2]).trim() : "";
+}
+
 export function grokOgHeadTags({
   host = "",
   appName = DEFAULT_APP_NAME,
   site = {},
   documentTitle = "",
   documentDescription = "",
+  pageUrl = "",
   cwd = process.cwd(),
 } = {}) {
-  const title = resolveOgTitle(site, appName, host, documentTitle);
+  const title = shareTitle(site, appName, host, documentTitle);
   const publicHost = resolvePublicHost(host);
   const tags = [
     `<meta name="twitter:card" content="summary_large_image">`,
@@ -373,6 +410,12 @@ export function grokOgHeadTags({
   if (description) {
     tags.push(`<meta property="og:description" content="${escapeHtml(description)}">`);
     tags.push(`<meta name="twitter:description" content="${escapeHtml(description)}">`);
+  }
+  // Share metas are stripped before this runs. Put og:url back from the page
+  // (explicit og:url, else canonical) so a route head is not dropped.
+  const shareUrl = String(pageUrl ?? "").trim();
+  if (/^https?:\/\//i.test(shareUrl)) {
+    tags.push(`<meta property="og:url" content="${escapeHtml(shareUrl)}">`);
   }
   if (String(site.type ?? "").toLowerCase() === "x:game") {
     tags.push(`<meta property="og:type" content="x:game">`);
@@ -458,6 +501,7 @@ export function injectGrokPwaHead(html, ctx = {}) {
   const { site, projectId, creator, creatorId, host, cwd } = normalizeHeadContext(ctx);
   const documentTitle = titleFromDocument(html);
   const documentDescription = descriptionFromDocument(html);
+  const pageUrl = pageUrlFromDocument(html);
   const appName = resolveOgTitle(
     site,
     ctx.appName ?? DEFAULT_APP_NAME,
@@ -477,7 +521,7 @@ export function injectGrokPwaHead(html, ctx = {}) {
 
   next = insertAfterHeadOpen(
     next,
-    grokOgHeadTags({ host, appName, site, documentTitle, documentDescription, cwd }).join(""),
+    grokOgHeadTags({ host, appName, site, documentTitle, documentDescription, pageUrl, cwd }).join(""),
   );
 
   if (readGrokExtensionsEnabled() && !next.includes("/grok-app-builder/extensions.js")) {

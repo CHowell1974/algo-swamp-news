@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { formatMoney, PLANS } from "@/lib/plans";
+import { OG_IMAGE } from "@/lib/seo";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "ALGO Swamp News";
@@ -17,8 +18,11 @@ export const Route = createRootRoute({
       { name: "description", content: DESCRIPTION },
       { property: "og:title", content: APP_NAME },
       { property: "og:description", content: DESCRIPTION },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: APP_NAME },
       { name: "twitter:description", content: DESCRIPTION },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
       { name: "theme-color", content: "#0c1410" },
     ],
     links: [

@@ -4,8 +4,10 @@ import { Masthead } from "@/components/masthead";
 import { fetchWire } from "@/lib/news.functions";
 import { annualSavings, formatMoney, MONTHLY_TRIAL_DAYS, PLANS } from "@/lib/plans";
 import type { Story } from "@/lib/scan";
+import { HOME_PAGE, routeHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
+  head: () => routeHead(HOME_PAGE),
   loader: () => fetchWire(),
   component: MarketHome,
 });

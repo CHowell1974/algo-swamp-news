@@ -1,0 +1,187 @@
+import type { PlanId } from "@/lib/plans";
+
+type HeadMeta =
+  | { title: string }
+  | { name: string; content: string }
+  | { property: string; content: string };
+
+/** Public news origin. Share cards stay on this host, not a preview hostname. */
+export const SITE_ORIGIN = "https://news.algoswamp.com";
+export const OG_IMAGE = `${SITE_ORIGIN}/og.jpg`;
+
+export type PageSeo = {
+  title: string;
+  description: string;
+  /** Path plus optional query, beginning with `/`. */
+  pathname: string;
+  robots?: string;
+  jsonLd?: unknown;
+};
+
+export function pageUrl(pathname: string): string {
+  return `${SITE_ORIGIN}${pathname}`;
+}
+
+/** Route `head()` payload. TanStack Start renders this into the SSR document. */
+export function routeHead(page: PageSeo): {
+  meta: HeadMeta[];
+  links: Array<{ rel: string; href: string }>;
+  scripts?: Array<{ type: string; children: string }>;
+} {
+  const url = pageUrl(page.pathname);
+  const meta: HeadMeta[] = [
+    { title: page.title },
+    { name: "description", content: page.description },
+    { property: "og:title", content: page.title },
+    { property: "og:description", content: page.description },
+    { property: "og:url", content: url },
+    { property: "og:image", content: OG_IMAGE },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: page.title },
+    { name: "twitter:description", content: page.description },
+    { name: "twitter:image", content: OG_IMAGE },
+  ];
+  if (page.robots) meta.push({ name: "robots", content: page.robots });
+  return {
+    meta,
+    links: [{ rel: "canonical", href: url }],
+    scripts:
+      page.jsonLd === undefined
+        ? undefined
+        : [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify(page.jsonLd).replaceAll("<", "\\u003c"),
+            },
+          ],
+  };
+}
+
+export const HOME_PAGE: PageSeo = {
+  title: "ALGO Swamp News Desk — Free Tape + Desk from $29/mo",
+  description:
+    "Pre-market headline desk: heat scores, named tickers, six free lines. Full desk free 7 days, then $29/mo (or $249/yr). A sort, not a signal.",
+  pathname: "/",
+  jsonLd: {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://news.algoswamp.com/#desk",
+        name: "ALGO Swamp News Desk",
+        applicationCategory: "FinanceApplication",
+        operatingSystem: "Web",
+        url: "https://news.algoswamp.com/",
+        description:
+          "Scores public headlines for freshness, sharp language, and named tickers. Open tape free; full desk from $29/mo.",
+        offers: [
+          {
+            "@type": "Offer",
+            name: "Open tape",
+            price: "0",
+            priceCurrency: "USD",
+            description: "Six headlines with heat, tone, and tickers",
+          },
+          {
+            "@type": "Offer",
+            name: "Monthly desk",
+            price: "29.00",
+            priceCurrency: "USD",
+            url: "https://news.algoswamp.com/join?plan=monthly",
+            description: "7 days free, then $29 per month",
+          },
+          {
+            "@type": "Offer",
+            name: "Annual desk",
+            price: "249.00",
+            priceCurrency: "USD",
+            url: "https://news.algoswamp.com/join?plan=annual",
+            description: "$249 per year — $99 less than twelve monthly payments",
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://news.algoswamp.com/#faq",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Is this trading advice?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. Heat is a way to sort public headlines. It is not a recommendation, a price target, or a signal to trade.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "What stays free?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "The open tape: six headlines with heat, tone, and tickers. Search and lanes work inside that cut.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "What happens if I cancel?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "During the 7-day monthly trial, cancel in Stripe and the desk stays open until the trial ends. You are not charged. After a paid period starts, the desk stays open until that period ends.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+
+export const DESK_PAGE: PageSeo = {
+  title: "Live Headline Desk — Heat, Tickers & Lanes — ALGO Swamp",
+  description:
+    "Live wires scored for heat, tone, and named tickers across markets, macro, tech, crypto, energy, and earnings. Free open tape; full desk $29/mo.",
+  pathname: "/desk",
+};
+
+export const TOOLS_PAGE: PageSeo = {
+  title: "Road Map thinkorswim Study — Tools — ALGO Swamp News",
+  description:
+    "Road Map paints inside bars yellow and outside bars orange in thinkorswim. Free by email, or Pro $39 once — colors, alerts, scan. Not trading advice.",
+  pathname: "/tools",
+  jsonLd: {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Road Map Pro",
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "thinkorswim",
+    url: "https://news.algoswamp.com/tools",
+    description:
+      "thinkorswim study: inside bars yellow, outside bars orange, plus Pro custom colors, alerts, scan, and watchlist column.",
+    offers: {
+      "@type": "Offer",
+      price: "39.00",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      url: "https://news.algoswamp.com/tools",
+    },
+  },
+};
+
+const JOIN_ROBOTS = "noindex,follow";
+
+export function joinPage(plan: PlanId): PageSeo {
+  if (plan === "monthly") {
+    return {
+      title: "Start Monthly Desk — 7 Days Free — ALGO Swamp News",
+      description:
+        "Start the ALGO Swamp monthly desk: 7 days free, then $29/mo via Stripe. Full wire, lanes, watchlist, night note. Cancel anytime before you’re charged.",
+      pathname: "/join?plan=monthly",
+      robots: JOIN_ROBOTS,
+    };
+  }
+  return {
+    title: "Start Annual Desk — $249/yr — ALGO Swamp News Desk",
+    description:
+      "Lock in the ALGO Swamp annual desk for $249/yr — save $99 vs twelve months. Full wire, lanes, watchlist, night note. Billed once via Stripe.",
+    pathname: "/join?plan=annual",
+    robots: JOIN_ROBOTS,
+  };
+}

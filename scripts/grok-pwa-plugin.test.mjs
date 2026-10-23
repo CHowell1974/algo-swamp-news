@@ -596,3 +596,42 @@ test("vite plugin bakes og identity as a virtual module", () => {
   assert.match(plugin, /snapshotOgIdentity/);
 });
 
+test("a route title beats site.json and canonical is re-emitted as og:url", () => {
+  const html =
+    "<html><head><title>Live Headline Desk</title>" +
+    '<meta name="description" content="Live wires.">' +
+    '<meta name="robots" content="noindex,follow">' +
+    '<link rel="canonical" href="https://news.algoswamp.com/desk">' +
+    "</head></html>";
+  const ctx = {
+    host: "news.algoswamp.com",
+    cwd: blankWorkspace(),
+    site: { title: "ALGO Swamp News", description: "", card: "custom" },
+  };
+  const out = injectGrokPwaHead(html, ctx);
+  assert.match(out, /<title>Live Headline Desk<\/title>/);
+  assert.match(out, /property="og:title" content="Live Headline Desk"/);
+  assert.doesNotMatch(out, /property="og:title" content="ALGO Swamp News"/);
+  assert.match(out, /property="og:description" content="Live wires\."/);
+  assert.match(out, /property="og:url" content="https:\/\/news\.algoswamp\.com\/desk"/);
+  assert.match(out, /rel="canonical" href="https:\/\/news\.algoswamp\.com\/desk"/);
+  assert.match(out, /name="robots" content="noindex,follow"/);
+  assert.match(out, /property="og:image" content="https:\/\/news\.algoswamp\.com\/og\.jpg"/);
+  assert.equal(out.split('property="og:url"').length - 1, 1);
+  assert.equal(injectGrokPwaHead(out, ctx), out);
+});
+
+test("an explicit og:url wins over a different canonical and stays singular", () => {
+  const html =
+    '<html><head><title>Monthly</title>' +
+    '<link rel="canonical" href="https://news.algoswamp.com/join?plan=annual">' +
+    '<meta property="og:url" content="https://news.algoswamp.com/join?plan=monthly">' +
+    "</head></html>";
+  const ctx = { cwd: blankWorkspace(), site: { title: "ALGO Swamp News" } };
+  const out = injectGrokPwaHead(html, ctx);
+  assert.match(out, /property="og:url" content="https:\/\/news\.algoswamp\.com\/join\?plan=monthly"/);
+  assert.match(out, /rel="canonical" href="https:\/\/news\.algoswamp\.com\/join\?plan=annual"/);
+  assert.equal(out.split('property="og:url"').length - 1, 1);
+  assert.equal(injectGrokPwaHead(out, ctx), out);
+});
+
