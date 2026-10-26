@@ -24,7 +24,7 @@ export const MODULE_SEO: ModuleSeo[] = [
     h1: "Calls and Puts Explained",
     title: "Calls and Puts Explained for Beginners — Options 101",
     description:
-      "Calls and puts explained: what each gives the buyer, which way the stock must move, and how to find break-even at expiration. Options 101, Module 2.",
+      "Calls and puts explained: what each gives the buyer, which way the stock must move, and how to find break-even at expiration. Free Options 101 lesson.",
   },
   {
     id: "m3-strike-expiration-premium",
@@ -74,7 +74,7 @@ export function moduleSeo(id: string): ModuleSeo | undefined {
   return MODULE_SEO.find((m) => m.id === id);
 }
 
-/** Only Module 1 (index 0) is a public preview. Decide by index, never by the viewer's access. */
+/** Modules 1 and 2 (indexes 0 and 1) are public previews. Decide by index, never by the viewer's access. */
 export function moduleRobots(index: number): string | undefined {
-  return index === 0 ? undefined : "noindex,follow";
+  return index <= 1 ? undefined : "noindex,follow";
 }

@@ -88,9 +88,10 @@ describe("options 101 content", () => {
 });
 
 describe("course access", () => {
-  it("keeps module 1 open and locks the rest until the desk or a purchase", () => {
+  it("keeps modules 1 and 2 open and locks the rest until the desk or a purchase", () => {
     assert.equal(canReadModule(0, false), true);
-    assert.equal(canReadModule(1, false), false);
+    assert.equal(canReadModule(1, false), true);
+    assert.equal(canReadModule(2, false), false);
     assert.equal(canReadModule(7, false), false);
     assert.equal(canReadModule(7, true), true);
     assert.equal(
@@ -140,11 +141,23 @@ describe("course access", () => {
       id: "m1",
       label: "start",
     });
+    assert.deepEqual(
+      continueTarget(
+        [
+          { id: "m1", completed: true, locked: false },
+          { id: "m2", completed: false, locked: false },
+          { id: "m3", completed: false, locked: true },
+        ],
+        false,
+      ),
+      { kind: "module", id: "m2", label: "continue" },
+    );
     assert.equal(
       continueTarget(
         [
           { id: "m1", completed: true, locked: false },
-          { id: "m2", completed: false, locked: true },
+          { id: "m2", completed: true, locked: false },
+          { id: "m3", completed: false, locked: true },
         ],
         false,
       ).kind,

@@ -156,7 +156,7 @@ export const COURSE_FAQ: { question: string; answer: string }[] = [
   {
     question: "Is Options 101 free?",
     answer:
-      "Module 1, What Is an Option?, is free. The full course (all eight modules, quizzes, the final exam, and the certificate) is $39 once, or included with an active ALGO Swamp desk plan, including the 7-day trial.",
+      "Modules 1 and 2 (What Is an Option? and Calls and Puts Explained) are free. The full course, with all eight modules, the quizzes, the final exam and the certificate, is $39 once, or included with an active ALGO Swamp desk plan, including the 7-day trial.",
   },
   {
     question: "Who is Options 101 for?",
@@ -202,7 +202,7 @@ function learnJsonLd() {
         name: "Options 101: Options Trading for Beginners",
         alternateName: "Options 101",
         description:
-          "Beginner options trading course: how options work, calls and puts, strike, expiration and premium, intrinsic and extrinsic value, buying vs. selling risk, the Greeks, reading a thinkorswim option chain, and position sizing. Eight modules with quizzes and a 15-question final exam. Module 1 is free. Educational content, not financial advice.",
+          "Beginner options trading course: how options work, calls and puts, strike, expiration and premium, intrinsic and extrinsic value, buying vs. selling risk, the Greeks, reading a thinkorswim option chain, and position sizing. Eight modules with quizzes and a 15-question final exam. Modules 1–2 are free. Educational content, not financial advice.",
         url: `${SITE_ORIGIN}/learn`,
         courseCode: "OPTIONS-101",
         inLanguage: "en",
@@ -253,7 +253,7 @@ function learnJsonLd() {
           position: index + 1,
           name: seo.h1,
           url: `${SITE_ORIGIN}/learn/${seo.id}`,
-          isAccessibleForFree: index === 0,
+          isAccessibleForFree: index <= 1,
         })),
       },
       {
@@ -290,7 +290,7 @@ function learnJsonLd() {
 export const LEARN_PAGE: PageSeo = {
   title: "Options 101: Options Trading for Beginners — ALGO Swamp",
   description:
-    "Learn how options work: calls and puts, strikes, the Greeks, and risk in 8 short lessons with quizzes. Module 1 free. $39 once or included with the desk.",
+    "Learn how options work: calls and puts, strikes, the Greeks, and risk in 8 short lessons with quizzes. 2 modules free. $39 or included with the desk.",
   pathname: "/learn",
   ogImage: OG_LEARN_IMAGE,
   get jsonLd() {
@@ -330,7 +330,7 @@ export const ACCOUNT_PAGE: PageSeo = {
   robots: "noindex,follow",
 };
 
-/** Module 1 gets a lesson node. Later modules are noindex, so they only get a breadcrumb. */
+/** Modules 1 and 2 get a lesson node. Later modules are noindex, so they only get a breadcrumb. */
 export function moduleJsonLd(index: number, seo: ModuleSeo) {
   const url = `${SITE_ORIGIN}/learn/${seo.id}`;
   const breadcrumb = {
@@ -356,7 +356,7 @@ export function moduleJsonLd(index: number, seo: ModuleSeo) {
       },
     ],
   };
-  if (index !== 0) {
+  if (index > 1) {
     return { "@context": "https://schema.org", "@graph": [breadcrumb] };
   }
   return {
@@ -371,7 +371,7 @@ export function moduleJsonLd(index: number, seo: ModuleSeo) {
         learningResourceType: "Lesson",
         educationalLevel: "Beginner",
         inLanguage: "en",
-        position: 1,
+        position: index + 1,
         isAccessibleForFree: true,
         isPartOf: { "@id": `${SITE_ORIGIN}/learn#course` },
         provider: {

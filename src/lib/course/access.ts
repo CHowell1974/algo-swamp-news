@@ -7,13 +7,16 @@ export const OPTIONS_101_PRICE_USD = OPTIONS_101_PRICE_CENTS / 100;
 /** Desk trial checkout. Used when the course JSON leaves that CTA url blank. */
 export const DESK_TRIAL_PATH = "/join?plan=monthly";
 
-export function courseEntitled(input: { membershipActive: boolean; purchased: boolean }): boolean {
+export function courseEntitled(input: {
+  membershipActive: boolean;
+  purchased: boolean;
+}): boolean {
   return input.purchased || input.membershipActive;
 }
 
-/** Module 1 (index 0) is the free preview. Later modules need a purchase or an active desk. */
+/** Modules 1 and 2 (indexes 0 and 1) are the free previews. Later modules need a purchase or an active desk. */
 export function canReadModule(index: number, entitled: boolean): boolean {
-  return index === 0 || entitled;
+  return index <= 1 || entitled;
 }
 
 export type PublicQuestion = {
@@ -23,7 +26,11 @@ export type PublicQuestion = {
 };
 
 export function toPublicQuestion(question: CourseQuestion): PublicQuestion {
-  return { id: question.id, question: question.question, options: [...question.options] };
+  return {
+    id: question.id,
+    question: question.question,
+    options: [...question.options],
+  };
 }
 
 export type GradeResult = {
@@ -39,13 +46,20 @@ export type GradeResult = {
   }[];
 };
 
-export function gradeSubmission(questions: CourseQuestion[], selected: number[]): GradeResult {
+export function gradeSubmission(
+  questions: CourseQuestion[],
+  selected: number[],
+): GradeResult {
   if (selected.length !== questions.length) {
     throw new Error("Answer every question.");
   }
   const results = questions.map((question, index) => {
     const choice = selected[index];
-    if (!Number.isInteger(choice) || choice < 0 || choice >= question.options.length) {
+    if (
+      !Number.isInteger(choice) ||
+      choice < 0 ||
+      choice >= question.options.length
+    ) {
       throw new Error("Answer every question.");
     }
     return {
@@ -65,11 +79,17 @@ export function gradeSubmission(questions: CourseQuestion[], selected: number[])
   };
 }
 
-export function examPassed(correct: number, passingScoreCount: number): boolean {
+export function examPassed(
+  correct: number,
+  passingScoreCount: number,
+): boolean {
   return correct >= passingScoreCount;
 }
 
-export function nextBestCorrect(previous: number | null, correct: number): number {
+export function nextBestCorrect(
+  previous: number | null,
+  correct: number,
+): number {
   if (previous == null) return correct;
   return Math.max(previous, correct);
 }
@@ -88,9 +108,16 @@ export type CourseCtaLink =
  * Blank CTA urls are the desk 7-day trial placeholder from the course file.
  * The Road Map link stays on this site instead of leaving a preview host.
  */
-export function resolveCourseCta(cta: { label: string; url: string }): CourseCtaLink {
+export function resolveCourseCta(cta: {
+  label: string;
+  url: string;
+}): CourseCtaLink {
   const url = cta.url.trim();
-  if (!url || url === DESK_TRIAL_PATH || url === "https://news.algoswamp.com/join?plan=monthly") {
+  if (
+    !url ||
+    url === DESK_TRIAL_PATH ||
+    url === "https://news.algoswamp.com/join?plan=monthly"
+  ) {
     return { label: cta.label, kind: "desk-trial" };
   }
   if (url === "/tools" || url === "https://news.algoswamp.com/tools") {
@@ -114,7 +141,11 @@ export function youtubeId(url: string): string | null {
     const id = parsed.pathname.split("/").filter(Boolean)[0] ?? "";
     return idPattern.test(id) ? id : null;
   }
-  if (host === "youtube.com" || host === "m.youtube.com" || host === "youtube-nocookie.com") {
+  if (
+    host === "youtube.com" ||
+    host === "m.youtube.com" ||
+    host === "youtube-nocookie.com"
+  ) {
     if (parsed.pathname === "/watch") {
       const id = parsed.searchParams.get("v") ?? "";
       return idPattern.test(id) ? id : null;
@@ -144,10 +175,13 @@ export type CheckoutFulfillmentInput = {
 };
 
 /** Grant only a paid (or no-payment-required) one-time Checkout for this course. */
-export function courseFulfillmentDecision(input: CheckoutFulfillmentInput): "grant" | "skip" {
+export function courseFulfillmentDecision(
+  input: CheckoutFulfillmentInput,
+): "grant" | "skip" {
   if (input.mode !== "payment") return "skip";
   if (input.courseId !== COURSE_ID) return "skip";
-  if (input.paymentStatus == null || input.paymentStatus === "unpaid") return "skip";
+  if (input.paymentStatus == null || input.paymentStatus === "unpaid")
+    return "skip";
   return "grant";
 }
 
@@ -199,7 +233,8 @@ export function courseCheckoutParams(input: {
           unit_amount: OPTIONS_101_PRICE_CENTS,
           product_data: {
             name: "Options 101",
-            description: "ALGO Swamp beginner options course. One-time purchase.",
+            description:
+              "ALGO Swamp beginner options course. One-time purchase.",
           },
         },
       };
@@ -249,7 +284,11 @@ export function continueTarget(
   const next = open.find((module) => !module.completed);
   if (next) {
     const started = modules.some((module) => module.completed);
-    return { kind: "module", id: next.id, label: started ? "continue" : "start" };
+    return {
+      kind: "module",
+      id: next.id,
+      label: started ? "continue" : "start",
+    };
   }
   if (modules.some((module) => module.locked)) return { kind: "locked" };
   if (!examPassedFlag) return { kind: "exam" };

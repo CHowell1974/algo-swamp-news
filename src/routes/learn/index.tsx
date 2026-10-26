@@ -110,7 +110,7 @@ function LearnPage() {
               params={{ moduleId: target.id }}
               className={`inline-flex min-h-11 items-center rounded-full bg-signal px-5 text-sm font-semibold text-bg ${focusRing}`}
             >
-              {target.label === "start" ? "Start Module 1 free" : "Continue"}
+              {target.label === "start" ? "Start Modules 1–2 free" : "Continue"}
             </Link>
           ) : null}
           {target.kind === "exam" ? (

@@ -86,7 +86,7 @@ export async function loadCourseHome(
       id: module.id,
       title: module.title,
       learningObjectives: module.learningObjectives,
-      free: index === 0,
+      free: index <= 1,
       locked: !canReadModule(index, access.entitled),
       completed: Boolean(row),
       bestCorrect: row ? row.bestCorrect : null,

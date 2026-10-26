@@ -14,7 +14,7 @@ Webhook events: `checkout.session.completed`, `customer.subscription.updated`, `
 
 ## Options 101
 
-The course is a one-time $39 Stripe Checkout payment (`mode: "payment"`), or it is included while a desk membership is active (monthly or annual, including a trial). Module 1 is free. Purchases and quiz progress are stored in Postgres.
+The course is a one-time $39 Stripe Checkout payment (`mode: "payment"`), or it is included while a desk membership is active (monthly or annual, including a trial). Modules 1–2 are free. Purchases and quiz progress are stored in Postgres.
 
 No Dashboard product is required. Checkout uses inline `price_data` at $39. Set `STRIPE_PRICE_OPTIONS_101` (`price_…`) only if you would rather charge a price you already created.
 

@@ -200,7 +200,7 @@ function MarketHome() {
             </h2>
             <p className="mt-2 max-w-xl text-sm text-pretty text-muted">
               Wait. Then Bite. Eight short modules on calls, puts, and risk,
-              with quizzes and a final exam. Module 1 is free.{" "}
+              with quizzes and a final exam. Modules 1–2 are free.{" "}
               {formatMoney(OPTIONS_101_PRICE_USD)} once, or included with the
               desk.
             </p>
@@ -210,7 +210,7 @@ function MarketHome() {
                 params={{ moduleId: "m1-what-is-an-option" }}
                 className={`inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
               >
-                Start Module 1 free: What is an option?
+                Start Modules 1–2 free: What is an option?
               </Link>
               <Link
                 to="/learn"

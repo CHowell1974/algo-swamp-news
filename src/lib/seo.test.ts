@@ -102,7 +102,11 @@ describe("news route head", () => {
       sitemap,
       /<loc>https:\/\/news\.algoswamp\.com\/learn\/m1-what-is-an-option<\/loc>/,
     );
-    assert.doesNotMatch(sitemap, /learn\/(m[2-8]-|exam|certificate)/);
+    assert.match(
+      sitemap,
+      /<loc>https:\/\/news\.algoswamp\.com\/learn\/m2-calls-and-puts<\/loc>/,
+    );
+    assert.doesNotMatch(sitemap, /learn\/(m[3-8]-|exam|certificate)/);
     assert.doesNotMatch(sitemap, /join/);
 
     const robots = readFileSync(join(root, "public/robots.txt"), "utf8");
@@ -150,11 +154,19 @@ describe("news route head", () => {
     const course = learn["@graph"].find((node) => node["@type"] === "Course");
     assert.equal(course?.offers?.[0]?.price, "39.00");
     assert.equal(course?.hasPart?.length, 8);
+    const parts = course?.hasPart as Array<{ isAccessibleForFree?: boolean }>;
+    assert.equal(parts?.[0]?.isAccessibleForFree, true);
+    assert.equal(parts?.[1]?.isAccessibleForFree, true);
+    assert.equal(parts?.[2]?.isAccessibleForFree, false);
     const faq = learn["@graph"].find((node) => node["@type"] === "FAQPage");
     assert.equal(faq?.mainEntity?.length, 6);
 
     assert.equal(LEARN_PAGE.title.length, 55);
-    assert.equal(LEARN_PAGE.description.length, 153);
+    assert.equal(
+      LEARN_PAGE.description,
+      "Learn how options work: calls and puts, strikes, the Greeks, and risk in 8 short lessons with quizzes. 2 modules free. $39 or included with the desk.",
+    );
+    assert.ok(LEARN_PAGE.description.length <= 155);
     assert.equal(
       routeHead(LEARN_PAGE).meta.some(
         (item) => "name" in item && item.name === "robots",
@@ -175,9 +187,24 @@ describe("news route head", () => {
       openLesson["@graph"].map((node) => node["@type"]),
       ["LearningResource", "BreadcrumbList"],
     );
-    const locked = MODULE_SEO[1];
+    const second = MODULE_SEO[1];
+    assert.ok(second);
+    const secondLesson = moduleJsonLd(1, second) as {
+      "@graph": Array<{
+        "@type": string;
+        position?: number;
+        isAccessibleForFree?: boolean;
+      }>;
+    };
+    assert.deepEqual(
+      secondLesson["@graph"].map((node) => node["@type"]),
+      ["LearningResource", "BreadcrumbList"],
+    );
+    assert.equal(secondLesson["@graph"][0]?.position, 2);
+    assert.equal(secondLesson["@graph"][0]?.isAccessibleForFree, true);
+    const locked = MODULE_SEO[2];
     assert.ok(locked);
-    const lockedLesson = moduleJsonLd(1, locked) as {
+    const lockedLesson = moduleJsonLd(2, locked) as {
       "@graph": Array<{ "@type": string }>;
     };
     assert.deepEqual(

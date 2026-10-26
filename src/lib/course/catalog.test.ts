@@ -39,8 +39,13 @@ describe("options 101 SEO catalog", () => {
       );
       assert.ok(module.h1.length > 0);
     }
+    assert.equal(
+      MODULE_SEO[1]?.description,
+      "Calls and puts explained: what each gives the buyer, which way the stock must move, and how to find break-even at expiration. Free Options 101 lesson.",
+    );
     assert.equal(moduleRobots(0), undefined);
-    assert.equal(moduleRobots(1), "noindex,follow");
+    assert.equal(moduleRobots(1), undefined);
+    assert.equal(moduleRobots(2), "noindex,follow");
     assert.equal(moduleRobots(7), "noindex,follow");
   });
 

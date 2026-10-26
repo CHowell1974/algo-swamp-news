@@ -185,16 +185,16 @@ function OpenModule({
               Calls and puts explained
             </Link>
           </p>
-          {page.entitled ? null : (
-            <div className="mt-4">
-              <CourseCheckoutButton
-                signedIn={page.signedIn}
-                next={`/learn/${page.id}`}
-                priceUsd={page.priceUsd}
-              />
-            </div>
-          )}
         </section>
+      ) : null}
+      {page.index === 1 && !page.entitled ? (
+        <div className="mt-10 border-t border-line pt-6">
+          <CourseCheckoutButton
+            signedIn={page.signedIn}
+            next={`/learn/${page.id}`}
+            priceUsd={page.priceUsd}
+          />
+        </div>
       ) : null}
     </>
   );
@@ -208,7 +208,7 @@ function LockedModule({
   return (
     <section className="mt-6 rounded-card border border-line bg-surface px-4 py-5">
       <p className="text-sm text-pretty text-fg">
-        Module 1 is free. This module stays locked until you buy{" "}
+        Modules 1–2 are free. This module stays locked until you buy{" "}
         {page.courseTitle} or your desk plan is active, including a trial.
       </p>
       <h2 className="mt-4 font-display text-2xl text-fg">
