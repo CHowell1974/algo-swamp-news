@@ -16,6 +16,10 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as WireDotxmlRouteImport } from './routes/wire[.]xml'
+import { Route as LearnIndexRouteImport } from './routes/learn/index'
+import { Route as LearnModuleIdRouteImport } from './routes/learn/$moduleId'
+import { Route as LearnCertificateRouteImport } from './routes/learn/certificate'
+import { Route as LearnExamRouteImport } from './routes/learn/exam'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCronPremarketWireRouteImport } from './routes/api/cron/premarket-wire'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
@@ -56,6 +60,26 @@ const WireDotxmlRoute = WireDotxmlRouteImport.update({
   path: '/wire.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/learn/',
+  path: '/learn/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnModuleIdRoute = LearnModuleIdRouteImport.update({
+  id: '/learn/$moduleId',
+  path: '/learn/$moduleId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnCertificateRoute = LearnCertificateRouteImport.update({
+  id: '/learn/certificate',
+  path: '/learn/certificate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnExamRoute = LearnExamRouteImport.update({
+  id: '/learn/exam',
+  path: '/learn/exam',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -85,6 +109,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/tools': typeof ToolsRoute
   '/wire.xml': typeof WireDotxmlRoute
+  '/learn/$moduleId': typeof LearnModuleIdRoute
+  '/learn/certificate': typeof LearnCertificateRoute
+  '/learn/exam': typeof LearnExamRoute
+  '/learn/': typeof LearnIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -98,6 +126,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/tools': typeof ToolsRoute
   '/wire.xml': typeof WireDotxmlRoute
+  '/learn/$moduleId': typeof LearnModuleIdRoute
+  '/learn/certificate': typeof LearnCertificateRoute
+  '/learn/exam': typeof LearnExamRoute
+  '/learn': typeof LearnIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -112,6 +144,10 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/tools': typeof ToolsRoute
   '/wire.xml': typeof WireDotxmlRoute
+  '/learn/$moduleId': typeof LearnModuleIdRoute
+  '/learn/certificate': typeof LearnCertificateRoute
+  '/learn/exam': typeof LearnExamRoute
+  '/learn/': typeof LearnIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -127,6 +163,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/tools'
     | '/wire.xml'
+    | '/learn/$moduleId'
+    | '/learn/certificate'
+    | '/learn/exam'
+    | '/learn/'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
@@ -140,6 +180,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/tools'
     | '/wire.xml'
+    | '/learn/$moduleId'
+    | '/learn/certificate'
+    | '/learn/exam'
+    | '/learn'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
@@ -153,6 +197,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/tools'
     | '/wire.xml'
+    | '/learn/$moduleId'
+    | '/learn/certificate'
+    | '/learn/exam'
+    | '/learn/'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
@@ -167,6 +215,10 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ToolsRoute: typeof ToolsRoute
   WireDotxmlRoute: typeof WireDotxmlRoute
+  LearnModuleIdRoute: typeof LearnModuleIdRoute
+  LearnCertificateRoute: typeof LearnCertificateRoute
+  LearnExamRoute: typeof LearnExamRoute
+  LearnIndexRoute: typeof LearnIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPremarketWireRoute: typeof ApiCronPremarketWireRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
@@ -224,6 +276,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WireDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/': {
+      id: '/learn/'
+      path: '/learn'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/$moduleId': {
+      id: '/learn/$moduleId'
+      path: '/learn/$moduleId'
+      fullPath: '/learn/$moduleId'
+      preLoaderRoute: typeof LearnModuleIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/certificate': {
+      id: '/learn/certificate'
+      path: '/learn/certificate'
+      fullPath: '/learn/certificate'
+      preLoaderRoute: typeof LearnCertificateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/exam': {
+      id: '/learn/exam'
+      path: '/learn/exam'
+      fullPath: '/learn/exam'
+      preLoaderRoute: typeof LearnExamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -263,6 +343,10 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ToolsRoute: ToolsRoute,
   WireDotxmlRoute: WireDotxmlRoute,
+  LearnModuleIdRoute: LearnModuleIdRoute,
+  LearnCertificateRoute: LearnCertificateRoute,
+  LearnExamRoute: LearnExamRoute,
+  LearnIndexRoute: LearnIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPremarketWireRoute: ApiCronPremarketWireRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,

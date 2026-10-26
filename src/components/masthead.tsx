@@ -35,6 +35,12 @@ export function Masthead() {
             Pricing
           </Link>
           <Link
+            to="/learn"
+            className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-2 text-sm font-medium text-muted sm:px-3 ${focusRing}`}
+          >
+            Learn
+          </Link>
+          <Link
             to="/tools"
             className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-2 text-sm font-medium text-muted sm:px-3 ${focusRing}`}
           >

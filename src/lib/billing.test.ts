@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   checkoutCommercials,
   checkoutIntegrationId,
+  courseCheckoutIntegrationId,
   founderLine,
   founderOfferFromPromo,
   grantsDesk,
@@ -104,6 +105,10 @@ describe("checkout commercials", () => {
     assert.equal(
       checkoutIntegrationId(() => 0),
       "algo_swamp_desk_aaaaaaaa",
+    );
+    assert.equal(
+      courseCheckoutIntegrationId(() => 0),
+      "algo_swamp_course_aaaaaaaa",
     );
   });
 });

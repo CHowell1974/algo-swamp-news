@@ -1,9 +1,7 @@
 import type { PlanId } from "@/lib/plans";
 
 type HeadMeta =
-  | { title: string }
-  | { name: string; content: string }
-  | { property: string; content: string };
+  { title: string } | { name: string; content: string } | { property: string; content: string };
 
 /** Public news origin. Share cards stay on this host, not a preview hostname. */
 export const SITE_ORIGIN = "https://news.algoswamp.com";
@@ -139,6 +137,31 @@ export const DESK_PAGE: PageSeo = {
   description:
     "Live wires scored for heat, tone, and named tickers across markets, macro, tech, crypto, energy, and earnings. Free open tape; full desk $29/mo.",
   pathname: "/desk",
+};
+
+export const LEARN_PAGE: PageSeo = {
+  title: "Options 101 — Wait. Then Bite. — ALGO Swamp",
+  description:
+    "Beginner options course: eight modules, quizzes, and a 15-question final exam. Module 1 is free. $39 once, or included with an active desk. Not financial advice.",
+  pathname: "/learn",
+  jsonLd: {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: "Options 101",
+    description:
+      "Beginner options course with eight modules, quizzes, and a final exam. Module 1 is free. Not financial advice.",
+    provider: {
+      "@type": "Organization",
+      name: "ALGO Swamp",
+      url: "https://news.algoswamp.com",
+    },
+    offers: {
+      "@type": "Offer",
+      price: "39.00",
+      priceCurrency: "USD",
+      url: "https://news.algoswamp.com/learn",
+    },
+  },
 };
 
 export const TOOLS_PAGE: PageSeo = {

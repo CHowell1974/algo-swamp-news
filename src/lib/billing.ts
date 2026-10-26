@@ -110,9 +110,17 @@ export function checkoutCommercials(
   };
 }
 
-export function checkoutIntegrationId(random: () => number = Math.random): string {
+function randomLetters(random: () => number): string {
   const alphabet = "abcdefghijklmnopqrstuvwxyz";
   let suffix = "";
   for (let i = 0; i < 8; i += 1) suffix += alphabet[Math.floor(random() * alphabet.length)] ?? "a";
-  return `algo_swamp_desk_${suffix}`;
+  return suffix;
+}
+
+export function checkoutIntegrationId(random: () => number = Math.random): string {
+  return `algo_swamp_desk_${randomLetters(random)}`;
+}
+
+export function courseCheckoutIntegrationId(random: () => number = Math.random): string {
+  return `algo_swamp_course_${randomLetters(random)}`;
 }

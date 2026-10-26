@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { FounderLine } from "@/components/founder-line";
 import { Masthead } from "@/components/masthead";
 import { fetchWire } from "@/lib/news.functions";
+import { OPTIONS_101_PRICE_USD } from "@/lib/course/access";
 import { annualSavings, formatMoney, MONTHLY_TRIAL_DAYS, PLANS } from "@/lib/plans";
 import type { Story } from "@/lib/scan";
 import { HOME_PAGE, routeHead } from "@/lib/seo";
@@ -167,6 +168,26 @@ function MarketHome() {
           </div>
         </section>
 
+        <section aria-labelledby="course-teaser-title" className="border-t border-line">
+          <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-12">
+            <p className="text-xs font-medium tracking-widest text-muted uppercase">Course</p>
+            <h2 id="course-teaser-title" className="mt-2 font-display text-3xl text-fg">
+              Options 101
+            </h2>
+            <p className="mt-2 max-w-xl text-sm text-pretty text-muted">
+              Wait. Then Bite. Eight short modules on calls, puts, and risk, with quizzes and a
+              final exam. Module 1 is free. {formatMoney(OPTIONS_101_PRICE_USD)} once, or included
+              with the desk.
+            </p>
+            <Link
+              to="/learn"
+              className={`mt-2 inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
+            >
+              Start Module 1 free
+            </Link>
+          </div>
+        </section>
+
         <section aria-labelledby="tools-teaser-title" className="border-t border-line">
           <div className="mx-auto grid max-w-6xl items-center gap-5 px-4 py-10 md:grid-cols-[11rem_minmax(0,1fr)] md:px-8 md:py-12">
             <img
@@ -200,6 +221,9 @@ function MarketHome() {
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-6 text-xs text-muted md:px-8">
           <p>Public wires only. A sort, not a signal.</p>
+          <Link to="/learn" className={`inline-flex min-h-11 items-center ${focusRing}`}>
+            Options 101
+          </Link>
           <Link to="/tools" className={`inline-flex min-h-11 items-center ${focusRing}`}>
             Tools
           </Link>

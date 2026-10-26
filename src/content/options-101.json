@@ -1,0 +1,1019 @@
+{
+  "course": {
+    "id": "options-101",
+    "title": "Options 101",
+    "tagline": "Wait. Then Bite.",
+    "level": "Beginner",
+    "disclaimer": "This is educational content, not financial advice. Nothing in this course is a recommendation to buy or sell any security or to use any strategy. Options trading carries substantial risk, is not suitable for everyone, and you can lose money, in some cases more than you put in. Brokers require options approval levels before you can trade certain strategies. Review the Options Clearing Corporation's 'Characteristics and Risks of Standardized Options' before trading options.",
+    "intro": "Options look complicated. They don't have to be.\n\nThis course covers the basics in eight short modules. Each one has a plain-language lesson, a worked example with simple numbers, a thinkorswim tip, and a 5-question quiz. At the end there's a 15-question final exam. Score 80% (12 of 15) to pass.\n\nGo in order. Each module builds on the one before it. Take your time with the examples. Do the math yourself.\n\nOur motto is simple: **Wait. Then Bite.** Learn the rules first. Practice on paper. Act only when you understand what you're holding.\n\n*This is educational content, not financial advice.*",
+    "modules": [
+      {
+        "id": "m1-what-is-an-option",
+        "title": "What an Option Is",
+        "learningObjectives": [
+          "Define an option as a contract with a right, not an obligation, for the buyer",
+          "Explain that one standard equity option contract covers 100 shares",
+          "Describe the roles of the buyer (holder) and the seller (writer)"
+        ],
+        "lesson": "An **option** is a contract. It gives the buyer the **right, but not the obligation**, to buy or sell something at a set price before or on a set date. That \"something\" is called the **underlying**. In this course, the underlying is usually a stock or an ETF like SPY.\n\nEvery option has two sides:\n\n- **The buyer (holder)** pays money up front. That payment is called the **premium**. In return, the buyer gets a right they can use or ignore.\n- **The seller (writer)** receives the premium. In return, the seller takes on an **obligation**. If the buyer uses the right, the seller must follow through.\n\nUsing the right is called **exercising** the option. When a buyer exercises, a seller gets **assigned**.\n\n**One contract = 100 shares.** A standard U.S. equity or ETF option controls 100 shares of the underlying. Option prices are quoted per share. So a premium of $2.00 really costs $2.00 x 100 = **$200** per contract. This multiplier trips up a lot of beginners. Always multiply by 100.\n\n**American-style vs. European-style.** Most U.S. stock and ETF options are **American-style**. That means they can be exercised any time up to expiration. Many index options (like SPX) are European-style and can only be exercised at expiration. If you sell American-style options, you can be assigned early.\n\nWhy do people use options?\n\n- **To define risk.** A buyer knows the most they can lose up front: the premium.\n- **To hedge.** An option can act like insurance on shares you already own.\n- **To collect premium.** Sellers get paid to take on an obligation, and they carry the risk that comes with it.\n\nOptions are **leveraged**. A small move in the stock can mean a big percentage move in the option, in either direction. That cuts both ways.\n\nOptions also **expire**. A stock can be held forever. An option has a clock on it. When time runs out, the option either has value or it is worth nothing.\n\nBefore you can trade options, your broker must approve your account. Brokers use **approval levels**. Basic levels may allow buying calls and puts. Higher levels allow spreads or selling uncovered options. Each level carries more risk.",
+        "workedExample": {
+          "title": "Buying one call contract",
+          "scenario": "Stock XYZ trades at $50. You look at a call option with a $50 strike that expires in 30 days. The premium is $2.00.",
+          "steps": [
+            "Cost of one contract: $2.00 x 100 = $200. This is the most the buyer can lose.",
+            "Scenario A, XYZ is at $56 at expiration: the call lets you buy at $50 stock worth $56. Value per share = $56 - $50 = $6.00. Per contract = $6.00 x 100 = $600.",
+            "Net result in Scenario A: $600 value - $200 paid = $400 gain.",
+            "Scenario B, XYZ is at $48 at expiration: there's no reason to buy at $50 when the market price is $48. The call expires worthless.",
+            "Net result in Scenario B: $0 - $200 paid = $200 loss, the full premium."
+          ],
+          "result": "The buyer's risk was capped at the $200 premium. The seller of that call collected $200 and had the opposite result in each scenario."
+        },
+        "tosTip": {
+          "title": "Practice in paperMoney first",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "On the thinkorswim login screen, switch to paperMoney before you log in. paperMoney is TOS's simulated trading account. It uses the same tabs and option chains as live trading, so you can place practice option orders with no real money at risk. Use it for every exercise in this course."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's Greeks series YouTube link"
+        },
+        "keyTakeaways": [
+          "An option buyer has a right; an option seller has an obligation.",
+          "One standard equity option contract = 100 shares. Multiply the quoted premium by 100.",
+          "Most U.S. stock and ETF options are American-style and can be exercised early.",
+          "Options expire. Time is always part of the trade.",
+          "Brokers require options approval levels, and higher levels carry more risk."
+        ],
+        "quiz": [
+          {
+            "id": "m1-q1",
+            "question": "What does buying an option give you?",
+            "options": [
+              "An obligation to buy 100 shares",
+              "The right, but not the obligation, to buy or sell the underlying at a set price",
+              "Ownership of 100 shares",
+              "A guaranteed profit if the stock moves"
+            ],
+            "answerIndex": 1,
+            "explanation": "The buyer pays premium for a right they can use or let go."
+          },
+          {
+            "id": "m1-q2",
+            "question": "A quoted option premium is $1.50. What does one contract cost?",
+            "options": [
+              "$1.50",
+              "$15",
+              "$1,500",
+              "$150"
+            ],
+            "answerIndex": 3,
+            "explanation": "Premiums are quoted per share: $1.50 x 100 = $150."
+          },
+          {
+            "id": "m1-q3",
+            "question": "Who receives the premium?",
+            "options": [
+              "The seller (writer)",
+              "The buyer (holder)",
+              "The exchange",
+              "Nobody until expiration"
+            ],
+            "answerIndex": 0,
+            "explanation": "The seller collects the premium in exchange for taking on an obligation."
+          },
+          {
+            "id": "m1-q4",
+            "question": "What does 'American-style' mean for most U.S. stock and ETF options?",
+            "options": [
+              "They trade only on U.S. exchanges",
+              "They can only be exercised at expiration",
+              "They can be exercised any time up to expiration",
+              "They never expire"
+            ],
+            "answerIndex": 2,
+            "explanation": "American-style options can be exercised early, so sellers can be assigned early."
+          },
+          {
+            "id": "m1-q5",
+            "question": "Why do brokers use options approval levels?",
+            "options": [
+              "To set commission rates",
+              "To decide which stocks you can see",
+              "To guarantee you make money",
+              "To limit strategies based on their risk and your experience"
+            ],
+            "answerIndex": 3,
+            "explanation": "Higher approval levels unlock riskier strategies like uncovered selling."
+          }
+        ]
+      },
+      {
+        "id": "m2-calls-and-puts",
+        "title": "Calls and Puts",
+        "learningObjectives": [
+          "Explain what a call and a put give the buyer",
+          "Identify which way the underlying must move to help a long call or a long put",
+          "Calculate the break-even price at expiration for a long call and a long put"
+        ],
+        "lesson": "There are only two types of options. Everything else is built from them.\n\n**A call** gives the buyer the right to **buy** 100 shares at the strike price.\n- Call buyers generally benefit when the stock goes **up**.\n- Call sellers generally benefit when the stock stays flat or goes **down**.\n\n**A put** gives the buyer the right to **sell** 100 shares at the strike price.\n- Put buyers generally benefit when the stock goes **down**.\n- Put sellers generally benefit when the stock stays flat or goes **up**.\n\nA simple way to remember it: **Call up, put down.** You \"call\" the stock up to you. You \"put\" the stock onto someone else.\n\n**Long and short.** If you buy an option, you are **long** it. If you sell an option you don't already own, you are **short** it. So there are four basic positions:\n\n| Position | You... | Generally helped by |\n|---|---|---|\n| Long call | Bought the right to buy | Stock rising |\n| Short call | Took on the obligation to sell | Stock flat or falling |\n| Long put | Bought the right to sell | Stock falling |\n| Short put | Took on the obligation to buy | Stock flat or rising |\n\n**Break-even at expiration.** The stock has to move far enough to cover the premium you paid.\n- Long call break-even = **strike + premium**\n- Long put break-even = **strike - premium**\n\nAbove the call break-even at expiration, the long call shows a gain. Below the put break-even at expiration, the long put shows a gain. Between the strike and the break-even, the option has some value but not enough to cover what you paid.\n\n**Puts as protection.** Someone who owns 100 shares can buy a put to set a floor under those shares. If the stock drops below the strike, the put gains value. This is often called a **protective put**. It costs premium, like an insurance payment.\n\nCalls and puts are the building blocks. Spreads, like the credit spreads many traders study, are just combinations of calls or puts at different strikes. Learn these two well and the rest gets much easier.",
+        "workedExample": {
+          "title": "A long put and its break-even",
+          "scenario": "Stock ABC trades at $40. You look at a $40 strike put that expires in 45 days. The premium is $1.50.",
+          "steps": [
+            "Cost of one contract: $1.50 x 100 = $150.",
+            "Break-even at expiration: $40 strike - $1.50 premium = $38.50.",
+            "Scenario A, ABC is at $35 at expiration: the put lets you sell at $40 stock worth $35. Value = ($40 - $35) x 100 = $500. Net = $500 - $150 = $350 gain.",
+            "Scenario B, ABC is at $39 at expiration: value = ($40 - $39) x 100 = $100. Net = $100 - $150 = $50 loss. The put had value, but not enough to reach break-even.",
+            "Scenario C, ABC is at $42 at expiration: the put expires worthless. Net = $150 loss, the full premium."
+          ],
+          "result": "The long put needed ABC below $38.50 at expiration to show a gain. Its maximum loss was the $150 premium."
+        },
+        "tosTip": {
+          "title": "Find calls and puts in the option chain",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "Go to the Trade tab and select All Products. Type a symbol (for example SPY) in the symbol box. Below the stock quote, the Option Chain section lists expirations. Click an expiration to expand it. Calls are on the left, puts are on the right, and the strike prices run down the middle."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's Greeks series YouTube link"
+        },
+        "keyTakeaways": [
+          "A call is the right to buy; a put is the right to sell.",
+          "Long call: helped by the stock rising. Long put: helped by the stock falling.",
+          "Long call break-even = strike + premium. Long put break-even = strike - premium.",
+          "Every spread is built from calls and puts."
+        ],
+        "quiz": [
+          {
+            "id": "m2-q1",
+            "question": "A call option gives the buyer the right to...",
+            "options": [
+              "Buy 100 shares at the strike price",
+              "Sell 100 shares at the strike price",
+              "Receive dividends",
+              "Short the stock with no risk"
+            ],
+            "answerIndex": 0,
+            "explanation": "Calls are the right to buy."
+          },
+          {
+            "id": "m2-q2",
+            "question": "A long put generally benefits when the stock...",
+            "options": [
+              "Rises",
+              "Stays exactly the same",
+              "Falls",
+              "Pays a dividend"
+            ],
+            "answerIndex": 2,
+            "explanation": "Put buyers gain when the underlying falls below the strike enough to cover premium."
+          },
+          {
+            "id": "m2-q3",
+            "question": "You buy a $60 call for $2.50. What is the break-even at expiration?",
+            "options": [
+              "$57.50",
+              "$60.00",
+              "$62.50",
+              "$65.00"
+            ],
+            "answerIndex": 2,
+            "explanation": "Long call break-even = strike + premium = $60 + $2.50."
+          },
+          {
+            "id": "m2-q4",
+            "question": "You buy a $30 put for $1.20. What is the break-even at expiration?",
+            "options": [
+              "$31.20",
+              "$28.80",
+              "$30.00",
+              "$27.60"
+            ],
+            "answerIndex": 1,
+            "explanation": "Long put break-even = strike - premium = $30 - $1.20."
+          },
+          {
+            "id": "m2-q5",
+            "question": "What does it mean to be 'short' an option?",
+            "options": [
+              "You bought it at a low price",
+              "You hold it for less than a day",
+              "You own the underlying shares",
+              "You sold an option you didn't already own and took on an obligation"
+            ],
+            "answerIndex": 3,
+            "explanation": "Short means you sold to open and collected premium in exchange for an obligation."
+          }
+        ]
+      },
+      {
+        "id": "m3-strike-expiration-premium",
+        "title": "Strike, Expiration and Premium",
+        "learningObjectives": [
+          "Define strike price, expiration date and premium",
+          "Classify an option as in the money (ITM), at the money (ATM) or out of the money (OTM)",
+          "Explain how strike choice and time to expiration affect premium"
+        ],
+        "lesson": "Every option is defined by three things: **what** (the underlying), **where** (the strike), and **when** (the expiration). The price you pay or receive is the **premium**.\n\n**Strike price.** The price at which the option lets you buy (call) or sell (put) the stock. Option chains list many strikes for each expiration.\n\n**Moneyness.** Compare the strike to the current stock price:\n\n- **In the money (ITM):** a call with a strike *below* the stock price, or a put with a strike *above* it.\n- **At the money (ATM):** strike at or very near the stock price.\n- **Out of the money (OTM):** a call with a strike *above* the stock price, or a put with a strike *below* it.\n\nITM options cost more because they already have built-in value. OTM options cost less because the stock still has to move to give them value at expiration. Cheaper is not the same as safer. An OTM option is more likely to expire worthless.\n\n**Expiration.** The last day the option exists. After that, it's gone. Many ETFs like SPY have expirations nearly every trading day. Most stocks have weekly and monthly expirations. The standard monthly expiration is usually the third Friday of the month.\n\nMore time generally means a **higher premium**. The stock has more time to move, so the option carries more possibility. A 60-day option at the same strike usually costs more than a 30-day option, but not twice as much. Time value doesn't scale in a straight line.\n\n**Premium.** The market price of the option, quoted per share. It moves all day. Main drivers:\n\n1. Stock price vs. strike\n2. Time to expiration\n3. Implied volatility (how much the market expects the stock to move)\n4. Interest rates and dividends (smaller effects)\n\nYou'll see a **bid** (what buyers are offering) and an **ask** (what sellers want). The **mark** is the midpoint. Wide gaps between bid and ask make trading more expensive.\n\n**Exercise and assignment at expiration.** In general, equity options that are ITM by $0.01 or more at expiration are automatically exercised unless the holder instructs otherwise. If you hold an option into expiration, know what happens next. Check your broker's rules.",
+        "workedExample": {
+          "title": "Comparing strikes and expirations",
+          "scenario": "Stock DEF trades at $100. Three 30-day calls are quoted: $95 strike at $7.00, $100 strike at $3.50, and $105 strike at $1.20. A 60-day $100 call is quoted at $5.00.",
+          "steps": [
+            "$95 call: ITM because $95 is below $100. Cost = $7.00 x 100 = $700.",
+            "$100 call: ATM. Cost = $3.50 x 100 = $350.",
+            "$105 call: OTM because $105 is above $100. Cost = $1.20 x 100 = $120.",
+            "Break-evens at expiration: $95 + $7.00 = $102.00; $100 + $3.50 = $103.50; $105 + $1.20 = $106.20.",
+            "More time: the 60-day $100 call costs $5.00 x 100 = $500, which is $150 more than the 30-day version. Doubling the time did not double the price ($500 vs. $700)."
+          ],
+          "result": "The cheaper OTM call needs a bigger move (to $106.20) to break even. Price and probability trade off against each other."
+        },
+        "tosTip": {
+          "title": "Read the expiration rows",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In Trade > All Products, each expiration row in the Option Chain shows the date and, in parentheses, the number of days to expiration. It also shows the contract multiplier (100) for standard contracts. Use the Strikes dropdown at the top of the chain to change how many strikes are shown around the current price. In-the-money strikes are shaded differently from out-of-the-money strikes, so you can see moneyness at a glance."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's Greeks series YouTube link"
+        },
+        "keyTakeaways": [
+          "Strike = the price you can buy (call) or sell (put) at.",
+          "ITM calls have strikes below the stock price; ITM puts have strikes above it.",
+          "More time to expiration generally means higher premium, but not in a straight line.",
+          "Cheaper OTM options need bigger moves and are more likely to expire worthless.",
+          "Know your broker's rules for automatic exercise at expiration."
+        ],
+        "quiz": [
+          {
+            "id": "m3-q1",
+            "question": "Stock is at $50. Which call is in the money?",
+            "options": [
+              "$45 call",
+              "$50 call",
+              "$55 call",
+              "$60 call"
+            ],
+            "answerIndex": 0,
+            "explanation": "A call is ITM when its strike is below the stock price."
+          },
+          {
+            "id": "m3-q2",
+            "question": "Stock is at $50. Which put is in the money?",
+            "options": [
+              "$40 put",
+              "$45 put",
+              "$55 put",
+              "$50 put"
+            ],
+            "answerIndex": 2,
+            "explanation": "A put is ITM when its strike is above the stock price."
+          },
+          {
+            "id": "m3-q3",
+            "question": "All else equal, how does more time to expiration usually affect premium?",
+            "options": [
+              "Lowers it",
+              "Has no effect",
+              "Makes it exactly double",
+              "Raises it"
+            ],
+            "answerIndex": 3,
+            "explanation": "More time means more chance to move, so premium is usually higher."
+          },
+          {
+            "id": "m3-q4",
+            "question": "What is the 'mark' on an option quote?",
+            "options": [
+              "The last trade price",
+              "The midpoint between bid and ask",
+              "The strike price",
+              "The exercise fee"
+            ],
+            "answerIndex": 1,
+            "explanation": "Mark is the midpoint of the bid and ask."
+          },
+          {
+            "id": "m3-q5",
+            "question": "A $105 call costs $1.20. What is its break-even at expiration?",
+            "options": [
+              "$103.80",
+              "$105.00",
+              "$106.20",
+              "$117.00"
+            ],
+            "answerIndex": 2,
+            "explanation": "Strike + premium = $105 + $1.20 = $106.20."
+          }
+        ]
+      },
+      {
+        "id": "m4-intrinsic-extrinsic",
+        "title": "Intrinsic and Extrinsic Value",
+        "learningObjectives": [
+          "Calculate intrinsic value for calls and puts",
+          "Calculate extrinsic (time) value from the option price",
+          "Explain why extrinsic value goes to zero at expiration"
+        ],
+        "lesson": "Every option premium splits into two parts:\n\n**Premium = Intrinsic value + Extrinsic value**\n\n**Intrinsic value** is the \"real\" value if you exercised right now.\n- Call intrinsic = **stock price - strike**, if positive. Otherwise zero.\n- Put intrinsic = **strike - stock price**, if positive. Otherwise zero.\n\nIntrinsic value can never be negative. An OTM option has zero intrinsic value. An ATM option has zero or nearly zero.\n\n**Extrinsic value** is everything else. It's often called **time value**.\n- Extrinsic = **premium - intrinsic**.\n\nExtrinsic value is what the market pays for *possibility*. It depends on:\n1. **Time left.** More days, more possibility.\n2. **Implied volatility.** Bigger expected moves, more possibility.\n3. **Distance from the strike.** Extrinsic value is usually largest at the money and shrinks as an option gets deeper ITM or further OTM.\n\n**Extrinsic value decays to zero at expiration.** On the last day, an option is worth only its intrinsic value. This is the core reason time works against option buyers and for option sellers. We'll put a number on that decay in the Greeks module (theta).\n\nWhy this matters:\n\n- **Buying an OTM option** means paying 100% extrinsic value. The stock must move enough, soon enough, to replace that time value with intrinsic value.\n- **Selling an option** means collecting extrinsic value. The seller hopes the option loses that value over time, but takes on risk if the stock moves against them.\n- **Early assignment.** An American-style option with little extrinsic value left (often deep ITM, near expiration, or before an ex-dividend date for calls) is more likely to be exercised early. If you're short that option, you could be assigned.\n\nA quick check: if an option's price is **below** its intrinsic value, something is off (stale quote, wide market). In a normal market, an American-style option trades at or above its intrinsic value.\n\nLearn to split every premium you see into these two pieces. It tells you what you're paying for: what's already there, and what's just hope plus time.",
+        "workedExample": {
+          "title": "Splitting premium into intrinsic and extrinsic",
+          "scenario": "Stock GHI trades at $52. Quotes: $50 call at $3.40, $55 call at $0.80, $55 put at $3.60.",
+          "steps": [
+            "$50 call intrinsic: $52 - $50 = $2.00. Extrinsic: $3.40 - $2.00 = $1.40 ($140 per contract).",
+            "$55 call intrinsic: $52 - $55 is negative, so intrinsic = $0. Extrinsic: $0.80 - $0 = $0.80 ($80 per contract). It's all time value.",
+            "$55 put intrinsic: $55 - $52 = $3.00. Extrinsic: $3.60 - $3.00 = $0.60 ($60 per contract).",
+            "At expiration, if GHI is still exactly $52: the $50 call is worth $2.00, the $55 call is worth $0, and the $55 put is worth $3.00. All extrinsic value is gone.",
+            "Change for a holder of the $50 call: $3.40 down to $2.00 = $1.40 x 100 = $140 lost to time, even though the stock didn't move."
+          ],
+          "result": "With the stock unchanged, every option lost exactly its extrinsic value by expiration."
+        },
+        "tosTip": {
+          "title": "Check value with the Mark and the stock price",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In Trade > All Products, note the stock's last price at the top, then look at the Mark for a strike in the option chain. In-the-money strikes are shaded. For a shaded call, subtract the strike from the stock price to get intrinsic value, then subtract that from the Mark to get extrinsic value. Do this for a few strikes across two expirations to see extrinsic value peak near the money and grow with time."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's Greeks series YouTube link"
+        },
+        "keyTakeaways": [
+          "Premium = intrinsic + extrinsic.",
+          "Intrinsic value is never negative; OTM options have zero intrinsic value.",
+          "Extrinsic (time) value is usually highest at the money.",
+          "Extrinsic value goes to zero at expiration.",
+          "Little extrinsic value left on a short American-style option raises early assignment risk."
+        ],
+        "quiz": [
+          {
+            "id": "m4-q1",
+            "question": "Stock is at $80. What is the intrinsic value of a $75 call?",
+            "options": [
+              "$0",
+              "$5",
+              "$75",
+              "$80"
+            ],
+            "answerIndex": 1,
+            "explanation": "Call intrinsic = stock - strike = $80 - $75 = $5."
+          },
+          {
+            "id": "m4-q2",
+            "question": "Stock is at $80. A $85 call trades at $1.10. What is its extrinsic value?",
+            "options": [
+              "$1.10",
+              "$0",
+              "$5.00",
+              "$6.10"
+            ],
+            "answerIndex": 0,
+            "explanation": "It's OTM, so intrinsic is $0 and all $1.10 is extrinsic."
+          },
+          {
+            "id": "m4-q3",
+            "question": "Stock is at $80. A $90 put trades at $10.75. What is its extrinsic value?",
+            "options": [
+              "$10.75",
+              "$10.00",
+              "$0.75",
+              "$0"
+            ],
+            "answerIndex": 2,
+            "explanation": "Intrinsic = $90 - $80 = $10; extrinsic = $10.75 - $10 = $0.75."
+          },
+          {
+            "id": "m4-q4",
+            "question": "What happens to extrinsic value at expiration?",
+            "options": [
+              "It doubles",
+              "It turns into intrinsic value automatically",
+              "It stays the same",
+              "It goes to zero"
+            ],
+            "answerIndex": 3,
+            "explanation": "At expiration an option is worth only its intrinsic value."
+          },
+          {
+            "id": "m4-q5",
+            "question": "Where is extrinsic value usually the largest?",
+            "options": [
+              "At the money",
+              "Deep in the money",
+              "Far out of the money",
+              "It is the same at every strike"
+            ],
+            "answerIndex": 0,
+            "explanation": "Uncertainty is greatest near the strike, so time value peaks at the money."
+          }
+        ]
+      },
+      {
+        "id": "m5-buying-vs-selling",
+        "title": "Buying vs. Selling and the Risk of Each",
+        "learningObjectives": [
+          "Compare the maximum loss and maximum gain of long and short options",
+          "Explain why a short (naked) call has theoretically unlimited risk",
+          "Calculate the maximum loss of a defined-risk vertical credit spread"
+        ],
+        "lesson": "Every option trade has a buyer and a seller. Their risks are mirror images.\n\n**Buying (long options)**\n- You **pay** premium (a debit).\n- **Max loss = premium paid.** That's it.\n- Long call max gain is theoretically unlimited. Long put max gain is large but capped, since a stock can only fall to zero (strike - premium, times 100).\n- Time decay works **against** you. The stock needs to move, and soon enough.\n\n**Selling (short options)**\n- You **receive** premium (a credit).\n- **Max gain = premium received.** That's the ceiling.\n- Time decay generally works **for** you.\n- Risk can be large:\n  - **Short naked call:** theoretically **unlimited** risk. There's no ceiling on how high a stock can go.\n  - **Short naked put:** large risk. Max loss = (strike - premium) x 100, if the stock goes to zero.\n- You can be **assigned** at any time on American-style options.\n- Brokers require higher **approval levels** and margin to sell uncovered options.\n\n**Covered and defined-risk selling**\nSellers can limit risk in a few ways:\n- **Covered call:** sell a call against 100 shares you own. The shares cover the obligation. You still carry the risk of owning the stock.\n- **Cash-secured put:** sell a put with enough cash set aside to buy the shares if assigned.\n- **Vertical credit spread:** sell one option and buy a further OTM option of the same type and expiration. The long option caps the loss.\n\n**Credit spread math**\n- Net credit = premium sold - premium bought\n- **Max gain = net credit x 100**\n- **Max loss = (width of strikes - net credit) x 100**\n- Put credit spread break-even = short strike - net credit\n- Call credit spread break-even = short strike + net credit\n\nA credit spread usually has a max gain much smaller than its max loss. That's the trade-off for a higher chance of keeping some or all of the credit. Neither side is \"better.\" They're different risk shapes. Know which one you're holding.\n\nOne more thing. **Max loss is not the same as likely loss**, and max gain is not likely gain. Both are boundaries. Plan for the boundary anyway.",
+        "workedExample": {
+          "title": "Naked short put vs. put credit spread",
+          "scenario": "Stock JKL trades at $50. A 30-day $45 put is quoted at $1.00 and a 30-day $40 put at $0.30.",
+          "steps": [
+            "Naked short $45 put: credit = $1.00 x 100 = $100. Max gain = $100.",
+            "Naked short put max loss (stock goes to $0): ($45 - $1.00) x 100 = $4,400. Break-even = $45 - $1.00 = $44.00.",
+            "Put credit spread: sell the $45 put for $1.00 and buy the $40 put for $0.30. Net credit = $1.00 - $0.30 = $0.70, or $70 per spread.",
+            "Spread width = $45 - $40 = $5.00. Max loss = ($5.00 - $0.70) x 100 = $430.",
+            "Spread break-even at expiration = $45 - $0.70 = $44.30. Max gain = $70 if JKL is at or above $45 at expiration."
+          ],
+          "result": "Buying the $40 put cost $30 of potential gain ($100 vs. $70) and cut the max loss from $4,400 to $430."
+        },
+        "tosTip": {
+          "title": "See the risk shape before you trade",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In Trade > All Products, right-click an option (or a vertical, after switching the chain's Spread selector from Single to Vertical) and choose the Analyze option for a buy or sell trade. Then open the Analyze tab and view the Risk Profile. The P/L graph shows max gain, max loss and break-even at expiration. Try it in paperMoney with a long call, a short put and a put credit spread to compare the shapes."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's Greeks series YouTube link"
+        },
+        "keyTakeaways": [
+          "Long option: max loss = premium paid.",
+          "Short option: max gain = premium received; risk can be large.",
+          "A short naked call has theoretically unlimited risk.",
+          "Credit spread max loss = (width - net credit) x 100.",
+          "Max loss is a boundary, not a forecast. Plan for it anyway."
+        ],
+        "quiz": [
+          {
+            "id": "m5-q1",
+            "question": "What is the maximum loss on a long call that cost $2.00?",
+            "options": [
+              "Unlimited",
+              "$2,000",
+              "$200",
+              "The strike price x 100"
+            ],
+            "answerIndex": 2,
+            "explanation": "A long option's max loss is the premium paid: $2.00 x 100 = $200."
+          },
+          {
+            "id": "m5-q2",
+            "question": "Which position has theoretically unlimited risk?",
+            "options": [
+              "Long put",
+              "Short naked call",
+              "Long call",
+              "Put credit spread"
+            ],
+            "answerIndex": 1,
+            "explanation": "A stock has no upper limit, so a short uncovered call has no defined max loss."
+          },
+          {
+            "id": "m5-q3",
+            "question": "You sell a $50 put for $2.00 with no hedge. What is the max loss if the stock goes to zero?",
+            "options": [
+              "$4,800",
+              "$5,000",
+              "$200",
+              "$5,200"
+            ],
+            "answerIndex": 0,
+            "explanation": "($50 - $2.00) x 100 = $4,800."
+          },
+          {
+            "id": "m5-q4",
+            "question": "A $5-wide credit spread collects a $1.20 net credit. What is its max loss?",
+            "options": [
+              "$120",
+              "$500",
+              "$620",
+              "$380"
+            ],
+            "answerIndex": 3,
+            "explanation": "($5.00 - $1.20) x 100 = $380."
+          },
+          {
+            "id": "m5-q5",
+            "question": "How does time decay generally affect option sellers?",
+            "options": [
+              "It hurts them",
+              "It has no effect",
+              "It generally helps them",
+              "It only matters for puts"
+            ],
+            "answerIndex": 2,
+            "explanation": "Sellers collect extrinsic value, which decays over time."
+          }
+        ]
+      },
+      {
+        "id": "m6-greeks-basics",
+        "title": "The Greeks at a Basic Level",
+        "learningObjectives": [
+          "Define delta, theta, vega and gamma in plain language",
+          "State the typical delta ranges for calls (0 to 1) and puts (0 to -1)",
+          "Estimate a per-contract dollar change using a Greek and the 100 multiplier"
+        ],
+        "lesson": "The Greeks are estimates. They tell you how an option's price is *expected* to change when one thing changes and everything else stays the same. They're shown per share, so multiply by 100 for one contract.\n\n**Delta: sensitivity to the stock price**\n- Estimated change in option price for a **$1 move** in the stock.\n- **Calls: 0 to 1.** **Puts: 0 to -1.**\n- ATM options are usually near 0.50 (calls) or -0.50 (puts). Deep ITM options move toward 1 or -1. Far OTM options move toward 0.\n- Delta is also a rough **share equivalent**. A 0.30 delta call acts a bit like 30 shares for small moves.\n- Many traders use delta as a loose estimate of the chance an option finishes ITM. It's a rough guide, not a true probability.\n\n**Theta: time decay**\n- Estimated change in option price from **one day passing**.\n- Usually **negative for long options** and positive for short options.\n- Theta generally **hurts buyers and helps sellers**.\n- Decay tends to speed up as expiration gets close, especially for ATM options.\n\n**Vega: sensitivity to implied volatility (IV)**\n- Estimated change in option price for a **1-point change in IV**.\n- Long options gain when IV rises and lose when IV falls. Short options are the opposite.\n- Longer-dated options have more vega.\n- IV often drops after a known event like earnings. That drop can lower option prices even if the stock moves.\n\n**Gamma: how fast delta changes**\n- Estimated change in **delta** for a $1 move in the stock.\n- Highest for ATM options near expiration.\n- Long options have positive gamma. Short options have negative gamma, which means moves against a short position can speed up.\n\n**How to use them**\n- Before a trade, check what you're exposed to: direction (delta), time (theta), volatility (vega), and how fast things can change (gamma).\n- For a spread, the Greeks of each leg add up. A credit spread's net Greeks are usually smaller than a single naked option's.\n\nRemember: the Greeks change constantly as price, time and IV change. They're a dashboard, not a promise. They work best for small moves over short periods.",
+        "workedExample": {
+          "title": "Using the Greeks to estimate changes",
+          "scenario": "A 30-day ATM call is priced at $3.00 with Delta 0.50, Gamma 0.04, Theta -0.05, Vega 0.10. Estimates assume one thing changes at a time.",
+          "steps": [
+            "Delta: stock rises $1. Estimated option change = +0.50 x $1 = +$0.50 per share, or +$50 per contract. New estimated price is about $3.50.",
+            "Gamma: after that $1 rise, delta is estimated at 0.50 + 0.04 = 0.54.",
+            "Theta: one day passes with nothing else changing. Estimated change = -$0.05 per share, or -$5 per contract. Price is about $2.95.",
+            "Vega: IV rises from 25% to 26% (1 point). Estimated change = +$0.10 per share, or +$10 per contract. Price is about $3.10.",
+            "Short side: a seller of this same call has the opposite signs: about -$50 for the $1 rise, +$5 for one day of decay, and -$10 for the 1-point IV rise."
+          ],
+          "result": "The Greeks turn 'what if' questions into rough dollar estimates. Real prices will differ because several factors change at once."
+        },
+        "tosTip": {
+          "title": "Add the Greeks to your option chain",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In Trade > All Products, use the Layout menu at the top of the Option Chain to pick a layout that shows Delta, Gamma, Theta and Vega, or choose Customize to add those columns yourself. You can also click a column header in the chain to swap it for a different field. Compare the Greeks of ATM and far OTM strikes, and of near and far expirations."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's Greeks series YouTube link"
+        },
+        "keyTakeaways": [
+          "Delta: price sensitivity. Calls 0 to 1, puts 0 to -1.",
+          "Theta: time decay. It generally hurts buyers and helps sellers.",
+          "Vega: sensitivity to implied volatility.",
+          "Gamma: how fast delta changes; highest ATM near expiration.",
+          "Greeks are per share estimates; multiply by 100 per contract."
+        ],
+        "quiz": [
+          {
+            "id": "m6-q1",
+            "question": "What is the typical delta range for a put?",
+            "options": [
+              "0 to 1",
+              "-1 to 1",
+              "0 to -1",
+              "0 to 100"
+            ],
+            "answerIndex": 2,
+            "explanation": "Put deltas run from 0 to -1; call deltas from 0 to 1."
+          },
+          {
+            "id": "m6-q2",
+            "question": "A call has delta 0.40. The stock rises $1. About how much does one contract change?",
+            "options": [
+              "+$40",
+              "+$0.40",
+              "+$4",
+              "+$400"
+            ],
+            "answerIndex": 0,
+            "explanation": "0.40 x $1 x 100 = about $40 per contract."
+          },
+          {
+            "id": "m6-q3",
+            "question": "A long option has theta of -0.08. About how much value does one contract lose in one day, all else equal?",
+            "options": [
+              "$0.08",
+              "$80",
+              "$0.80",
+              "$8"
+            ],
+            "answerIndex": 3,
+            "explanation": "-0.08 x 100 = about -$8 per contract per day."
+          },
+          {
+            "id": "m6-q4",
+            "question": "Which Greek measures sensitivity to implied volatility?",
+            "options": [
+              "Delta",
+              "Vega",
+              "Gamma",
+              "Theta"
+            ],
+            "answerIndex": 1,
+            "explanation": "Vega estimates the price change for a 1-point change in IV."
+          },
+          {
+            "id": "m6-q5",
+            "question": "Where is gamma usually highest?",
+            "options": [
+              "Deep ITM options far from expiration",
+              "Far OTM options far from expiration",
+              "ATM options near expiration",
+              "It is the same for every option"
+            ],
+            "answerIndex": 2,
+            "explanation": "Delta changes fastest near the money as expiration approaches."
+          }
+        ]
+      },
+      {
+        "id": "m7-reading-option-chain-tos",
+        "title": "Reading an Option Chain in thinkorswim",
+        "learningObjectives": [
+          "Navigate to an option chain in thinkorswim (Trade tab > All Products)",
+          "Read bid, ask, mark, volume, open interest, delta and Probability OTM",
+          "Judge liquidity using the bid-ask spread and open interest"
+        ],
+        "lesson": "An option chain is a table of every available option for one underlying. Learn to read it fast and calmly.\n\n**Where to find it in thinkorswim**\n**Trade** tab, then **All Products**. Enter a symbol. The chain sits below the stock quote, grouped by expiration. Click an expiration to expand it.\n\n**Layout**\n- **Strikes** run down the middle.\n- **Calls** are on the left. **Puts** are on the right.\n- In-the-money strikes are shaded, so you can see where the stock price falls.\n\n**Key columns**\n- **Bid:** the highest price buyers are currently offering. If you sell at market, you'll likely get about this.\n- **Ask:** the lowest price sellers are currently asking. If you buy at market, you'll likely pay about this.\n- **Mark:** the midpoint of bid and ask. A reference, not a guaranteed fill.\n- **Volume:** contracts traded today.\n- **Open Interest (Open Int):** contracts still open from earlier. Higher usually means a more active market.\n- **Delta:** covered in Module 6.\n- **Probability OTM:** the model's estimate of the chance the option finishes out of the money at expiration. It's based on implied volatility. It is a model estimate, not a forecast or a promise.\n- **Impl Vol:** the implied volatility for that strike.\n\n**Liquidity: the hidden cost**\nThe gap between bid and ask is the **bid-ask spread**. It's a cost every time you enter and exit.\n- Tight spread (like $0.01 to $0.05 on an active ETF): cheaper to trade.\n- Wide spread (like $0.50 on a $2.00 option): expensive. You start behind.\n- Low open interest and low volume often go with wide spreads.\n\n**Limit orders**\nUsing a **limit order** lets you set the most you'll pay or the least you'll accept. Many traders start near the mark and adjust. A market order can fill at a poor price when spreads are wide.\n\n**Checklist before you even practice an order**\n1. Right underlying? Right expiration? Right strike? Call or put?\n2. Buying or selling? To open or to close?\n3. What's the bid-ask spread?\n4. What's the max loss (Module 5)?\n5. What do the Greeks say you're exposed to (Module 6)?\n\nWait. Then Bite. Reading the chain carefully is the waiting part.",
+        "workedExample": {
+          "title": "Reading one row of a chain",
+          "scenario": "One call row shows: Strike $100, Bid $2.40, Ask $2.60, Volume 1,250, Open Int 8,400, Delta 0.45, Probability OTM 58%. A second, thinly traded call shows Bid $1.10, Ask $1.60.",
+          "steps": [
+            "Mark = ($2.40 + $2.60) / 2 = $2.50.",
+            "Bid-ask spread = $2.60 - $2.40 = $0.20, or $20 per contract.",
+            "Buying at the ask costs $2.60 x 100 = $260. Selling right back at the bid returns $2.40 x 100 = $240. That round trip costs $20 even if nothing else changes.",
+            "Probability OTM 58% means the model estimates about a 100% - 58% = 42% chance of finishing ITM. Delta 0.45 tells a similar rough story.",
+            "Thin option: spread = $1.60 - $1.10 = $0.50, or $50 per contract. Relative to its $1.35 mark, that's about 37%, versus about 8% ($0.20 / $2.50) for the active option."
+          ],
+          "result": "The active option is far cheaper to get in and out of. Liquidity is part of the price."
+        },
+        "tosTip": {
+          "title": "Add Probability OTM and Open Interest to the chain",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In Trade > All Products, open the Layout menu above the Option Chain and choose Customize. Add Probability OTM, Open Int and Volume next to Bid, Ask and Delta, then save the layout so it loads every time. Practice building orders from the chain in paperMoney: clicking a bid or ask creates an order ticket at the bottom of the Trade tab that you can review before anything is sent."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's Greeks series YouTube link"
+        },
+        "keyTakeaways": [
+          "In TOS: Trade tab > All Products. Calls left, puts right, strikes in the middle.",
+          "Bid is what buyers offer, ask is what sellers want, mark is the midpoint.",
+          "The bid-ask spread is a real cost on every entry and exit.",
+          "Probability OTM is a model estimate, not a promise.",
+          "Limit orders help you control the price you accept."
+        ],
+        "quiz": [
+          {
+            "id": "m7-q1",
+            "question": "In thinkorswim, where do you find the option chain for a symbol?",
+            "options": [
+              "Monitor tab > Activity and Positions",
+              "Trade tab > All Products",
+              "Charts tab > Studies",
+              "MarketWatch tab > Alerts"
+            ],
+            "answerIndex": 1,
+            "explanation": "The option chain is under Trade > All Products after you enter a symbol."
+          },
+          {
+            "id": "m7-q2",
+            "question": "In the TOS option chain, where are calls displayed?",
+            "options": [
+              "On the left side",
+              "On the right side",
+              "In a separate window only",
+              "Under the stock quote"
+            ],
+            "answerIndex": 0,
+            "explanation": "Calls are on the left, puts on the right, strikes in the middle."
+          },
+          {
+            "id": "m7-q3",
+            "question": "Bid is $1.80 and ask is $2.00. What is the mark?",
+            "options": [
+              "$1.80",
+              "$2.00",
+              "$0.20",
+              "$1.90"
+            ],
+            "answerIndex": 3,
+            "explanation": "Mark is the midpoint: ($1.80 + $2.00) / 2 = $1.90."
+          },
+          {
+            "id": "m7-q4",
+            "question": "What does a wide bid-ask spread usually mean?",
+            "options": [
+              "The option is guaranteed to be profitable",
+              "The option has no risk",
+              "It's more expensive to enter and exit",
+              "The option is about to expire"
+            ],
+            "answerIndex": 2,
+            "explanation": "You give up more of the spread on every trade."
+          },
+          {
+            "id": "m7-q5",
+            "question": "What is Probability OTM?",
+            "options": [
+              "A model estimate of the chance the option expires out of the money",
+              "A guarantee the option will expire worthless",
+              "The percentage of traders who are short the option",
+              "The broker's margin requirement"
+            ],
+            "answerIndex": 0,
+            "explanation": "It's derived from implied volatility and is an estimate, not a promise."
+          }
+        ]
+      },
+      {
+        "id": "m8-risk-and-position-sizing",
+        "title": "Basic Risk and Position Sizing",
+        "learningObjectives": [
+          "Size a position from a chosen maximum risk per trade",
+          "Explain why defined max loss, not premium collected, drives sizing",
+          "List key non-price risks: assignment, liquidity, events and margin"
+        ],
+        "lesson": "Strategy gets the attention. Sizing keeps you in the game.\n\n**Start with the max loss**\nBefore any trade, know the most you can lose:\n- Long option: the premium paid.\n- Defined-risk spread: (width - credit) x 100 for credit spreads, or the debit paid for debit spreads.\n- Naked short options: very large, or unlimited for calls. This is why brokers restrict them.\n\nSize from the **max loss**, not from the premium you'll collect or the gain you hope for.\n\n**A simple sizing framework**\nSome traders set a cap on risk per trade as a percentage of their account. You'll often see 1% to 2% used as examples. This course isn't recommending a number. The point is to pick one *before* you trade and stick to it.\n\n**Contracts = risk budget / max loss per contract**, rounded **down**.\n\nIf the result is less than 1, the trade doesn't fit your rule. That's an answer, not a problem to solve.\n\n**Total exposure**\nFive separate trades that all lose if the market drops are really one big bet. Watch:\n- How many positions lean the same direction\n- Total max loss across all open positions\n- Concentration in one underlying or one expiration\n\n**Risks beyond price**\n- **Assignment:** American-style options can be assigned early. A short leg of a spread can be assigned while the long leg is still open.\n- **Expiration risk:** a short option near the strike at expiration can leave you with an unexpected stock position.\n- **Liquidity:** wide spreads can make exiting expensive, especially in a fast market.\n- **Events and gaps:** earnings, economic data and overnight news can move a stock past your strikes before you can react. Stops don't protect against gaps.\n- **Volatility changes:** IV can rise or collapse quickly (vega).\n- **Margin:** selling options uses buying power. A margin account can amplify both risk and losses. Requirements can change.\n\n**Have a plan before you enter**\n1. What's my max loss, in dollars?\n2. Does it fit my per-trade rule?\n3. What would make me exit early?\n4. What happens if I'm assigned?\n5. What's my total risk across all open trades?\n\nPractice this checklist in paperMoney until it's automatic.",
+        "workedExample": {
+          "title": "Sizing a defined-risk trade",
+          "scenario": "A $25,000 practice account uses a 2% max-risk-per-trade rule as an example. Two trades are being considered: a $5-wide put credit spread with a $0.70 credit, and a long call that costs $3.50.",
+          "steps": [
+            "Risk budget: $25,000 x 2% = $500.",
+            "Credit spread max loss per spread: ($5.00 - $0.70) x 100 = $430.",
+            "Spreads that fit: $500 / $430 = 1.16, rounded down = 1 spread. Total max loss = $430.",
+            "Two spreads would risk $860, which is over the $500 budget.",
+            "Long call max loss per contract: $3.50 x 100 = $350. Contracts that fit: $500 / $350 = 1.43, rounded down = 1. With a 1% rule ($250), $250 / $350 = 0.71, rounded down = 0, so the trade doesn't fit."
+          ],
+          "result": "The rule decides the size. Max gain and premium collected never enter the sizing math."
+        },
+        "tosTip": {
+          "title": "Read the order confirmation before sending",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "When you click Confirm and Send on an order in thinkorswim, a confirmation dialog appears before anything is sent. Review the order description, the cost or credit, and the buying power effect, then compare them to your max-loss math. In paperMoney, track all open positions and their combined P/L on the Monitor tab under Activity and Positions."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's Greeks series YouTube link"
+        },
+        "keyTakeaways": [
+          "Size from max loss, never from the premium you'll collect.",
+          "Contracts = risk budget / max loss per contract, rounded down.",
+          "If the answer is zero, the trade doesn't fit the rule.",
+          "Correlated positions add up to one bigger bet.",
+          "Assignment, gaps, liquidity, IV and margin are risks too."
+        ],
+        "quiz": [
+          {
+            "id": "m8-q1",
+            "question": "What should drive position size?",
+            "options": [
+              "The premium you'll collect",
+              "The trade's maximum loss compared to your risk budget",
+              "How confident you feel",
+              "The stock's dividend yield"
+            ],
+            "answerIndex": 1,
+            "explanation": "Size is set by how much you can lose, not by what you hope to make."
+          },
+          {
+            "id": "m8-q2",
+            "question": "Risk budget is $300. A spread's max loss is $420. How many spreads fit?",
+            "options": [
+              "0",
+              "1",
+              "2",
+              "3"
+            ],
+            "answerIndex": 0,
+            "explanation": "$300 / $420 = 0.71, which rounds down to 0. The trade doesn't fit."
+          },
+          {
+            "id": "m8-q3",
+            "question": "A $40,000 account uses a 1% max-risk rule. A spread's max loss is $180. How many fit?",
+            "options": [
+              "1",
+              "3",
+              "4",
+              "2"
+            ],
+            "answerIndex": 3,
+            "explanation": "$40,000 x 1% = $400; $400 / $180 = 2.22, rounded down to 2."
+          },
+          {
+            "id": "m8-q4",
+            "question": "Why don't stop orders fully protect against overnight gaps?",
+            "options": [
+              "Stops only work on Fridays",
+              "Stops cannot be used with options",
+              "Price can open beyond your level, so a fill can be much worse",
+              "Gaps never happen in ETFs"
+            ],
+            "answerIndex": 2,
+            "explanation": "A gap skips over prices, so execution happens at the next available price."
+          },
+          {
+            "id": "m8-q5",
+            "question": "Five bullish trades on different tech stocks are open. What's the main concern?",
+            "options": [
+              "They are probably correlated, so they act like one bigger bet",
+              "They will all be assigned at once",
+              "Bullish trades have no risk",
+              "Different stocks always offset each other"
+            ],
+            "answerIndex": 0,
+            "explanation": "Positions that move together concentrate risk."
+          }
+        ]
+      }
+    ],
+    "finalExam": {
+      "passingScorePercent": 80,
+      "passingScoreCount": 12,
+      "questions": [
+        {
+          "id": "fe-q1",
+          "question": "One standard U.S. equity option contract covers how many shares?",
+          "options": [
+            "10",
+            "100",
+            "1,000",
+            "1"
+          ],
+          "answerIndex": 1,
+          "explanation": "Standard equity and ETF options use a 100-share multiplier."
+        },
+        {
+          "id": "fe-q2",
+          "question": "What does a put option give its buyer?",
+          "options": [
+            "The right to buy shares at the strike",
+            "The obligation to buy shares at the strike",
+            "The right to sell shares at the strike",
+            "A share of the company's dividends"
+          ],
+          "answerIndex": 2,
+          "explanation": "A put is the right to sell at the strike."
+        },
+        {
+          "id": "fe-q3",
+          "question": "You buy a $70 call for $3.00. What is the break-even at expiration?",
+          "options": [
+            "$73.00",
+            "$67.00",
+            "$70.00",
+            "$76.00"
+          ],
+          "answerIndex": 0,
+          "explanation": "Strike + premium = $70 + $3.00."
+        },
+        {
+          "id": "fe-q4",
+          "question": "Stock is at $45. Which option is out of the money?",
+          "options": [
+            "$40 call",
+            "$50 put",
+            "$45 call",
+            "$50 call"
+          ],
+          "answerIndex": 3,
+          "explanation": "A call with a strike above the stock price is OTM."
+        },
+        {
+          "id": "fe-q5",
+          "question": "Most U.S. stock and ETF options are which style?",
+          "options": [
+            "European, exercisable only at expiration",
+            "American, exercisable any time up to expiration",
+            "Asian, settled on an average price",
+            "Bermudan, exercisable once per month"
+          ],
+          "answerIndex": 1,
+          "explanation": "American-style options can be exercised early, so short positions can be assigned early."
+        },
+        {
+          "id": "fe-q6",
+          "question": "Stock is at $62. A $60 call trades at $3.10. What is its extrinsic value?",
+          "options": [
+            "$1.10",
+            "$2.00",
+            "$3.10",
+            "$0"
+          ],
+          "answerIndex": 0,
+          "explanation": "Intrinsic = $2.00; extrinsic = $3.10 - $2.00 = $1.10."
+        },
+        {
+          "id": "fe-q7",
+          "question": "At expiration, an option is worth...",
+          "options": [
+            "Its intrinsic value plus its theta",
+            "Its original premium",
+            "Its intrinsic value only",
+            "Always zero"
+          ],
+          "answerIndex": 2,
+          "explanation": "Extrinsic value is gone at expiration."
+        },
+        {
+          "id": "fe-q8",
+          "question": "What is the max loss on a long put bought for $1.75?",
+          "options": [
+            "$1.75",
+            "Unlimited",
+            "The strike x 100",
+            "$175"
+          ],
+          "answerIndex": 3,
+          "explanation": "A long option's max loss is the premium: $1.75 x 100."
+        },
+        {
+          "id": "fe-q9",
+          "question": "Which position has theoretically unlimited risk?",
+          "options": [
+            "Short naked call",
+            "Long call",
+            "Call credit spread",
+            "Long put"
+          ],
+          "answerIndex": 0,
+          "explanation": "There's no cap on how high a stock can rise."
+        },
+        {
+          "id": "fe-q10",
+          "question": "A $10-wide credit spread collects a $2.50 net credit. What is the max loss?",
+          "options": [
+            "$250",
+            "$1,000",
+            "$750",
+            "$1,250"
+          ],
+          "answerIndex": 2,
+          "explanation": "($10.00 - $2.50) x 100 = $750."
+        },
+        {
+          "id": "fe-q11",
+          "question": "Theta generally...",
+          "options": [
+            "Helps buyers and hurts sellers",
+            "Hurts buyers and helps sellers",
+            "Affects only puts",
+            "Has no effect near expiration"
+          ],
+          "answerIndex": 1,
+          "explanation": "Time decay erodes extrinsic value, which buyers pay and sellers collect."
+        },
+        {
+          "id": "fe-q12",
+          "question": "A call has delta 0.60. What is its typical delta range as a call?",
+          "options": [
+            "0 to -1",
+            "-1 to 1",
+            "0 to 100",
+            "0 to 1"
+          ],
+          "answerIndex": 3,
+          "explanation": "Call deltas range from 0 to 1."
+        },
+        {
+          "id": "fe-q13",
+          "question": "Vega estimates an option's price change for...",
+          "options": [
+            "A $1 move in the stock",
+            "One day passing",
+            "A 1-point change in implied volatility",
+            "A change in delta"
+          ],
+          "answerIndex": 2,
+          "explanation": "Vega is sensitivity to implied volatility."
+        },
+        {
+          "id": "fe-q14",
+          "question": "In thinkorswim on Windows, how do you open the option chain?",
+          "options": [
+            "Trade tab > All Products, then enter a symbol",
+            "Charts tab > Drawings",
+            "Tools > Calculator",
+            "Monitor tab > Account Statement"
+          ],
+          "answerIndex": 0,
+          "explanation": "The chain is on the Trade tab under All Products."
+        },
+        {
+          "id": "fe-q15",
+          "question": "Risk budget is $600 and a spread's max loss is $250. How many spreads fit?",
+          "options": [
+            "3",
+            "2",
+            "1",
+            "0"
+          ],
+          "answerIndex": 1,
+          "explanation": "$600 / $250 = 2.4, rounded down to 2."
+        }
+      ]
+    },
+    "closing": {
+      "text": "You made it through Options 101.\n\nHere's what you covered: what an option is, calls and puts, strikes and expirations, intrinsic and extrinsic value, the risk of buying vs. selling, the basic Greeks, reading a thinkorswim option chain, and sizing from max loss.\n\nNext steps:\n1. Retake any quiz where you missed more than one question.\n2. Open paperMoney and repeat each worked example on a real chain.\n3. Write down your own max-risk-per-trade rule before you place any practice trade.\n\nWait. Then Bite. Learn the structure, practice it, and act only when the math is clear.\n\nWant to keep going? Try the free Road Map study, or start the desk 7-day trial.\n\n*This is educational content, not financial advice. Options trading carries substantial risk and is not suitable for everyone. Brokers require options approval levels before you can trade certain strategies.*",
+      "ctas": [
+        {
+          "label": "Free Road Map study",
+          "url": "https://news.algoswamp.com/tools"
+        },
+        {
+          "label": "Start the desk 7-day trial",
+          "url": "",
+          "note": "Add trial URL"
+        }
+      ]
+    }
+  }
+}

@@ -8,6 +8,7 @@ import {
   DESK_PAGE,
   HOME_PAGE,
   OG_IMAGE,
+  LEARN_PAGE,
   TOOLS_PAGE,
   joinPage,
   pageUrl,
@@ -16,8 +17,14 @@ import {
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
-function meta(page: Parameters<typeof routeHead>[0], key: string, attr: "name" | "property" = "name") {
-  const tag = routeHead(page).meta.find((item) => attr in item && item[attr as keyof typeof item] === key);
+function meta(
+  page: Parameters<typeof routeHead>[0],
+  key: string,
+  attr: "name" | "property" = "name",
+) {
+  const tag = routeHead(page).meta.find(
+    (item) => attr in item && item[attr as keyof typeof item] === key,
+  );
   assert.ok(tag && "content" in tag, `missing ${attr}=${key}`);
   return tag.content;
 }
@@ -33,7 +40,14 @@ describe("news route head", () => {
   });
 
   it("gives each public route a unique title, canonical, and og:url", () => {
-    const pages = [HOME_PAGE, DESK_PAGE, TOOLS_PAGE, joinPage("monthly"), joinPage("annual")];
+    const pages = [
+      HOME_PAGE,
+      DESK_PAGE,
+      TOOLS_PAGE,
+      LEARN_PAGE,
+      joinPage("monthly"),
+      joinPage("annual"),
+    ];
     const titles = new Set(pages.map((page) => page.title));
     assert.equal(titles.size, pages.length);
     for (const page of pages) {
@@ -60,6 +74,7 @@ describe("news route head", () => {
     assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/desk<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/tools<\/loc>/);
+    assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/learn<\/loc>/);
     assert.doesNotMatch(sitemap, /join/);
 
     const robots = readFileSync(join(root, "public/robots.txt"), "utf8");
