@@ -36,10 +36,9 @@ export function Masthead() {
           </Link>
           <Link
             to="/learn"
-            title="Options 101: options trading for beginners"
             className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-2 text-sm font-medium text-muted sm:px-3 ${focusRing}`}
           >
-            Options 101
+            Classes
           </Link>
           <Link
             to="/tools"

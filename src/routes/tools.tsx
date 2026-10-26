@@ -134,7 +134,7 @@ function ToolsPage() {
             to="/learn"
             className={`inline-flex min-h-11 items-center ${focusRing}`}
           >
-            Options 101
+            Classes
           </Link>
         </div>
       </footer>
