@@ -35,6 +35,13 @@ export function Masthead() {
             Pricing
           </Link>
           <Link
+            to="/learn"
+            title="Options 101: options trading for beginners"
+            className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-2 text-sm font-medium text-muted sm:px-3 ${focusRing}`}
+          >
+            Options 101
+          </Link>
+          <Link
             to="/tools"
             className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-2 text-sm font-medium text-muted sm:px-3 ${focusRing}`}
           >
@@ -49,7 +56,9 @@ export function Masthead() {
             </Link>
           ) : null}
           <div className="ml-0.5 flex min-h-11 shrink-0 items-center sm:ml-1">
-            {isPending ? <div className="h-8 w-24 animate-pulse rounded-full bg-surface" /> : null}
+            {isPending ? (
+              <div className="h-8 w-24 animate-pulse rounded-full bg-surface" />
+            ) : null}
             {!isPending && !user ? (
               <Link
                 to="/login"

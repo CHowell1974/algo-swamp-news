@@ -3,12 +3,26 @@ import { getRequest } from "@tanstack/react-start/server";
 import {
   checkoutCommercials,
   checkoutIntegrationId,
+  courseCheckoutIntegrationId,
   FOUNDER_CACHE_MS,
   founderOfferFromPromo,
   grantsDesk,
   subscriptionAccessEnd,
   type FounderOffer,
 } from "@/lib/billing";
+import {
+  COURSE_ID,
+  OPTIONS_101_PRICE_CENTS,
+  courseCheckoutOwner,
+  courseCheckoutParams,
+  courseFulfillmentDecision,
+} from "@/lib/course/access";
+import {
+  hasPaidCourse,
+  markCourseRefunded,
+  savePaidCoursePurchase,
+  stripeCustomerForUser,
+} from "@/lib/course/store.server";
 import { getSql } from "@/lib/db";
 import { isPlanId, PLANS, type PlanId } from "@/lib/plans";
 
@@ -282,6 +296,83 @@ export async function assertLocalBilling(userId: string): Promise<void> {
   }
 }
 
+const COURSE_NOT_READY =
+  "Stripe checkout is not switched on for this server yet. Options 101 is $39, but a card cannot be charged until the server has its Stripe secret.";
+
+function purchaseFromSession(session: Stripe.Checkout.Session, userId: string) {
+  return {
+    stripeCheckoutSessionId: session.id,
+    userId,
+    courseId: COURSE_ID,
+    stripePaymentIntentId: stripeId(session.payment_intent),
+    stripeCustomerId: stripeId(session.customer),
+    amountCents: session.amount_total ?? OPTIONS_101_PRICE_CENTS,
+    currency: session.currency ?? "usd",
+  };
+}
+
+async function fulfillCourseFromSession(session: Stripe.Checkout.Session): Promise<void> {
+  const decision = courseFulfillmentDecision({
+    mode: session.mode,
+    paymentStatus: session.payment_status,
+    courseId: session.metadata?.course_id ?? null,
+  });
+  if (decision !== "grant") return;
+  const owner = courseCheckoutOwner({
+    clientReferenceId: session.client_reference_id,
+    metadataUserId: session.metadata?.user_id ?? null,
+  });
+  if (!owner) return;
+  await savePaidCoursePurchase(purchaseFromSession(session, owner));
+}
+
+export async function createCourseCheckoutUrl(userId: string): Promise<string> {
+  if (!process.env.STRIPE_SECRET_KEY?.trim()) throw new Error(COURSE_NOT_READY);
+  if (await hasPaidCourse(userId, COURSE_ID)) throw new Error("You already own Options 101.");
+  const { readMembership } = await import("@/lib/membership.functions");
+  const membership = await readMembership(userId);
+  if (membership.active) throw new Error("Options 101 is included with your desk.");
+  const stripe = stripeClient();
+  const priceId = process.env.STRIPE_PRICE_OPTIONS_101?.trim() || null;
+  const customerId = await stripeCustomerForUser(userId);
+  const session = await stripe.checkout.sessions.create(
+    courseCheckoutParams({
+      userId,
+      origin: requestOrigin(),
+      priceId,
+      customerId,
+      integrationId: courseCheckoutIntegrationId(),
+    }),
+  );
+  if (!session.url) throw new Error("Stripe did not return a checkout link.");
+  return session.url;
+}
+
+export async function confirmCourseCheckoutSession(
+  userId: string,
+  sessionId: string,
+): Promise<void> {
+  const stripe = stripeClient();
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const owner = courseCheckoutOwner({
+    clientReferenceId: session.client_reference_id,
+    metadataUserId: session.metadata?.user_id ?? null,
+  });
+  if (!owner || owner !== userId) throw new Error("This checkout belongs to a different account.");
+  if (session.status !== "complete") throw new Error("Checkout is not complete yet.");
+  const decision = courseFulfillmentDecision({
+    mode: session.mode,
+    paymentStatus: session.payment_status,
+    courseId: session.metadata?.course_id ?? null,
+  });
+  if (decision !== "grant") {
+    throw new Error(
+      "Payment is still processing. Options 101 opens when Stripe marks the payment paid.",
+    );
+  }
+  await savePaidCoursePurchase(purchaseFromSession(session, userId));
+}
+
 export async function handleStripeWebhook(request: Request): Promise<Response> {
   const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!secret || !process.env.STRIPE_SECRET_KEY?.trim()) {
@@ -298,9 +389,16 @@ export async function handleStripeWebhook(request: Request): Promise<Response> {
   }
 
   try {
-    if (event.type === "checkout.session.completed") {
+    if (
+      event.type === "checkout.session.completed" ||
+      event.type === "checkout.session.async_payment_succeeded"
+    ) {
       const session = event.data.object;
-      if (session.mode === "subscription" && session.status === "complete") {
+      if (
+        event.type === "checkout.session.completed" &&
+        session.mode === "subscription" &&
+        session.status === "complete"
+      ) {
         const userId = session.client_reference_id ?? session.metadata?.user_id ?? null;
         const subId = stripeId(session.subscription);
         if (userId && subId) {
@@ -308,11 +406,19 @@ export async function handleStripeWebhook(request: Request): Promise<Response> {
           await syncSubscription(sub, userId, stripeId(session.customer));
         }
       }
+      if (session.mode === "payment") await fulfillCourseFromSession(session);
+    } else if (event.type === "checkout.session.async_payment_failed") {
+      // A delayed method can fail after checkout.session.completed with
+      // payment_status unpaid. Course access is not granted in that case.
     } else if (
       event.type === "customer.subscription.updated" ||
       event.type === "customer.subscription.deleted"
     ) {
       await syncSubscription(event.data.object);
+    } else if (event.type === "charge.refunded") {
+      const charge = event.data.object;
+      const paymentIntentId = stripeId(charge.payment_intent);
+      if (charge.refunded && paymentIntentId) await markCourseRefunded(paymentIntentId);
     } else if (event.type === "invoice.paid") {
       const subscription = event.data.object.parent?.subscription_details?.subscription;
       const subId = stripeId(subscription);

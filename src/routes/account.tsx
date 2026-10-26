@@ -13,8 +13,10 @@ import {
   type Membership,
 } from "@/lib/membership.functions";
 import { formatMoney, formatWhen, PLANS, type PlanId } from "@/lib/plans";
+import { ACCOUNT_PAGE, routeHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/account")({
+  head: () => routeHead(ACCOUNT_PAGE),
   component: AccountPage,
 });
 
@@ -55,7 +57,9 @@ function AccountPage() {
       const { url } = await checkout({ data: { plan } });
       window.location.assign(url);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not open checkout.");
+      setError(
+        cause instanceof Error ? cause.message : "Could not open checkout.",
+      );
       setPending(false);
     }
   }
@@ -67,7 +71,9 @@ function AccountPage() {
       const { url } = await portal();
       window.location.assign(url);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not open billing.");
+      setError(
+        cause instanceof Error ? cause.message : "Could not open billing.",
+      );
       setPending(false);
     }
   }
@@ -79,7 +85,9 @@ function AccountPage() {
       setMembership(await action());
       await router.invalidate();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "That change did not stick.");
+      setError(
+        cause instanceof Error ? cause.message : "That change did not stick.",
+      );
     } finally {
       setPending(false);
     }
@@ -99,25 +107,36 @@ function AccountPage() {
   if (!user) return <RedirectToSignIn to="/login" />;
 
   const other: PlanId | null =
-    membership?.plan === "annual" ? "monthly" : membership?.plan === "monthly" ? "annual" : null;
+    membership?.plan === "annual"
+      ? "monthly"
+      : membership?.plan === "monthly"
+        ? "annual"
+        : null;
 
   return (
     <div className="min-h-screen">
       <Masthead />
       <main className="mx-auto max-w-xl px-4 py-12 md:px-8">
-        <p className="text-xs font-medium tracking-widest text-muted uppercase">Plan</p>
-        <h1 className="mt-3 font-display text-5xl text-balance text-fg">Your desk</h1>
+        <p className="text-xs font-medium tracking-widest text-muted uppercase">
+          Plan
+        </p>
+        <h1 className="mt-3 font-display text-5xl text-balance text-fg">
+          Your desk
+        </h1>
         <p className="mt-3 text-sm text-muted">
           {user.primaryEmail ?? user.displayName ?? "Signed in"}
         </p>
 
         <section className="mt-8 rounded-card border border-line bg-surface p-5">
-          {!membership ? <div className="h-16 animate-pulse rounded-xl bg-surface-2" /> : null}
+          {!membership ? (
+            <div className="h-16 animate-pulse rounded-xl bg-surface-2" />
+          ) : null}
           {membership && !membership.active ? (
             <>
               <h2 className="font-display text-3xl text-fg">No active desk</h2>
               <p className="mt-2 text-sm text-pretty text-muted">
-                The open tape is still public. A monthly or annual plan opens the rest of the wire.
+                The open tape is still public. A monthly or annual plan opens
+                the rest of the wire.
               </p>
               <Link
                 to="/join"
@@ -133,9 +152,12 @@ function AccountPage() {
               <p className="text-xs font-medium tracking-widest text-signal uppercase">
                 {membership.cancelAtPeriodEnd ? "Ends this period" : "Active"}
               </p>
-              <h2 className="mt-2 font-display text-3xl text-fg">{PLANS[membership.plan].label}</h2>
+              <h2 className="mt-2 font-display text-3xl text-fg">
+                {PLANS[membership.plan].label}
+              </h2>
               <p className="mt-2 text-sm text-muted tabular-nums">
-                {formatMoney(PLANS[membership.plan].price)} {PLANS[membership.plan].cadence}
+                {formatMoney(PLANS[membership.plan].price)}{" "}
+                {PLANS[membership.plan].cadence}
                 {membership.currentPeriodEnd
                   ? ` · ${membership.cancelAtPeriodEnd ? "ends" : "renews"} ${formatWhen(membership.currentPeriodEnd)}`
                   : ""}
@@ -199,18 +221,20 @@ function AccountPage() {
               </div>
               {membership.managedByStripe ? (
                 <p className="mt-3 text-xs text-muted">
-                  Cancel in Stripe and the desk stays open until this date. Cancelling during the
-                  monthly trial means no charge.
+                  Cancel in Stripe and the desk stays open until this date.
+                  Cancelling during the monthly trial means no charge.
                 </p>
               ) : (
                 <p className="mt-3 text-xs text-muted">
-                  This period is not a Stripe subscription. Pay with Stripe to bill the{" "}
-                  {PLANS[membership.plan].label.toLowerCase()} desk.
+                  This period is not a Stripe subscription. Pay with Stripe to
+                  bill the {PLANS[membership.plan].label.toLowerCase()} desk.
                 </p>
               )}
             </>
           ) : null}
-          {error && !membership?.active ? <p className="mt-3 text-sm text-heat">{error}</p> : null}
+          {error && !membership?.active ? (
+            <p className="mt-3 text-sm text-heat">{error}</p>
+          ) : null}
         </section>
       </main>
     </div>

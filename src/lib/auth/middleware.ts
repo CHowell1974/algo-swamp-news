@@ -25,14 +25,16 @@ import { createMiddleware } from "@tanstack/react-start";
  * all. On the auth-on path, use it on every server function that touches
  * per-user data and scope every query by `context.userId`.
  */
+async function forwardBearer<T>(next: (args: { sendContext: { bearerToken?: string } }) => T) {
+  // Live preview (partitioned iframe): the session rides a bearer token, not a
+  // cookie, so forward it to the server. Null when deployed (cookie auth), so
+  // this is a no-op there.
+  const { getBearerToken } = await import("./client");
+  return next({ sendContext: { bearerToken: getBearerToken() ?? undefined } });
+}
+
 export const authMiddleware = createMiddleware({ type: "function" })
-  .client(async ({ next }) => {
-    // Live preview (partitioned iframe): the session rides a bearer token, not a
-    // cookie, so forward it to the server. Null when deployed (cookie auth), so
-    // this is a no-op there.
-    const { getBearerToken } = await import("./client");
-    return next({ sendContext: { bearerToken: getBearerToken() ?? undefined } });
-  })
+  .client(async ({ next }) => forwardBearer(next))
   .server(async ({ next, context }) => {
     // ONLY import `*.server` modules here. This file is dual client/server
     // (bearer hook on the client). A plain `./isolation` path was renamed to
@@ -43,5 +45,16 @@ export const authMiddleware = createMiddleware({ type: "function" })
     // Reject scripted cross-site/sibling requests before touching per-user data.
     assertSameSiteRequest();
     const userId = await requireUserId(context.bearerToken);
+    return next({ context: { userId } });
+  });
+
+/** Public course pages: a signed-out visitor is `userId: null`, not an error. */
+export const optionalAuthMiddleware = createMiddleware({ type: "function" })
+  .client(async ({ next }) => forwardBearer(next))
+  .server(async ({ next, context }) => {
+    const { assertSameSiteRequest } = await import("./isolation.server");
+    const { optionalUserId } = await import("./verify.server");
+    assertSameSiteRequest();
+    const userId = await optionalUserId(context.bearerToken);
     return next({ context: { userId } });
   });

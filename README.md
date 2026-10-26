@@ -12,6 +12,14 @@ Do not commit secrets. On the host, set:
 
 Webhook events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`.
 
+## Options 101
+
+The course is a one-time $39 Stripe Checkout payment (`mode: "payment"`), or it is included while a desk membership is active (monthly or annual, including a trial). Modules 1–2 are free. Purchases and quiz progress are stored in Postgres.
+
+No Dashboard product is required. Checkout uses inline `price_data` at $39. Set `STRIPE_PRICE_OPTIONS_101` (`price_…`) only if you would rather charge a price you already created.
+
+Card payments are fulfilled on `checkout.session.completed` when `payment_status` is not `unpaid`. Also subscribe the existing webhook endpoint to `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, and `charge.refunded` so delayed payment methods and full refunds stay in sync. If the endpoint already receives all events, there is nothing to change in the Dashboard.
+
 The database and sign-in are provisioned by the host. `DATABASE_URL` must be set in production.
 
 ## Pre-market wire

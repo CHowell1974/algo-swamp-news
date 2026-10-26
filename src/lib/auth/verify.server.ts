@@ -54,9 +54,7 @@ export type VerifiedUser = { id: string; email: string | null };
  * as a bearer token, which we present as `Authorization: Bearer …` (the `bearer`
  * plugin resolves it). When deployed no token is passed and the cookie is used.
  */
-export async function getSessionUser(
-  bearerToken?: string,
-): Promise<VerifiedUser | null> {
+export async function getSessionUser(bearerToken?: string): Promise<VerifiedUser | null> {
   if (!authConfigured && !gateIdentityEnabled()) return null;
   const request = getRequest();
   if (!request) return null;
@@ -94,4 +92,18 @@ export async function requireUserId(bearerToken?: string): Promise<string> {
   const user = await getSessionUser(bearerToken);
   if (!user) throw new UnauthorizedError();
   return user.id;
+}
+
+/**
+ * Same identity rules as `requireUserId`, but signed-out visitors resolve to
+ * `null` so a public page can still render. Auth-disabled preview still maps
+ * to the shared dev user. A misconfigured real database still throws.
+ */
+export async function optionalUserId(bearerToken?: string): Promise<string | null> {
+  try {
+    return await requireUserId(bearerToken);
+  } catch (error) {
+    if (error instanceof UnauthorizedError) return null;
+    throw error;
+  }
 }

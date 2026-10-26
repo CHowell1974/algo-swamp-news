@@ -14,7 +14,8 @@ export const Route = createFileRoute("/tools")({
 const focusRing =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal";
 
-const ROAD_MAP_PRO_URL = "https://algo-swamp.kit.com/products/road-map-pro-thinkorswim";
+const ROAD_MAP_PRO_URL =
+  "https://algo-swamp.kit.com/products/road-map-pro-thinkorswim";
 const LIVE_SHOW_URL = "https://www.youtube.com/@ALGO_Swamp";
 
 function ToolsPage() {
@@ -23,10 +24,15 @@ function ToolsPage() {
       <Masthead />
       <main>
         <section className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-14">
-          <p className="text-xs font-medium tracking-widest text-muted uppercase">Tools</p>
-          <h1 className="mt-3 max-w-3xl font-display text-5xl text-balance text-fg">Road Map</h1>
+          <p className="text-xs font-medium tracking-widest text-muted uppercase">
+            Tools
+          </p>
+          <h1 className="mt-3 max-w-3xl font-display text-5xl text-balance text-fg">
+            Road Map
+          </h1>
           <p className="mt-4 max-w-xl text-base text-pretty text-muted">
-            A thinkorswim study. Inside bars and outside bars get their own colors.
+            A thinkorswim study. Inside bars and outside bars get their own
+            colors.
           </p>
           <img
             src="/road-map.webp"
@@ -50,11 +56,17 @@ function ToolsPage() {
               confirmTitle="Confirm your Road Map signup"
             />
             <article className="flex h-full flex-col rounded-card border border-line bg-surface px-5 py-5">
-              <p className="text-xs font-medium tracking-widest text-muted uppercase">One-time</p>
-              <h2 className="mt-2 font-display text-2xl text-fg">Road Map Pro</h2>
+              <p className="text-xs font-medium tracking-widest text-muted uppercase">
+                One-time
+              </p>
+              <h2 className="mt-2 font-display text-2xl text-fg">
+                Road Map Pro
+              </h2>
               <p className="mt-4 font-display text-4xl text-fg tabular-nums">
                 $39
-                <span className="ml-2 font-sans text-sm font-medium text-muted">once</span>
+                <span className="ml-2 font-sans text-sm font-medium text-muted">
+                  once
+                </span>
               </p>
               <ul className="mt-4 space-y-2 text-sm text-fg">
                 <li>Custom colors for inside and outside bars</li>
@@ -91,7 +103,8 @@ function ToolsPage() {
 
           <div className="mt-8 max-w-2xl border-t border-line pt-6">
             <p className="text-sm text-pretty text-fg">
-              The desk scores the headlines. The Road Map shows the chart structure.
+              The desk scores the headlines. The Road Map shows the chart
+              structure.
             </p>
             <Link
               to="/join"
@@ -100,13 +113,30 @@ function ToolsPage() {
             >
               Try the full desk · {MONTHLY_TRIAL_DAYS} days free
             </Link>
+            <p className="mt-4 text-sm text-pretty text-fg">
+              New to options?{" "}
+              <Link
+                to="/learn"
+                className={`font-medium text-signal ${focusRing}`}
+              >
+                Start Options 101 free
+              </Link>
+            </p>
           </div>
         </section>
       </main>
       <footer className="border-t border-line">
-        <p className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted md:px-8">
-          Not financial advice. A chart study, not a recommendation to trade.
-        </p>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-6 text-xs text-muted md:px-8">
+          <p>
+            Not financial advice. A chart study, not a recommendation to trade.
+          </p>
+          <Link
+            to="/learn"
+            className={`inline-flex min-h-11 items-center ${focusRing}`}
+          >
+            Options 101
+          </Link>
+        </div>
       </footer>
     </div>
   );

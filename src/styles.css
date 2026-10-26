@@ -33,7 +33,11 @@
 
   body {
     background:
-      radial-gradient(900px 420px at 0% -10%, color-mix(in oklab, var(--color-signal) 10%, transparent), transparent 55%),
+      radial-gradient(
+        900px 420px at 0% -10%,
+        color-mix(in oklab, var(--color-signal) 10%, transparent),
+        transparent 55%
+      ),
       var(--color-bg);
     color: var(--color-fg);
     font-family: var(--font-sans);
@@ -54,5 +58,12 @@
 @media (prefers-reduced-motion: reduce) {
   .swamp-pulse {
     animation: none;
+  }
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #142019 !important;
   }
 }
