@@ -60,7 +60,12 @@ export type OpenModulePage = {
   title: string;
   learningObjectives: string[];
   lesson: string;
-  workedExample: { title: string; scenario: string; steps: string[]; result: string };
+  workedExample: {
+    title: string;
+    scenario: string;
+    steps: string[];
+    result: string;
+  };
   tosTip: { title: string; platform: string; text: string };
   video: LessonVideo;
   keyTakeaways: string[];
@@ -69,6 +74,8 @@ export type OpenModulePage = {
   next: ModuleNeighbor;
   showExamLink: boolean;
   signedIn: boolean;
+  entitled: boolean;
+  priceUsd: number;
   bestCorrect: number | null;
   attempts: number;
 };
@@ -142,4 +149,9 @@ export type CertificatePage =
       closingText: string;
       ctas: ResolvedCta[];
     }
-  | { passed: false; signedIn: boolean; courseTitle: string; disclaimer: string };
+  | {
+      passed: false;
+      signedIn: boolean;
+      courseTitle: string;
+      disclaimer: string;
+    };

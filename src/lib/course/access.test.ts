@@ -57,7 +57,8 @@ describe("options 101 content", () => {
       assert.equal(lessonVideo(module.videoLink), null);
     }
     assert.ok(LEARN_PAGE.title.includes(course.title));
-    assert.ok(LEARN_PAGE.title.includes(course.tagline));
+    assert.match(course.intro, /beginner options trading course/);
+    assert.match(course.intro, /calls and puts explained/);
     assert.equal(course.closing.ctas[1]?.url, "");
     assert.equal(resolveCourseCta(course.closing.ctas[0]).kind, "tools");
     assert.equal(resolveCourseCta(course.closing.ctas[1]).kind, "desk-trial");
@@ -78,7 +79,9 @@ describe("options 101 content", () => {
     const motto = parseMarkdown(course.intro).find(
       (block) =>
         block.type === "p" &&
-        block.inlines.some((inline) => inline.type === "strong" && inline.text.includes("Wait")),
+        block.inlines.some(
+          (inline) => inline.type === "strong" && inline.text.includes("Wait"),
+        ),
     );
     assert.ok(motto);
   });
@@ -90,9 +93,18 @@ describe("course access", () => {
     assert.equal(canReadModule(1, false), false);
     assert.equal(canReadModule(7, false), false);
     assert.equal(canReadModule(7, true), true);
-    assert.equal(courseEntitled({ membershipActive: false, purchased: false }), false);
-    assert.equal(courseEntitled({ membershipActive: true, purchased: false }), true);
-    assert.equal(courseEntitled({ membershipActive: false, purchased: true }), true);
+    assert.equal(
+      courseEntitled({ membershipActive: false, purchased: false }),
+      false,
+    );
+    assert.equal(
+      courseEntitled({ membershipActive: true, purchased: false }),
+      true,
+    );
+    assert.equal(
+      courseEntitled({ membershipActive: false, purchased: true }),
+      true,
+    );
   });
 
   it("grades on the server, passes the exam at 12, and keeps the best score", () => {
@@ -103,13 +115,19 @@ describe("course access", () => {
     assert.equal(graded.percent, 67);
     assert.equal(graded.results[1]?.correct, false);
     assert.equal(graded.results[1]?.explanation, "Because.");
-    assert.equal(JSON.stringify(toPublicQuestion(questions[0])).includes("answerIndex"), false);
+    assert.equal(
+      JSON.stringify(toPublicQuestion(questions[0])).includes("answerIndex"),
+      false,
+    );
     assert.equal(examPassed(12, 12), true);
     assert.equal(examPassed(11, 12), false);
     assert.equal(nextBestCorrect(4, 3), 4);
     assert.equal(nextBestCorrect(null, 3), 3);
     assert.equal(progressPercent(1, 8), 13);
-    assert.throws(() => gradeSubmission(questions, [1]), /Answer every question/);
+    assert.throws(
+      () => gradeSubmission(questions, [1]),
+      /Answer every question/,
+    );
   });
 
   it("points a finished student at the next open step", () => {
@@ -117,7 +135,11 @@ describe("course access", () => {
       { id: "m1", completed: false, locked: false },
       { id: "m2", completed: false, locked: true },
     ];
-    assert.deepEqual(continueTarget(modules, false), { kind: "module", id: "m1", label: "start" });
+    assert.deepEqual(continueTarget(modules, false), {
+      kind: "module",
+      id: "m1",
+      label: "start",
+    });
     assert.equal(
       continueTarget(
         [
@@ -184,7 +206,10 @@ describe("course checkout", () => {
       customerId: "cus_1",
       integrationId: "algo_swamp_course_bbbbbbbb",
     });
-    assert.deepEqual(priced.line_items[0], { price: "price_course", quantity: 1 });
+    assert.deepEqual(priced.line_items[0], {
+      price: "price_course",
+      quantity: 1,
+    });
     assert.equal(priced.customer, "cus_1");
     assert.equal("customer_creation" in priced, false);
   });
@@ -223,15 +248,25 @@ describe("course checkout", () => {
       "skip",
     );
     assert.equal(
-      courseFulfillmentDecision({ mode: "payment", paymentStatus: "paid", courseId: "other" }),
+      courseFulfillmentDecision({
+        mode: "payment",
+        paymentStatus: "paid",
+        courseId: "other",
+      }),
       "skip",
     );
     assert.equal(
-      courseCheckoutOwner({ clientReferenceId: "user_1", metadataUserId: "user_2" }),
+      courseCheckoutOwner({
+        clientReferenceId: "user_1",
+        metadataUserId: "user_2",
+      }),
       null,
     );
     assert.equal(
-      courseCheckoutOwner({ clientReferenceId: "user_1", metadataUserId: "user_1" }),
+      courseCheckoutOwner({
+        clientReferenceId: "user_1",
+        metadataUserId: "user_1",
+      }),
       "user_1",
     );
   });
@@ -239,13 +274,22 @@ describe("course checkout", () => {
   it("embeds a YouTube url and hides anything else", () => {
     assert.equal(youtubeId(""), null);
     assert.equal(youtubeId("https://youtu.be/abcdefghijk"), "abcdefghijk");
-    assert.equal(youtubeId("https://www.youtube.com/watch?v=abcdefghijk"), "abcdefghijk");
     assert.equal(
-      lessonVideo({ url: "https://www.youtube.com/embed/abcdefghijk", title: "" })?.embedUrl,
+      youtubeId("https://www.youtube.com/watch?v=abcdefghijk"),
+      "abcdefghijk",
+    );
+    assert.equal(
+      lessonVideo({
+        url: "https://www.youtube.com/embed/abcdefghijk",
+        title: "",
+      })?.embedUrl,
       "https://www.youtube-nocookie.com/embed/abcdefghijk",
     );
     assert.equal(
-      lessonVideo({ url: "https://example.com/watch?v=abcdefghijk", title: "nope" }),
+      lessonVideo({
+        url: "https://example.com/watch?v=abcdefghijk",
+        title: "nope",
+      }),
       null,
     );
   });
@@ -253,6 +297,9 @@ describe("course checkout", () => {
   it("formats the certificate name and date", () => {
     assert.equal(certificateName("  Ada   Lovelace  "), "Ada Lovelace");
     assert.equal(certificateName("   "), "Student");
-    assert.equal(formatCertificateDate("2026-10-27T03:30:00.000Z"), "October 26, 2026");
+    assert.equal(
+      formatCertificateDate("2026-10-27T03:30:00.000Z"),
+      "October 26, 2026",
+    );
   });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Masthead } from "@/components/masthead";
 import { ScannerDesk } from "@/components/scanner-desk";
@@ -9,7 +9,9 @@ import { fetchWire } from "@/lib/news.functions";
 import { DESK_PAGE, routeHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/desk")({
-  validateSearch: (search: Record<string, unknown>): { session_id?: string } => {
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { session_id?: string } => {
     const raw = typeof search.session_id === "string" ? search.session_id : "";
     return raw.startsWith("cs_") ? { session_id: raw } : {};
   },
@@ -44,7 +46,12 @@ function DeskPage() {
         await router.invalidate();
       })
       .catch((cause: unknown) => {
-        if (!cancelled) setNotice(cause instanceof Error ? cause.message : "Checkout could not be confirmed.");
+        if (!cancelled)
+          setNotice(
+            cause instanceof Error
+              ? cause.message
+              : "Checkout could not be confirmed.",
+          );
       });
     return () => {
       cancelled = true;
@@ -55,9 +62,22 @@ function DeskPage() {
     <>
       <Masthead />
       {notice ? (
-        <p className="mx-auto max-w-6xl px-4 pt-4 text-sm text-heat md:px-8">{notice}</p>
+        <p className="mx-auto max-w-6xl px-4 pt-4 text-sm text-heat md:px-8">
+          {notice}
+        </p>
       ) : null}
       <ScannerDesk initial={wire} refreshToken={refreshToken} />
+      <footer className="border-t border-line">
+        <p className="mx-auto max-w-6xl px-4 py-4 text-sm text-muted md:px-8">
+          Learning options?{" "}
+          <Link
+            to="/learn"
+            className="font-medium text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+          >
+            Options 101: options trading for beginners
+          </Link>
+        </p>
+      </footer>
     </>
   );
 }

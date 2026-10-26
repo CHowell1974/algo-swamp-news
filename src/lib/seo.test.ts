@@ -4,13 +4,19 @@ import { describe, it } from "node:test";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { annualSavings, MONTHLY_TRIAL_DAYS, PLANS } from "./plans.ts";
+import { MODULE_SEO } from "./course/catalog.ts";
 import {
+  ACCOUNT_PAGE,
   DESK_PAGE,
   HOME_PAGE,
-  OG_IMAGE,
+  LEARN_CERTIFICATE_PAGE,
+  LEARN_EXAM_PAGE,
   LEARN_PAGE,
+  LOGIN_PAGE,
+  OG_IMAGE,
   TOOLS_PAGE,
   joinPage,
+  moduleJsonLd,
   pageUrl,
   routeHead,
 } from "./seo.ts";
@@ -45,6 +51,10 @@ describe("news route head", () => {
       DESK_PAGE,
       TOOLS_PAGE,
       LEARN_PAGE,
+      LEARN_EXAM_PAGE,
+      LEARN_CERTIFICATE_PAGE,
+      LOGIN_PAGE,
+      ACCOUNT_PAGE,
       joinPage("monthly"),
       joinPage("annual"),
     ];
@@ -53,12 +63,23 @@ describe("news route head", () => {
     for (const page of pages) {
       const head = routeHead(page);
       const title = head.meta.find((item) => "title" in item);
-      assert.equal(title && "title" in title ? title.title : undefined, page.title);
+      assert.equal(
+        title && "title" in title ? title.title : undefined,
+        page.title,
+      );
       assert.equal(meta(page, "description"), page.description);
       assert.equal(meta(page, "og:url", "property"), pageUrl(page.pathname));
       assert.equal(meta(page, "og:title", "property"), page.title);
-      assert.equal(meta(page, "og:image", "property"), OG_IMAGE);
-      assert.deepEqual(head.links, [{ rel: "canonical", href: pageUrl(page.pathname) }]);
+      assert.equal(
+        meta(page, "og:image", "property"),
+        page.ogImage ?? OG_IMAGE,
+      );
+      assert.equal(meta(page, "og:type", "property"), page.ogType ?? "website");
+      assert.equal(meta(page, "og:site_name", "property"), "ALGO Swamp");
+      assert.equal(meta(page, "og:locale", "property"), "en_US");
+      assert.deepEqual(head.links, [
+        { rel: "canonical", href: pageUrl(page.pathname) },
+      ]);
     }
   });
 
@@ -66,7 +87,9 @@ describe("news route head", () => {
     assert.equal(meta(joinPage("monthly"), "robots"), "noindex,follow");
     assert.equal(meta(joinPage("annual"), "robots"), "noindex,follow");
     assert.equal(
-      routeHead(HOME_PAGE).meta.some((item) => "name" in item && item.name === "robots"),
+      routeHead(HOME_PAGE).meta.some(
+        (item) => "name" in item && item.name === "robots",
+      ),
       false,
     );
 
@@ -75,12 +98,21 @@ describe("news route head", () => {
     assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/desk<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/tools<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/learn<\/loc>/);
+    assert.match(
+      sitemap,
+      /<loc>https:\/\/news\.algoswamp\.com\/learn\/m1-what-is-an-option<\/loc>/,
+    );
+    assert.doesNotMatch(sitemap, /learn\/(m[2-8]-|exam|certificate)/);
     assert.doesNotMatch(sitemap, /join/);
 
     const robots = readFileSync(join(root, "public/robots.txt"), "utf8");
-    assert.match(robots, /Sitemap: https:\/\/news\.algoswamp\.com\/sitemap\.xml/);
+    assert.match(
+      robots,
+      /Sitemap: https:\/\/news\.algoswamp\.com\/sitemap\.xml/,
+    );
     assert.match(robots, /Disallow: \/assets\//);
     assert.match(robots, /Disallow: \/__grok\//);
+    assert.doesNotMatch(robots, /Disallow:\s*\/learn/);
   });
 
   it("embeds SoftwareApplication and FAQ JSON-LD on the homepage and Road Map on tools", () => {
@@ -94,9 +126,63 @@ describe("news route head", () => {
       ["SoftwareApplication", "FAQPage"],
     );
     const toolsScript = routeHead(TOOLS_PAGE).scripts?.[0];
-    const product = JSON.parse(toolsScript?.children ?? "{}") as { "@type": string; name: string };
+    const product = JSON.parse(toolsScript?.children ?? "{}") as {
+      "@type": string;
+      name: string;
+    };
     assert.equal(product["@type"], "SoftwareApplication");
     assert.equal(product.name, "Road Map Pro");
     assert.equal(routeHead(DESK_PAGE).scripts, undefined);
+
+    const learnScript = routeHead(LEARN_PAGE).scripts?.[0];
+    const learn = JSON.parse(learnScript?.children ?? "{}") as {
+      "@graph": Array<{
+        "@type": string;
+        offers?: Array<{ price: string }>;
+        hasPart?: unknown[];
+        mainEntity?: Array<{ name: string; acceptedAnswer: { text: string } }>;
+      }>;
+    };
+    assert.deepEqual(
+      learn["@graph"].map((node) => node["@type"]),
+      ["Organization", "Course", "BreadcrumbList", "FAQPage"],
+    );
+    const course = learn["@graph"].find((node) => node["@type"] === "Course");
+    assert.equal(course?.offers?.[0]?.price, "39.00");
+    assert.equal(course?.hasPart?.length, 8);
+    const faq = learn["@graph"].find((node) => node["@type"] === "FAQPage");
+    assert.equal(faq?.mainEntity?.length, 6);
+
+    assert.equal(LEARN_PAGE.title.length, 55);
+    assert.equal(LEARN_PAGE.description.length, 153);
+    assert.equal(
+      routeHead(LEARN_PAGE).meta.some(
+        (item) => "name" in item && item.name === "robots",
+      ),
+      false,
+    );
+    assert.equal(meta(LEARN_EXAM_PAGE, "robots"), "noindex,follow");
+    assert.equal(meta(LEARN_CERTIFICATE_PAGE, "robots"), "noindex,follow");
+    assert.equal(routeHead(LEARN_EXAM_PAGE).scripts, undefined);
+    assert.equal(routeHead(LEARN_CERTIFICATE_PAGE).scripts, undefined);
+
+    const first = MODULE_SEO[0];
+    assert.ok(first);
+    const openLesson = moduleJsonLd(0, first) as {
+      "@graph": Array<{ "@type": string }>;
+    };
+    assert.deepEqual(
+      openLesson["@graph"].map((node) => node["@type"]),
+      ["LearningResource", "BreadcrumbList"],
+    );
+    const locked = MODULE_SEO[1];
+    assert.ok(locked);
+    const lockedLesson = moduleJsonLd(1, locked) as {
+      "@graph": Array<{ "@type": string }>;
+    };
+    assert.deepEqual(
+      lockedLesson["@graph"].map((node) => node["@type"]),
+      ["BreadcrumbList"],
+    );
   });
 });

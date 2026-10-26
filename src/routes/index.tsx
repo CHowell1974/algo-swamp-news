@@ -3,7 +3,12 @@ import { FounderLine } from "@/components/founder-line";
 import { Masthead } from "@/components/masthead";
 import { fetchWire } from "@/lib/news.functions";
 import { OPTIONS_101_PRICE_USD } from "@/lib/course/access";
-import { annualSavings, formatMoney, MONTHLY_TRIAL_DAYS, PLANS } from "@/lib/plans";
+import {
+  annualSavings,
+  formatMoney,
+  MONTHLY_TRIAL_DAYS,
+  PLANS,
+} from "@/lib/plans";
 import type { Story } from "@/lib/scan";
 import { HOME_PAGE, routeHead } from "@/lib/seo";
 
@@ -38,8 +43,9 @@ function MarketHome() {
               Read the heat before the open.
             </h1>
             <p className="mt-5 max-w-xl text-base text-pretty text-muted md:text-lg">
-              ALGO Swamp scores public headlines for freshness, sharp language, and named tickers.
-              The open tape is free. The monthly desk is free for {MONTHLY_TRIAL_DAYS} days, then{" "}
+              ALGO Swamp scores public headlines for freshness, sharp language,
+              and named tickers. The open tape is free. The monthly desk is free
+              for {MONTHLY_TRIAL_DAYS} days, then{" "}
               {formatMoney(PLANS.monthly.price)} a month.
             </p>
             <div className="mt-7 flex flex-col items-start gap-3">
@@ -56,7 +62,8 @@ function MarketHome() {
                   search={{ plan: "annual" }}
                   className={`inline-flex min-h-11 items-center text-sm font-medium text-fg ${focusRing}`}
                 >
-                  or {formatMoney(PLANS.annual.price)}/yr, save {formatMoney(save)}
+                  or {formatMoney(PLANS.annual.price)}/yr, save{" "}
+                  {formatMoney(save)}
                 </Link>
                 <Link
                   to="/desk"
@@ -93,7 +100,9 @@ function MarketHome() {
                 key={title}
                 className="border-b border-line px-4 py-8 md:border-b-0 md:border-l md:px-8 first:md:border-l-0"
               >
-                <p className="font-display text-xl text-signal italic">{index}</p>
+                <p className="font-display text-xl text-signal italic">
+                  {index}
+                </p>
                 <h2 className="mt-3 font-display text-3xl text-fg">{title}</h2>
                 <p className="mt-2 text-sm text-pretty text-muted">{copy}</p>
               </article>
@@ -101,16 +110,23 @@ function MarketHome() {
           </div>
         </section>
 
-        <section id="pricing" className="mx-auto max-w-6xl scroll-mt-6 px-4 py-14 md:px-8">
+        <section
+          id="pricing"
+          className="mx-auto max-w-6xl scroll-mt-6 px-4 py-14 md:px-8"
+        >
           <div className="max-w-xl">
-            <p className="text-xs font-medium tracking-widest text-muted uppercase">Pricing</p>
+            <p className="text-xs font-medium tracking-widest text-muted uppercase">
+              Pricing
+            </p>
             <h2 className="mt-3 font-display text-4xl text-balance text-fg md:text-5xl">
               One desk. Two ways to keep it.
             </h2>
             <p className="mt-3 text-sm text-pretty text-muted">
-              Monthly is free for {MONTHLY_TRIAL_DAYS} days, then {formatMoney(PLANS.monthly.price)}{" "}
-              a month. Annual is {formatMoney(save)} less than twelve monthly payments, with no
-              trial. Cancel and the desk stays up through the trial or the period you started.
+              Monthly is free for {MONTHLY_TRIAL_DAYS} days, then{" "}
+              {formatMoney(PLANS.monthly.price)} a month. Annual is{" "}
+              {formatMoney(save)} less than twelve monthly payments, with no
+              trial. Cancel and the desk stays up through the trial or the
+              period you started.
             </p>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -152,43 +168,64 @@ function MarketHome() {
             <h2 className="font-display text-4xl text-fg">Before you start</h2>
             <div className="mt-6 divide-y divide-line border-y border-line">
               <Faq q="Is this trading advice?">
-                No. Heat is a way to sort public headlines. It is not a recommendation, a price
-                target, or a signal to trade.
+                No. Heat is a way to sort public headlines. It is not a
+                recommendation, a price target, or a signal to trade.
               </Faq>
               <Faq q="What stays free?">
-                The open tape: six headlines with heat, tone, and tickers. Search and lanes work
-                inside that cut.
+                The open tape: six headlines with heat, tone, and tickers.
+                Search and lanes work inside that cut.
               </Faq>
               <Faq q="What happens if I cancel?">
-                During the 7-day monthly trial, cancel in Stripe and the desk stays open until the
-                trial ends. You are not charged. After a paid period starts, the desk stays open
-                until that period ends.
+                During the 7-day monthly trial, cancel in Stripe and the desk
+                stays open until the trial ends. You are not charged. After a
+                paid period starts, the desk stays open until that period ends.
               </Faq>
             </div>
           </div>
         </section>
 
-        <section aria-labelledby="course-teaser-title" className="border-t border-line">
+        <section
+          aria-labelledby="course-teaser-title"
+          className="border-t border-line"
+        >
           <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-12">
-            <p className="text-xs font-medium tracking-widest text-muted uppercase">Course</p>
-            <h2 id="course-teaser-title" className="mt-2 font-display text-3xl text-fg">
-              Options 101
+            <p className="text-xs font-medium tracking-widest text-muted uppercase">
+              Course
+            </p>
+            <h2
+              id="course-teaser-title"
+              className="mt-2 font-display text-3xl text-fg"
+            >
+              Options 101: options trading for beginners
             </h2>
             <p className="mt-2 max-w-xl text-sm text-pretty text-muted">
-              Wait. Then Bite. Eight short modules on calls, puts, and risk, with quizzes and a
-              final exam. Module 1 is free. {formatMoney(OPTIONS_101_PRICE_USD)} once, or included
-              with the desk.
+              Wait. Then Bite. Eight short modules on calls, puts, and risk,
+              with quizzes and a final exam. Module 1 is free.{" "}
+              {formatMoney(OPTIONS_101_PRICE_USD)} once, or included with the
+              desk.
             </p>
-            <Link
-              to="/learn"
-              className={`mt-2 inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
-            >
-              Start Module 1 free
-            </Link>
+            <div className="mt-2 flex flex-col items-start">
+              <Link
+                to="/learn/$moduleId"
+                params={{ moduleId: "m1-what-is-an-option" }}
+                className={`inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
+              >
+                Start Module 1 free: What is an option?
+              </Link>
+              <Link
+                to="/learn"
+                className={`inline-flex min-h-11 items-center text-sm font-medium text-fg ${focusRing}`}
+              >
+                See all 8 modules of Options 101
+              </Link>
+            </div>
           </div>
         </section>
 
-        <section aria-labelledby="tools-teaser-title" className="border-t border-line">
+        <section
+          aria-labelledby="tools-teaser-title"
+          className="border-t border-line"
+        >
           <div className="mx-auto grid max-w-6xl items-center gap-5 px-4 py-10 md:grid-cols-[11rem_minmax(0,1fr)] md:px-8 md:py-12">
             <img
               src="/road-map.webp"
@@ -200,13 +237,18 @@ function MarketHome() {
               className="w-full rounded-card border border-line"
             />
             <div>
-              <p className="text-xs font-medium tracking-widest text-muted uppercase">Tools</p>
-              <h2 id="tools-teaser-title" className="mt-2 font-display text-3xl text-fg">
+              <p className="text-xs font-medium tracking-widest text-muted uppercase">
+                Tools
+              </p>
+              <h2
+                id="tools-teaser-title"
+                className="mt-2 font-display text-3xl text-fg"
+              >
                 Road Map
               </h2>
               <p className="mt-2 max-w-xl text-sm text-pretty text-muted">
-                A thinkorswim study. Inside bars in yellow, outside bars in orange. Free, or $39
-                once for Pro.
+                A thinkorswim study. Inside bars in yellow, outside bars in
+                orange. Free, or $39 once for Pro.
               </p>
               <Link
                 to="/tools"
@@ -221,10 +263,16 @@ function MarketHome() {
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-6 text-xs text-muted md:px-8">
           <p>Public wires only. A sort, not a signal.</p>
-          <Link to="/learn" className={`inline-flex min-h-11 items-center ${focusRing}`}>
+          <Link
+            to="/learn"
+            className={`inline-flex min-h-11 items-center ${focusRing}`}
+          >
             Options 101
           </Link>
-          <Link to="/tools" className={`inline-flex min-h-11 items-center ${focusRing}`}>
+          <Link
+            to="/tools"
+            className={`inline-flex min-h-11 items-center ${focusRing}`}
+          >
             Tools
           </Link>
         </div>
@@ -262,7 +310,9 @@ function Tape({ preview, failed }: { preview: Story[]; failed: boolean }) {
                 {story.tone} · {story.heat}
                 {story.tickers[0] ? ` · ${story.tickers[0]}` : ""}
               </p>
-              <p className="mt-1 font-display text-xl leading-snug text-fg">{story.title}</p>
+              <p className="mt-1 font-display text-xl leading-snug text-fg">
+                {story.title}
+              </p>
             </li>
           ))}
         </ul>
@@ -292,17 +342,25 @@ function PlanCard({
     <article
       className={`flex flex-col rounded-card border p-5 ${emphasized ? "border-signal bg-surface" : "border-line bg-surface"}`}
     >
-      <p className="text-xs font-medium tracking-widest text-signal uppercase">{kicker}</p>
+      <p className="text-xs font-medium tracking-widest text-signal uppercase">
+        {kicker}
+      </p>
       <h3 className="mt-3 font-display text-3xl text-fg">
         {plan === "annual" ? "Annual" : "Monthly"}
       </h3>
       <p className="mt-4 font-display text-5xl text-fg tabular-nums">
         {price}
-        <span className="ml-2 font-sans text-sm font-medium text-muted">{cadence}</span>
+        <span className="ml-2 font-sans text-sm font-medium text-muted">
+          {cadence}
+        </span>
       </p>
-      {note ? <p className="mt-2 text-sm font-medium text-signal">{note}</p> : null}
+      {note ? (
+        <p className="mt-2 text-sm font-medium text-signal">{note}</p>
+      ) : null}
       <p className="mt-3 text-sm text-pretty text-muted">{detail}</p>
-      {plan === "monthly" ? <FounderLine className="mt-2 text-sm text-signal" /> : null}
+      {plan === "monthly" ? (
+        <FounderLine className="mt-2 text-sm text-signal" />
+      ) : null}
       <Link
         to="/join"
         search={{ plan }}
@@ -319,7 +377,9 @@ function PlanCard({
 function Compare({ title, items }: { title: string; items: string[] }) {
   return (
     <div className="bg-surface px-5 py-5">
-      <dt className="text-xs font-medium tracking-widest text-muted uppercase">{title}</dt>
+      <dt className="text-xs font-medium tracking-widest text-muted uppercase">
+        {title}
+      </dt>
       <dd className="mt-3 space-y-2 text-sm text-fg">
         {items.map((item) => (
           <p key={item}>{item}</p>
@@ -332,8 +392,14 @@ function Compare({ title, items }: { title: string; items: string[] }) {
 function Faq({ q, children }: { q: string; children: string }) {
   return (
     <details className="group py-4">
-      <summary className={`cursor-pointer text-base font-medium text-fg ${focusRing}`}>{q}</summary>
-      <p className="mt-2 max-w-2xl text-sm text-pretty text-muted">{children}</p>
+      <summary
+        className={`cursor-pointer text-base font-medium text-fg ${focusRing}`}
+      >
+        {q}
+      </summary>
+      <p className="mt-2 max-w-2xl text-sm text-pretty text-muted">
+        {children}
+      </p>
     </details>
   );
 }

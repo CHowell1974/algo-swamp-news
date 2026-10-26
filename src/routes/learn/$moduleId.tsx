@@ -1,46 +1,78 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { CourseMarkdown, InlineMarkdown } from "@/components/course-markdown";
 import { CourseQuiz } from "@/components/course-quiz";
 import {
+  CourseBreadcrumb,
   CourseCheckoutButton,
   CourseDisclaimer,
   CourseShell,
   focusRing,
 } from "@/components/course-ui";
 import { getModulePage } from "@/lib/course.functions";
+import { moduleRobots, moduleSeo } from "@/lib/course/catalog";
 import type { ModulePage } from "@/lib/course/types";
-import { routeHead } from "@/lib/seo";
+import { OG_LEARN_IMAGE, moduleJsonLd, routeHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/learn/$moduleId")({
-  loader: ({ params }) =>
-    getModulePage({ data: { moduleId: params.moduleId } }),
-  head: ({ loaderData, params }) =>
-    routeHead({
-      title: loaderData
-        ? `${loaderData.title} — ${loaderData.courseTitle} — ALGO Swamp`
-        : "Options 101 — ALGO Swamp",
-      description:
-        loaderData?.learningObjectives[0] ??
-        "Options 101 lesson. Not financial advice.",
-      pathname: `/learn/${loaderData?.id ?? params.moduleId}`,
-    }),
+  loader: async ({ params }) => {
+    if (!moduleSeo(params.moduleId)) throw notFound();
+    return getModulePage({ data: { moduleId: params.moduleId } });
+  },
+  head: ({ loaderData }) => {
+    const seo = loaderData ? moduleSeo(loaderData.id) : undefined;
+    if (!loaderData || !seo) {
+      return routeHead({
+        title: "Lesson not found — Options 101 — ALGO Swamp",
+        description:
+          "That Options 101 lesson does not exist. Start from the course outline.",
+        pathname: "/learn",
+        robots: "noindex,follow",
+      });
+    }
+    return routeHead({
+      title: seo.title,
+      description: seo.description,
+      pathname: `/learn/${seo.id}`,
+      robots: moduleRobots(loaderData.index),
+      ogImage: OG_LEARN_IMAGE,
+      jsonLd: moduleJsonLd(loaderData.index, seo),
+    });
+  },
+  notFoundComponent: LessonNotFound,
   component: ModuleLesson,
 });
 
+function LessonNotFound() {
+  return (
+    <CourseShell>
+      <main className="mx-auto max-w-3xl px-4 py-16 md:px-8">
+        <h1 className="font-display text-4xl text-fg">Lesson not found</h1>
+        <p className="mt-3 text-sm text-muted">
+          That Options 101 lesson does not exist.
+        </p>
+        <Link
+          to="/learn"
+          className={`mt-6 inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
+        >
+          Back to Options 101
+        </Link>
+      </main>
+    </CourseShell>
+  );
+}
+
 function ModuleLesson() {
   const page = Route.useLoaderData();
+  const seo = moduleSeo(page.id);
   return (
     <CourseShell>
       <main className="mx-auto max-w-3xl px-4 py-8 md:px-8 md:py-12">
         <CourseDisclaimer text={page.disclaimer} />
-        <p className="mt-8 text-xs font-medium tracking-widest text-muted uppercase">
-          <Link to="/learn" className={`text-signal ${focusRing}`}>
-            {page.courseTitle}
-          </Link>
-          {" · "}Module {page.index + 1} of {page.moduleCount}
-        </p>
+        <CourseBreadcrumb
+          current={`Module ${page.index + 1} of ${page.moduleCount}`}
+        />
         <h1 className="mt-3 font-display text-4xl text-balance text-fg md:text-5xl">
-          {page.title}
+          {seo?.h1 ?? page.title}
         </h1>
         {page.access === "locked" ? (
           <LockedModule page={page} />
@@ -62,7 +94,7 @@ function OpenModule({
     <>
       <section className="mt-6">
         <h2 className="text-xs font-medium tracking-widest text-muted uppercase">
-          You'll be able to
+          What you'll learn in this module
         </h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-fg">
           {page.learningObjectives.map((objective) => (
@@ -135,11 +167,35 @@ function OpenModule({
         questions={page.quiz}
         mode="module"
         moduleId={page.id}
+        moduleNumber={page.index + 1}
         initialBest={page.bestCorrect}
         initialAttempts={page.attempts}
         signedIn={page.signedIn}
         signInNext={`/learn/${page.id}`}
       />
+      {page.index === 0 && page.next ? (
+        <section className="mt-10 border-t border-line pt-6">
+          <h2 className="font-display text-2xl text-fg">Next up</h2>
+          <p className="mt-3 text-sm text-fg">
+            <Link
+              to="/learn/$moduleId"
+              params={{ moduleId: page.next.id }}
+              className={`font-medium text-signal ${focusRing}`}
+            >
+              Calls and puts explained
+            </Link>
+          </p>
+          {page.entitled ? null : (
+            <div className="mt-4">
+              <CourseCheckoutButton
+                signedIn={page.signedIn}
+                next={`/learn/${page.id}`}
+                priceUsd={page.priceUsd}
+              />
+            </div>
+          )}
+        </section>
+      ) : null}
     </>
   );
 }
@@ -155,7 +211,10 @@ function LockedModule({
         Module 1 is free. This module stays locked until you buy{" "}
         {page.courseTitle} or your desk plan is active, including a trial.
       </p>
-      <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-muted">
+      <h2 className="mt-4 font-display text-2xl text-fg">
+        What this module covers
+      </h2>
+      <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
         {page.learningObjectives.map((objective) => (
           <li key={objective}>{objective}</li>
         ))}
@@ -171,6 +230,10 @@ function LockedModule({
   );
 }
 
+function lessonLabel(id: string, fallback: string): string {
+  return moduleSeo(id)?.h1 ?? fallback;
+}
+
 function ModulePager({ page }: { page: ModulePage }) {
   return (
     <nav className="mt-10 flex flex-col gap-3 border-t border-line pt-6 text-sm sm:flex-row sm:justify-between">
@@ -180,7 +243,7 @@ function ModulePager({ page }: { page: ModulePage }) {
           params={{ moduleId: page.prev.id }}
           className={`min-h-11 text-fg ${focusRing}`}
         >
-          ← {page.prev.title}
+          ← Module {page.index}: {lessonLabel(page.prev.id, page.prev.title)}
         </Link>
       ) : (
         <Link to="/learn" className={`min-h-11 text-fg ${focusRing}`}>
@@ -193,7 +256,8 @@ function ModulePager({ page }: { page: ModulePage }) {
           params={{ moduleId: page.next.id }}
           className={`min-h-11 text-signal sm:text-right ${focusRing}`}
         >
-          {page.next.title} →
+          Next: Module {page.index + 2}:{" "}
+          {lessonLabel(page.next.id, page.next.title)} →
         </Link>
       ) : page.access === "open" && page.showExamLink ? (
         <Link

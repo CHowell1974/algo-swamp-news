@@ -14,10 +14,12 @@ export function CourseQuiz({
   initialAttempts,
   signedIn,
   signInNext,
+  moduleNumber,
 }: {
   questions: PublicQuizQuestion[];
   mode: "module" | "exam";
   moduleId?: string;
+  moduleNumber?: number;
   passingScoreCount?: number;
   initialBest: number | null;
   initialAttempts: number;
@@ -26,7 +28,9 @@ export function CourseQuiz({
 }) {
   const submitModule = useServerFn(submitModuleQuiz);
   const submitExam = useServerFn(submitFinalExam);
-  const [picks, setPicks] = useState<(number | null)[]>(() => questions.map(() => null));
+  const [picks, setPicks] = useState<(number | null)[]>(() =>
+    questions.map(() => null),
+  );
   const [result, setResult] = useState<QuizScore | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +41,9 @@ export function CourseQuiz({
   function choose(questionIndex: number, optionIndex: number) {
     if (result) return;
     setPicks((current) =>
-      current.map((pick, index) => (index === questionIndex ? optionIndex : pick)),
+      current.map((pick, index) =>
+        index === questionIndex ? optionIndex : pick,
+      ),
     );
   }
 
@@ -55,7 +61,9 @@ export function CourseQuiz({
       setBest(score.bestCorrect);
       setAttempts(score.attempts);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not score that quiz.");
+      setError(
+        cause instanceof Error ? cause.message : "Could not score that quiz.",
+      );
     } finally {
       setPending(false);
     }
@@ -79,7 +87,9 @@ export function CourseQuiz({
     <section aria-labelledby="quiz-title" className="mt-10">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h2 id="quiz-title" className="font-display text-3xl text-fg">
-          {mode === "exam" ? "Final exam" : "Quiz"}
+          {mode === "exam"
+            ? `${questions.length} questions`
+            : `Module ${moduleNumber ?? ""} quiz`}
         </h2>
         {attempts > 0 && best != null ? (
           <p className="text-sm text-muted tabular-nums">
@@ -98,10 +108,14 @@ export function CourseQuiz({
           <div className="rounded-card border border-line bg-surface px-4 py-4">
             <p className="font-display text-4xl text-fg tabular-nums">
               {result.correct}/{result.total}
-              <span className="ml-3 font-sans text-base text-muted">{result.percent}%</span>
+              <span className="ml-3 font-sans text-base text-muted">
+                {result.percent}%
+              </span>
             </p>
             {examLine ? (
-              <p className={`mt-1 text-sm font-medium ${passed ? "text-signal" : "text-heat"}`}>
+              <p
+                className={`mt-1 text-sm font-medium ${passed ? "text-signal" : "text-heat"}`}
+              >
                 {examLine}
               </p>
             ) : null}
@@ -116,7 +130,9 @@ export function CourseQuiz({
           </div>
         ) : null}
         {questions.map((question, questionIndex) => {
-          const graded = result?.results.find((item) => item.id === question.id);
+          const graded = result?.results.find(
+            (item) => item.id === question.id,
+          );
           return (
             <fieldset
               key={question.id}
@@ -127,9 +143,14 @@ export function CourseQuiz({
               </legend>
               <div className="mt-3 space-y-2">
                 {question.options.map((option, optionIndex) => {
-                  const selected = (graded?.selected ?? picks[questionIndex]) === optionIndex;
-                  const isCorrect = graded ? optionIndex === graded.answerIndex : false;
-                  const isWrongPick = Boolean(graded && selected && !graded.correct);
+                  const selected =
+                    (graded?.selected ?? picks[questionIndex]) === optionIndex;
+                  const isCorrect = graded
+                    ? optionIndex === graded.answerIndex
+                    : false;
+                  const isWrongPick = Boolean(
+                    graded && selected && !graded.correct,
+                  );
                   const border = isCorrect
                     ? "border-signal"
                     : isWrongPick
@@ -155,10 +176,14 @@ export function CourseQuiz({
                       <span>
                         {option}
                         {isCorrect ? (
-                          <span className="ml-2 text-xs font-medium text-signal">Correct</span>
+                          <span className="ml-2 text-xs font-medium text-signal">
+                            Correct
+                          </span>
                         ) : null}
                         {isWrongPick ? (
-                          <span className="ml-2 text-xs font-medium text-heat">Your answer</span>
+                          <span className="ml-2 text-xs font-medium text-heat">
+                            Your answer
+                          </span>
                         ) : null}
                       </span>
                     </label>
@@ -166,7 +191,9 @@ export function CourseQuiz({
                 })}
               </div>
               {graded ? (
-                <p className="mt-3 text-sm text-pretty text-muted">{graded.explanation}</p>
+                <p className="mt-3 text-sm text-pretty text-muted">
+                  {graded.explanation}
+                </p>
               ) : null}
             </fieldset>
           );
@@ -200,7 +227,9 @@ export function CourseQuiz({
           </Link>
         )}
         {!ready && !result && signedIn ? (
-          <p className="text-sm text-muted">Answer every question, then submit.</p>
+          <p className="text-sm text-muted">
+            Answer every question, then submit.
+          </p>
         ) : null}
       </div>
       {error ? <p className="mt-3 text-sm text-heat">{error}</p> : null}

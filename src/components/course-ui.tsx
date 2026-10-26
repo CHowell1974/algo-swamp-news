@@ -23,6 +23,37 @@ export function CourseShell({ children }: { children: ReactNode }) {
   );
 }
 
+export function CourseBreadcrumb({
+  current,
+  className = "",
+}: {
+  current: string;
+  className?: string;
+}) {
+  return (
+    <nav
+      aria-label="Breadcrumb"
+      className={`mt-8 text-xs font-medium tracking-widest text-muted uppercase ${className}`}
+    >
+      <ol className="flex flex-wrap gap-1">
+        <li>
+          <Link to="/" activeOptions={{ exact: true }} className={focusRing}>
+            ALGO Swamp
+          </Link>{" "}
+          ›
+        </li>
+        <li>
+          <Link to="/learn" activeOptions={{ exact: true }} className={`text-signal ${focusRing}`}>
+            Options 101
+          </Link>{" "}
+          ›
+        </li>
+        <li aria-current="page">{current}</li>
+      </ol>
+    </nav>
+  );
+}
+
 export function CourseDisclaimer({ text }: { text: string }) {
   return (
     <aside className="border-l-2 border-heat bg-surface px-4 py-3 text-sm text-pretty text-muted">
@@ -55,7 +86,7 @@ export function CourseCheckoutButton({
 
   if (!signedIn) {
     return (
-      <Link to="/login" search={{ next }} className={className}>
+      <Link to="/login" search={{ next }} rel="nofollow" className={className}>
         {label}
       </Link>
     );
@@ -75,7 +106,11 @@ export function CourseCheckoutButton({
               window.location.assign(url);
             })
             .catch((cause: unknown) => {
-              setError(cause instanceof Error ? cause.message : "Could not open checkout.");
+              setError(
+                cause instanceof Error
+                  ? cause.message
+                  : "Could not open checkout.",
+              );
               setPending(false);
             });
         }}
@@ -97,10 +132,18 @@ export function CourseProgress({ home }: { home: CourseHome }) {
     >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-medium tracking-widest text-muted uppercase">Progress</p>
-          <h2 id="course-progress-title" className="mt-1 font-display text-3xl text-fg">
-            {home.completedCount} of {total} modules
+          <p className="text-xs font-medium tracking-widest text-muted uppercase">
+            Progress
+          </p>
+          <h2
+            id="course-progress-title"
+            className="mt-1 font-display text-3xl text-fg"
+          >
+            Your progress
           </h2>
+          <p className="mt-1 text-sm text-muted">
+            {home.completedCount} of {total} modules
+          </p>
         </div>
         <p className="text-sm text-muted tabular-nums">{percent}%</p>
       </div>
@@ -128,7 +171,10 @@ export function CourseProgress({ home }: { home: CourseHome }) {
       ) : null}
       <ul className="mt-4 divide-y divide-line">
         {home.modules.map((module, index) => (
-          <li key={module.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+          <li
+            key={module.id}
+            className="flex items-center justify-between gap-3 py-2 text-sm"
+          >
             <Link
               to="/learn/$moduleId"
               params={{ moduleId: module.id }}
@@ -226,7 +272,11 @@ function CtaLink({ cta }: { cta: ResolvedCta }) {
   }
   if (cta.kind === "desk-trial") {
     return (
-      <Link to="/join" search={{ plan: "monthly" }} className={`${className} bg-fg`}>
+      <Link
+        to="/join"
+        search={{ plan: "monthly" }}
+        className={`${className} bg-fg`}
+      >
         {cta.label}
       </Link>
     );
