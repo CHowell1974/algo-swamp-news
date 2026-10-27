@@ -1,8 +1,8 @@
 import { readMembership } from "@/lib/membership.functions";
 import {
   canReadModule,
-  courseEntitled,
   courseOffer,
+  resolveCourseAccess,
   examPassed,
   formatCertificateDate,
   gradeSubmission,
@@ -41,18 +41,19 @@ async function entitlement(
   if (!userId) return { signedIn: false, entitled: false, accessVia: null };
   const membership = await readMembership(userId);
   const purchased = await hasPaidCourse(userId, offer.id);
-  const desk = offer.includedWithDesk && membership.active;
   let prerequisiteMet = true;
   if (offer.prerequisiteCourseId) {
     const prior = await readExam(userId, offer.prerequisiteCourseId);
     prerequisiteMet = Boolean(prior?.passed);
   }
-  const entitled =
-    prerequisiteMet && courseEntitled({ membershipActive: desk, purchased });
   return {
     signedIn: true,
-    entitled,
-    accessVia: entitled ? (purchased ? "purchase" : desk ? "desk" : null) : null,
+    ...resolveCourseAccess({
+      includedWithDesk: offer.includedWithDesk,
+      membershipActive: membership.active,
+      purchased,
+      prerequisiteMet,
+    }),
   };
 }
 
@@ -219,7 +220,11 @@ export async function gradeModuleQuiz(
   if (!found) throw new Error("That module is not in this course.");
   const access = await entitlement(userId, offer);
   if (!canReadModule(found.index, access.entitled, offer.freeThroughIndex)) {
-    throw new Error(`This module is locked until you buy ${offer.shortName} or start a desk plan.`);
+    throw new Error(
+      offer.includedWithDesk
+        ? `This module is locked until you buy ${offer.shortName} or start a desk plan.`
+        : `This module is locked until you buy ${offer.shortName}.`,
+    );
   }
   const graded = gradeSubmission(found.module.quiz, answers);
   const saved = await saveModuleQuiz({
@@ -248,7 +253,9 @@ export async function gradeFinalExam(
   const access = await entitlement(userId, offer);
   if (!access.entitled) {
     throw new Error(
-      `The final exam is locked until you buy ${offer.shortName} or start a desk plan.`,
+      offer.includedWithDesk
+        ? `The final exam is locked until you buy ${offer.shortName} or start a desk plan.`
+        : `The final exam is locked until you buy ${offer.shortName}.`,
     );
   }
   const graded = gradeSubmission(course.finalExam.questions, answers);
@@ -281,8 +288,9 @@ export async function loadCertificate(userId: string | null, courseId: string) {
       disclaimer: course.disclaimer,
     };
   }
+  const access = await entitlement(userId, offer);
   const saved = await readExam(userId, course.id);
-  if (!saved?.passed || !saved.passedAt) {
+  if (!access.entitled || !saved?.passed || !saved.passedAt) {
     return {
       passed: false as const,
       signedIn: true as const,

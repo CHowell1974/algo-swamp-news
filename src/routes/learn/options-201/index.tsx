@@ -35,7 +35,7 @@ function Options201Page() {
       headline={initial.title}
       srSeparator=" — "
       subtitle="Bull call, bear put, and credit spreads explained"
-      startLabel="Start Modules 1–3 free"
+      startLabel="Start Modules 1–2 free"
       outcomes={OUTCOMES}
       faqTitle="Options 201 FAQ"
       faq={COURSE_201_FAQ}

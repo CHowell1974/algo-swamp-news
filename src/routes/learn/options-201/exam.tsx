@@ -8,6 +8,7 @@ import {
   CourseShell,
 } from "@/components/course-ui";
 import { getExamPage } from "@/lib/course.functions";
+import { formatMoney } from "@/lib/plans";
 import { OPTIONS_201_EXAM_PAGE, routeHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/learn/options-201/exam")({
@@ -29,8 +30,7 @@ function ExamPage() {
         {page.access === "locked" ? (
           <section className="mt-6 rounded-card border border-line bg-surface px-4 py-5">
             <p className="text-sm text-pretty text-fg">
-              The final exam is locked until you buy {page.courseTitle} or your desk plan is active,
-              including a trial. {page.passingScoreCount} of {page.questionCount} correct passes.
+              {`The final exam is locked until you buy ${page.courseTitle} for ${formatMoney(page.priceUsd)}. ${page.passingScoreCount} of ${page.questionCount} correct passes.`}
             </p>
             <div className="mt-6">
               <CourseCheckoutButton

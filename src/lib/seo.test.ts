@@ -111,7 +111,6 @@ describe("news route head", () => {
       "/learn/options-201",
       "/learn/options-201/m1-what-is-a-vertical",
       "/learn/options-201/m2-debit-verticals",
-      "/learn/options-201/m3-credit-verticals",
     ]) {
       assert.match(sitemap, loc(path));
     }
@@ -121,7 +120,7 @@ describe("news route head", () => {
       else assert.doesNotMatch(sitemap, entry);
     });
     assert.doesNotMatch(sitemap, /learn\/options-101\/(m[3-8]-|exam|certificate)/);
-    assert.doesNotMatch(sitemap, /learn\/options-201\/(m[4-8]-|exam|certificate)/);
+    assert.doesNotMatch(sitemap, /learn\/options-201\/(m[3-8]-|exam|certificate)/);
     assert.doesNotMatch(sitemap, /learn\/(m\d-|exam<|certificate<)/);
     assert.doesNotMatch(sitemap, /join/);
 
@@ -243,10 +242,9 @@ describe("news route head", () => {
       ["Organization", "Course", "BreadcrumbList", "FAQPage"],
     );
     const course201 = options201["@graph"].find((node) => node["@type"] === "Course");
+    assert.equal(course201?.offers?.length, 1);
     assert.equal(course201?.offers?.[0]?.price, "39.00");
     assert.equal(course201?.offers?.[0]?.category, "Paid");
-    assert.equal(course201?.offers?.[1]?.price, "29.00");
-    assert.equal(course201?.offers?.[1]?.category, "Subscription");
     assert.equal(
       course201?.coursePrerequisites?.["@id"],
       pageUrl("/learn/options-101") + "#course",
@@ -255,18 +253,20 @@ describe("news route head", () => {
     assert.equal(course201?.hasPart?.length, 8);
     assert.equal(course201?.hasPart?.[0]?.isAccessibleForFree, true);
     assert.equal(course201?.hasPart?.[1]?.isAccessibleForFree, true);
-    assert.equal(course201?.hasPart?.[2]?.isAccessibleForFree, true);
+    assert.equal(course201?.hasPart?.[2]?.isAccessibleForFree, false);
     assert.equal(course201?.hasPart?.[3]?.isAccessibleForFree, false);
     const faq201 = options201["@graph"].find((node) => node["@type"] === "FAQPage");
     assert.equal(faq201?.mainEntity?.length, 8);
     assert.equal(COURSE_201_FAQ.length, 8);
-    assert.match(COURSE_201_FAQ[0]?.answer ?? "", /\$39 once, or included with/);
+    assert.match(COURSE_201_FAQ[0]?.answer ?? "", /Modules 1 and 2/);
+    assert.match(COURSE_201_FAQ[0]?.answer ?? "", /\$39 once for everyone/);
+    assert.doesNotMatch(COURSE_201_FAQ[0]?.answer ?? "", /included with|Modules 1–3|1-3/);
     assert.match(COURSE_201_FAQ[1]?.answer ?? "", /^No\. Options 101 is recommended/);
     assert.doesNotMatch(JSON.stringify(COURSE_201_FAQ), /prerequisite|required/i);
     assert.equal(OPTIONS_201_PAGE.title.length, 52);
     assert.equal(
       OPTIONS_201_PAGE.description,
-      "Learn vertical spreads: bull call, bear put, bull put and bear call spreads, max loss, break-even, Greeks, and thinkorswim. 8 lessons, Modules 1–3 free.",
+      "Learn vertical spreads: bull call, bear put, bull put and bear call spreads, max loss, break-even, Greeks, and thinkorswim. Modules 1–2 free. $39 once.",
     );
     assert.equal(CLASSES_PAGE.title.length, 55);
     assert.equal(
@@ -301,14 +301,23 @@ describe("news route head", () => {
       ["LearningResource", "BreadcrumbList"],
     );
     assert.equal(open201["@graph"][0]?.teaches, "Vertical spreads: debit vs. credit spreads");
-    const third201 = MODULE_SEO_201[2];
-    assert.ok(third201);
-    const openThird = options201ModuleJsonLd(2, third201) as {
+    const second201 = MODULE_SEO_201[1];
+    assert.ok(second201);
+    const openSecond = options201ModuleJsonLd(1, second201) as {
       "@graph": Array<{ "@type": string }>;
     };
     assert.deepEqual(
-      openThird["@graph"].map((node) => node["@type"]),
+      openSecond["@graph"].map((node) => node["@type"]),
       ["LearningResource", "BreadcrumbList"],
+    );
+    const third201 = MODULE_SEO_201[2];
+    assert.ok(third201);
+    const lockedThird = options201ModuleJsonLd(2, third201) as {
+      "@graph": Array<{ "@type": string }>;
+    };
+    assert.deepEqual(
+      lockedThird["@graph"].map((node) => node["@type"]),
+      ["BreadcrumbList"],
     );
     const locked201Seo = MODULE_SEO_201[3];
     assert.ok(locked201Seo);

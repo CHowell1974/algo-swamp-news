@@ -11,7 +11,8 @@ import {
   CourseShell,
   focusRing,
 } from "@/components/course-ui";
-import { freePreviewLabel } from "@/lib/course/access";
+import { courseOffer, freePreviewLabel } from "@/lib/course/access";
+import { formatMoney } from "@/lib/plans";
 import { courseModulePath, isOptions201 } from "@/lib/course/paths";
 import { moduleSeo as moduleSeo101 } from "@/lib/course/catalog";
 import { moduleSeo201 } from "@/lib/course/catalog-options-201";
@@ -193,11 +194,14 @@ function NextCourse() {
 
 function LockedModule({ page }: { page: Extract<ModulePage, { access: "locked" }> }) {
   const freeLabel = freePreviewLabel(page.freeThroughIndex);
+  const withDesk = courseOffer(page.courseId)?.includedWithDesk === true;
   return (
     <section className="mt-6 rounded-card border border-line bg-surface px-4 py-5">
       <p className="text-sm text-pretty text-fg">
-        {freeLabel} This module stays locked until you buy {page.courseTitle} or your desk plan is
-        active, including a trial.
+        {freeLabel}{" "}
+        {withDesk
+          ? `This module stays locked until you buy ${page.courseTitle} or your desk plan is active, including a trial.`
+          : `This module stays locked until you buy ${page.courseTitle} for ${formatMoney(page.priceUsd)}.`}
       </p>
       <h2 className="mt-4 font-display text-2xl text-fg">What this module covers</h2>
       <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">

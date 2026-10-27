@@ -15,7 +15,7 @@ import {
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("options 201 SEO catalog", () => {
-  it("matches the course module ids and indexes modules 1–3", () => {
+  it("matches the course module ids and indexes modules 1–2", () => {
     const file = JSON.parse(readFileSync(join(root, "src/content/options-201.json"), "utf8")) as {
       course: { intro: string; modules: { id: string }[] };
     };
@@ -24,8 +24,9 @@ describe("options 201 SEO catalog", () => {
       file.course.modules.map((module) => module.id),
     );
     assert.equal(OPTIONS_201_PRICE_USD, 39);
-    assert.equal(OPTIONS_201_INCLUDED_WITH_DESK, true);
-    assert.equal(FREE_201_MODULE_COUNT, 3);
+    assert.equal(OPTIONS_201_INCLUDED_WITH_DESK, false);
+    assert.equal(FREE_201_MODULE_COUNT, 2);
+    assert.doesNotMatch(file.course.intro, /Modules 1–3|included with/i);
     assert.equal(courseOffer("options-201")?.prerequisiteCourseId, null);
     assert.doesNotMatch(file.course.intro, /prerequisite|required/i);
     for (const module of MODULE_SEO_201) {
