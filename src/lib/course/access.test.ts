@@ -16,6 +16,8 @@ import {
   courseFulfillmentDecision,
   courseOffer,
   examPassed,
+  OPTIONS_201_STRIPE_PRICE_ID,
+  resolveCoursePriceId,
   formatCertificateDate,
   gradeSubmission,
   lessonVideo,
@@ -288,6 +290,28 @@ describe("course checkout", () => {
         : "",
       "Options 201: Vertical Spreads",
     );
+    assert.equal(resolveCoursePriceId("options-201", undefined), OPTIONS_201_STRIPE_PRICE_ID);
+    assert.equal(resolveCoursePriceId("options-201", "  price_override  "), "price_override");
+    assert.equal(resolveCoursePriceId("options-101", undefined), null);
+    const livePrice = courseCheckoutParams({
+      userId: "user_1",
+      origin: "https://news.algoswamp.com",
+      priceId: resolveCoursePriceId("options-201", null),
+      customerId: null,
+      integrationId: "algo_swamp_c201_cccccccc",
+      courseId: "options-201",
+    });
+    assert.deepEqual(livePrice.line_items[0], {
+      price: "price_1UV9vCLAdDbAQPuJWWlzGRUu",
+      quantity: 1,
+    });
+    assert.equal(livePrice.metadata.course_id, "options-201");
+    assert.equal(livePrice.payment_intent_data.metadata.course_id, "options-201");
+    assert.equal(
+      livePrice.success_url,
+      "https://news.algoswamp.com/learn/options-201?session_id={CHECKOUT_SESSION_ID}",
+    );
+    assert.equal(livePrice.cancel_url, "https://news.algoswamp.com/learn/options-201");
     assert.equal(courseOffer("options-201")?.freeThroughIndex, 2);
     assert.equal(courseOffer("options-201")?.priceUsd, 39);
     assert.equal(courseOffer("options-201")?.includedWithDesk, true);

@@ -15,6 +15,7 @@ import {
   courseCheckoutParams,
   courseFulfillmentDecision,
   courseOffer,
+  resolveCoursePriceId,
 } from "@/lib/course/access";
 import {
   hasPaidCourse,
@@ -317,7 +318,7 @@ function coursePriceId(courseId: string): string | null {
     courseId === "options-201"
       ? process.env.STRIPE_PRICE_OPTIONS_201
       : process.env.STRIPE_PRICE_OPTIONS_101;
-  return raw?.trim() || null;
+  return resolveCoursePriceId(courseId, raw);
 }
 
 async function fulfillCourseFromSession(session: Stripe.Checkout.Session): Promise<void> {

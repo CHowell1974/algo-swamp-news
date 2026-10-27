@@ -6,6 +6,8 @@ export const OPTIONS_101_PRICE_CENTS = 3900;
 export const OPTIONS_101_PRICE_USD = OPTIONS_101_PRICE_CENTS / 100;
 export const OPTIONS_201_PRICE_CENTS = 3900;
 export const OPTIONS_201_PRICE_USD = OPTIONS_201_PRICE_CENTS / 100;
+/** Live one-time price for Options 201. STRIPE_PRICE_OPTIONS_201 overrides it. */
+export const OPTIONS_201_STRIPE_PRICE_ID = "price_1UV9vCLAdDbAQPuJWWlzGRUu";
 /**
  * Chris, 2026-10-27. Modules 1–3 are the free Options 201 preview.
  * Change this together with the landing copy, robots, sitemap, and JSON-LD.
@@ -70,6 +72,20 @@ const COURSE_OFFERS: Record<string, CourseOffer> = {
 export function courseOffer(id: string | null | undefined): CourseOffer | null {
   if (!id) return null;
   return COURSE_OFFERS[id] ?? null;
+}
+
+/**
+ * Options 201 uses the live Dashboard price unless STRIPE_PRICE_OPTIONS_201 is set.
+ * Options 101 stays on its env price, and an empty result falls back to inline price_data.
+ */
+export function resolveCoursePriceId(
+  courseId: string,
+  envPrice: string | null | undefined,
+): string | null {
+  const override = envPrice?.trim() || "";
+  if (override) return override;
+  if (courseId === OPTIONS_201_ID) return OPTIONS_201_STRIPE_PRICE_ID;
+  return null;
 }
 
 export function courseEntitled(input: { membershipActive: boolean; purchased: boolean }): boolean {
