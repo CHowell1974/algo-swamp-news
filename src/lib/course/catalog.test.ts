@@ -18,21 +18,16 @@ function sourceFiles(dir: string): string[] {
 
 describe("options 101 SEO catalog", () => {
   it("matches the course module ids and stays within title and description limits", () => {
-    const file = JSON.parse(
-      readFileSync(join(root, "src/content/options-101.json"), "utf8"),
-    ) as {
+    const file = JSON.parse(readFileSync(join(root, "src/content/options-101.json"), "utf8")) as {
       course: { modules: { id: string }[] };
     };
     assert.deepEqual(
       MODULE_SEO.map((module) => module.id),
       file.course.modules.map((module) => module.id),
     );
-    assert.equal(COURSE_URL, `${SITE_ORIGIN}/learn`);
+    assert.equal(COURSE_URL, `${SITE_ORIGIN}/learn/options-101`);
     for (const module of MODULE_SEO) {
-      assert.ok(
-        module.title.length <= 60,
-        `${module.id} title is ${module.title.length}`,
-      );
+      assert.ok(module.title.length <= 60, `${module.id} title is ${module.title.length}`);
       assert.ok(
         module.description.length <= 155,
         `${module.id} description is ${module.description.length}`,
@@ -55,8 +50,9 @@ describe("options 101 SEO catalog", () => {
     for (const path of sourceFiles(join(root, "src"))) {
       if (path.endsWith(".test.ts")) continue;
       const source = readFileSync(path, "utf8");
-      if (source.includes("options-101.json") && !allowed.has(path))
+      if (/options-(101|201)\.json/.test(source) && !allowed.has(path)) {
         offenders.push(path);
+      }
     }
     assert.deepEqual(offenders, []);
   });

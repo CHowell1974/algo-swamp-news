@@ -14,7 +14,10 @@ import {
   courseCheckoutParams,
   courseEntitled,
   courseFulfillmentDecision,
+  courseOffer,
   examPassed,
+  OPTIONS_201_STRIPE_PRICE_ID,
+  resolveCoursePriceId,
   formatCertificateDate,
   gradeSubmission,
   lessonVideo,
@@ -79,9 +82,7 @@ describe("options 101 content", () => {
     const motto = parseMarkdown(course.intro).find(
       (block) =>
         block.type === "p" &&
-        block.inlines.some(
-          (inline) => inline.type === "strong" && inline.text.includes("Wait"),
-        ),
+        block.inlines.some((inline) => inline.type === "strong" && inline.text.includes("Wait")),
     );
     assert.ok(motto);
   });
@@ -94,18 +95,9 @@ describe("course access", () => {
     assert.equal(canReadModule(2, false), false);
     assert.equal(canReadModule(7, false), false);
     assert.equal(canReadModule(7, true), true);
-    assert.equal(
-      courseEntitled({ membershipActive: false, purchased: false }),
-      false,
-    );
-    assert.equal(
-      courseEntitled({ membershipActive: true, purchased: false }),
-      true,
-    );
-    assert.equal(
-      courseEntitled({ membershipActive: false, purchased: true }),
-      true,
-    );
+    assert.equal(courseEntitled({ membershipActive: false, purchased: false }), false);
+    assert.equal(courseEntitled({ membershipActive: true, purchased: false }), true);
+    assert.equal(courseEntitled({ membershipActive: false, purchased: true }), true);
   });
 
   it("grades on the server, passes the exam at 12, and keeps the best score", () => {
@@ -116,19 +108,13 @@ describe("course access", () => {
     assert.equal(graded.percent, 67);
     assert.equal(graded.results[1]?.correct, false);
     assert.equal(graded.results[1]?.explanation, "Because.");
-    assert.equal(
-      JSON.stringify(toPublicQuestion(questions[0])).includes("answerIndex"),
-      false,
-    );
+    assert.equal(JSON.stringify(toPublicQuestion(questions[0])).includes("answerIndex"), false);
     assert.equal(examPassed(12, 12), true);
     assert.equal(examPassed(11, 12), false);
     assert.equal(nextBestCorrect(4, 3), 4);
     assert.equal(nextBestCorrect(null, 3), 3);
     assert.equal(progressPercent(1, 8), 13);
-    assert.throws(
-      () => gradeSubmission(questions, [1]),
-      /Answer every question/,
-    );
+    assert.throws(() => gradeSubmission(questions, [1]), /Answer every question/);
   });
 
   it("points a finished student at the next open step", () => {
@@ -207,7 +193,7 @@ describe("course checkout", () => {
     assert.equal(OPTIONS_101_PRICE_USD, 39);
     assert.equal(
       params.success_url,
-      "https://news.algoswamp.com/learn?session_id={CHECKOUT_SESSION_ID}",
+      "https://news.algoswamp.com/learn/options-101?session_id={CHECKOUT_SESSION_ID}",
     );
     assert.equal(params.metadata.course_id, "options-101");
     assert.equal(params.integration_identifier, "algo_swamp_course_aaaaaaaa");
@@ -269,6 +255,76 @@ describe("course checkout", () => {
       "skip",
     );
     assert.equal(
+      courseFulfillmentDecision({
+        mode: "payment",
+        paymentStatus: "paid",
+        courseId: "options-201",
+      }),
+      "grant",
+    );
+    assert.equal(canReadModule(0, false, 0), true);
+    assert.equal(canReadModule(1, false, 0), false);
+    assert.equal(canReadModule(1, true, 0), true);
+    assert.equal(canReadModule(0, false, 2), true);
+    assert.equal(canReadModule(1, false, 2), true);
+    assert.equal(canReadModule(2, false, 2), true);
+    assert.equal(canReadModule(3, false, 2), false);
+    const options201 = courseCheckoutParams({
+      userId: "user_1",
+      origin: "https://news.algoswamp.com",
+      priceId: null,
+      customerId: null,
+      integrationId: "algo_swamp_c201_cccccccc",
+      courseId: "options-201",
+    });
+    assert.equal(options201.metadata.course_id, "options-201");
+    assert.equal(options201.payment_intent_data.metadata.course_id, "options-201");
+    assert.equal(
+      options201.success_url,
+      "https://news.algoswamp.com/learn/options-201?session_id={CHECKOUT_SESSION_ID}",
+    );
+    assert.equal(options201.cancel_url, "https://news.algoswamp.com/learn/options-201");
+    assert.equal(
+      options201.line_items[0] && "price_data" in options201.line_items[0]
+        ? options201.line_items[0].price_data.product_data.name
+        : "",
+      "Options 201: Vertical Spreads",
+    );
+    assert.equal(resolveCoursePriceId("options-201", undefined), OPTIONS_201_STRIPE_PRICE_ID);
+    assert.equal(resolveCoursePriceId("options-201", "  price_override  "), "price_override");
+    assert.equal(resolveCoursePriceId("options-101", undefined), null);
+    const livePrice = courseCheckoutParams({
+      userId: "user_1",
+      origin: "https://news.algoswamp.com",
+      priceId: resolveCoursePriceId("options-201", null),
+      customerId: null,
+      integrationId: "algo_swamp_c201_cccccccc",
+      courseId: "options-201",
+    });
+    assert.deepEqual(livePrice.line_items[0], {
+      price: "price_1UV9vCLAdDbAQPuJWWlzGRUu",
+      quantity: 1,
+    });
+    assert.equal(livePrice.metadata.course_id, "options-201");
+    assert.equal(livePrice.payment_intent_data.metadata.course_id, "options-201");
+    assert.equal(
+      livePrice.success_url,
+      "https://news.algoswamp.com/learn/options-201?session_id={CHECKOUT_SESSION_ID}",
+    );
+    assert.equal(livePrice.cancel_url, "https://news.algoswamp.com/learn/options-201");
+    assert.equal(courseOffer("options-201")?.freeThroughIndex, 2);
+    assert.equal(courseOffer("options-201")?.priceUsd, 39);
+    assert.equal(courseOffer("options-201")?.includedWithDesk, true);
+    assert.equal(courseOffer("options-201")?.prerequisiteCourseId, null);
+    assert.equal(courseOffer("options-101")?.freeThroughIndex, 1);
+    assert.equal(
+      options201.line_items[0] && "price_data" in options201.line_items[0]
+        ? options201.line_items[0].price_data.unit_amount
+        : 0,
+      3900,
+    );
+    assert.equal(courseOffer("options-201")?.id === "options-101", false);
+    assert.equal(
       courseCheckoutOwner({
         clientReferenceId: "user_1",
         metadataUserId: "user_2",
@@ -287,10 +343,7 @@ describe("course checkout", () => {
   it("embeds a YouTube url and hides anything else", () => {
     assert.equal(youtubeId(""), null);
     assert.equal(youtubeId("https://youtu.be/abcdefghijk"), "abcdefghijk");
-    assert.equal(
-      youtubeId("https://www.youtube.com/watch?v=abcdefghijk"),
-      "abcdefghijk",
-    );
+    assert.equal(youtubeId("https://www.youtube.com/watch?v=abcdefghijk"), "abcdefghijk");
     assert.equal(
       lessonVideo({
         url: "https://www.youtube.com/embed/abcdefghijk",
@@ -307,12 +360,34 @@ describe("course checkout", () => {
     );
   });
 
+  it("keeps Options 201 question ids from unlocking Options 101", () => {
+    const course201 = parseCourse(
+      JSON.parse(readFileSync(join(root, "src/content/options-201.json"), "utf8")),
+    );
+    assert.equal(course201.id, "options-201");
+    assert.equal(course201.modules.length, 8);
+    assert.equal(course201.finalExam.passingScoreCount, 12);
+    assert.equal(course201.finalExam.questions.length, 15);
+    assert.match(course201.intro, /Recommended first/);
+    assert.doesNotMatch(course201.intro, /prerequisite|required/i);
+    assert.match(course201.intro, /Options 101/);
+    assert.equal(course201.closing.ctas[1]?.url, "");
+    assert.equal(resolveCourseCta(course201.closing.ctas[1]).kind, "desk-trial");
+    const ids101 = new Set(course.modules.flatMap((module) => module.quiz.map((item) => item.id)));
+    const shared = course201.modules
+      .flatMap((module) => module.quiz.map((item) => item.id))
+      .filter((id) => ids101.has(id));
+    assert.ok(shared.includes("m1-q1"));
+    assert.notEqual(course201.modules[0]?.id, course.modules[0]?.id);
+    for (const module of course201.modules) {
+      assert.equal(module.quiz.length, 5);
+      assert.equal(module.videoLink.url, "");
+    }
+  });
+
   it("formats the certificate name and date", () => {
     assert.equal(certificateName("  Ada   Lovelace  "), "Ada Lovelace");
     assert.equal(certificateName("   "), "Student");
-    assert.equal(
-      formatCertificateDate("2026-10-27T03:30:00.000Z"),
-      "October 26, 2026",
-    );
+    assert.equal(formatCertificateDate("2026-10-27T03:30:00.000Z"), "October 26, 2026");
   });
 });

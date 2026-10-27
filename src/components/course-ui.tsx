@@ -5,9 +5,10 @@ import { Lock } from "lucide-react";
 import { CourseMarkdown } from "@/components/course-markdown";
 import { Masthead } from "@/components/masthead";
 import { beginCourseCheckout } from "@/lib/course.functions";
+import { courseOffer, progressPercent } from "@/lib/course/access";
+import { courseHomePath, isOptions201 } from "@/lib/course/paths";
 import type { CourseHome, ResolvedCta } from "@/lib/course/types";
 import { formatMoney } from "@/lib/plans";
-import { progressPercent } from "@/lib/course/access";
 
 export const focusRing =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal";
@@ -23,13 +24,112 @@ export function CourseShell({ children }: { children: ReactNode }) {
   );
 }
 
+export function CourseHomeLink({
+  courseId,
+  className,
+  children,
+}: {
+  courseId: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  if (isOptions201(courseId)) {
+    return (
+      <Link to="/learn/options-201" className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <Link to="/learn/options-101" className={className}>
+      {children}
+    </Link>
+  );
+}
+
+export function CourseModuleLink({
+  courseId,
+  moduleId,
+  className,
+  children,
+}: {
+  courseId: string;
+  moduleId: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  if (isOptions201(courseId)) {
+    return (
+      <Link to="/learn/options-201/$moduleId" params={{ moduleId }} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <Link to="/learn/options-101/$moduleId" params={{ moduleId }} className={className}>
+      {children}
+    </Link>
+  );
+}
+
+export function CourseExamLink({
+  courseId,
+  className,
+  children,
+}: {
+  courseId: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  if (isOptions201(courseId)) {
+    return (
+      <Link to="/learn/options-201/exam" className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <Link to="/learn/options-101/exam" className={className}>
+      {children}
+    </Link>
+  );
+}
+
+export function CourseCertificateLink({
+  courseId,
+  className,
+  children,
+}: {
+  courseId: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  if (isOptions201(courseId)) {
+    return (
+      <Link to="/learn/options-201/certificate" className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <Link to="/learn/options-101/certificate" className={className}>
+      {children}
+    </Link>
+  );
+}
+
 export function CourseBreadcrumb({
   current,
+  courseId = "options-101",
+  courseTitle,
   className = "",
 }: {
   current: string;
+  courseId?: string;
+  courseTitle?: string;
   className?: string;
 }) {
+  const title = courseTitle ?? courseOffer(courseId)?.shortName ?? "Options 101";
   return (
     <nav
       aria-label="Breadcrumb"
@@ -43,9 +143,15 @@ export function CourseBreadcrumb({
           ›
         </li>
         <li>
-          <Link to="/learn" activeOptions={{ exact: true }} className={`text-signal ${focusRing}`}>
-            Options 101
+          <Link to="/learn" className={focusRing}>
+            Classes
           </Link>{" "}
+          ›
+        </li>
+        <li>
+          <CourseHomeLink courseId={courseId} className={`text-signal ${focusRing}`}>
+            {title}
+          </CourseHomeLink>{" "}
           ›
         </li>
         <li aria-current="page">{current}</li>
@@ -69,17 +175,20 @@ export function CourseCheckoutButton({
   signedIn,
   next,
   priceUsd,
+  courseId = "options-101",
   emphasized = true,
 }: {
   signedIn: boolean;
   next: string;
   priceUsd: number;
+  courseId?: string;
   emphasized?: boolean;
 }) {
   const checkout = useServerFn(beginCourseCheckout);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const label = `Buy Options 101 · ${formatMoney(priceUsd)}`;
+  const product = courseOffer(courseId)?.shortName ?? "Options 101";
+  const label = `Buy ${product} · ${formatMoney(priceUsd)}`;
   const className = `inline-flex min-h-11 items-center justify-center rounded-full px-5 text-sm font-semibold ${focusRing} ${
     emphasized ? "bg-heat text-bg" : "bg-fg text-bg"
   }`;
@@ -101,16 +210,12 @@ export function CourseCheckoutButton({
         onClick={() => {
           setPending(true);
           setError(null);
-          void checkout()
+          void checkout({ data: { courseId } })
             .then(({ url }) => {
               window.location.assign(url);
             })
             .catch((cause: unknown) => {
-              setError(
-                cause instanceof Error
-                  ? cause.message
-                  : "Could not open checkout.",
-              );
+              setError(cause instanceof Error ? cause.message : "Could not open checkout.");
               setPending(false);
             });
         }}
@@ -132,13 +237,8 @@ export function CourseProgress({ home }: { home: CourseHome }) {
     >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-medium tracking-widest text-muted uppercase">
-            Progress
-          </p>
-          <h2
-            id="course-progress-title"
-            className="mt-1 font-display text-3xl text-fg"
-          >
+          <p className="text-xs font-medium tracking-widest text-muted uppercase">Progress</p>
+          <h2 id="course-progress-title" className="mt-1 font-display text-3xl text-fg">
             Your progress
           </h2>
           <p className="mt-1 text-sm text-muted">
@@ -161,7 +261,7 @@ export function CourseProgress({ home }: { home: CourseHome }) {
         <p className="mt-4 text-sm text-muted">
           <Link
             to="/login"
-            search={{ next: "/learn" }}
+            search={{ next: courseHomePath(home.id) }}
             className={`font-medium text-signal ${focusRing}`}
           >
             Sign in
@@ -171,17 +271,14 @@ export function CourseProgress({ home }: { home: CourseHome }) {
       ) : null}
       <ul className="mt-4 divide-y divide-line">
         {home.modules.map((module, index) => (
-          <li
-            key={module.id}
-            className="flex items-center justify-between gap-3 py-2 text-sm"
-          >
-            <Link
-              to="/learn/$moduleId"
-              params={{ moduleId: module.id }}
+          <li key={module.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+            <CourseModuleLink
+              courseId={home.id}
+              moduleId={module.id}
               className={`min-w-0 truncate text-fg ${focusRing}`}
             >
               {index + 1}. {module.title}
-            </Link>
+            </CourseModuleLink>
             <span className="shrink-0 text-muted tabular-nums">
               {module.locked ? (
                 <span className="inline-flex items-center gap-1">
@@ -198,9 +295,9 @@ export function CourseProgress({ home }: { home: CourseHome }) {
         ))}
         <li className="flex items-center justify-between gap-3 py-2 text-sm">
           {home.entitled ? (
-            <Link to="/learn/exam" className={`text-fg ${focusRing}`}>
+            <CourseExamLink courseId={home.id} className={`text-fg ${focusRing}`}>
               Final exam
-            </Link>
+            </CourseExamLink>
           ) : (
             <span className="text-muted">Final exam</span>
           )}
@@ -223,12 +320,12 @@ export function CourseProgress({ home }: { home: CourseHome }) {
         </li>
       </ul>
       {home.exam.passed ? (
-        <Link
-          to="/learn/certificate"
+        <CourseCertificateLink
+          courseId={home.id}
           className={`mt-3 inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
         >
           View certificate
-        </Link>
+        </CourseCertificateLink>
       ) : null}
     </section>
   );
@@ -272,11 +369,7 @@ function CtaLink({ cta }: { cta: ResolvedCta }) {
   }
   if (cta.kind === "desk-trial") {
     return (
-      <Link
-        to="/join"
-        search={{ plan: "monthly" }}
-        className={`${className} bg-fg`}
-      >
+      <Link to="/join" search={{ plan: "monthly" }} className={`${className} bg-fg`}>
         {cta.label}
       </Link>
     );

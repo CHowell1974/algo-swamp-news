@@ -88,14 +88,8 @@ test("injects x:creator tags when both creator values are set", () => {
 
 test("escapes x:creator values", () => {
   const tags = grokXCreatorHeadTags('"><script>', '1" onclick="alert(1)');
-  assert.equal(
-    tags[0],
-    '<meta property="x:creator" content="&quot;&gt;&lt;script&gt;">',
-  );
-  assert.equal(
-    tags[1],
-    '<meta property="x:creator:id" content="1&quot; onclick=&quot;alert(1)">',
-  );
+  assert.equal(tags[0], '<meta property="x:creator" content="&quot;&gt;&lt;script&gt;">');
+  assert.equal(tags[1], '<meta property="x:creator:id" content="1&quot; onclick=&quot;alert(1)">');
 });
 
 test("does not duplicate x:creator tags", () => {
@@ -123,7 +117,7 @@ test("platform chrome overwrites share-card metas and always sets og:title", () 
 test("page description fills og and twitter text without replacing the host og:image", () => {
   const empty = mkdtempSync(join(tmpdir(), "grok-og-desc-"));
   const html =
-    '<html><head><title>ALGO Swamp News</title>' +
+    "<html><head><title>ALGO Swamp News</title>" +
     '<meta name="description" content="The desk is $29/mo. A sort, not a signal.">' +
     '<meta property="og:description" content="stale">' +
     '<meta name="twitter:title" content="stale title">' +
@@ -136,8 +130,14 @@ test("page description fills og and twitter text without replacing the host og:i
   });
   assert.match(out, /property="og:title" content="ALGO Swamp News"/);
   assert.match(out, /name="twitter:title" content="ALGO Swamp News"/);
-  assert.match(out, /property="og:description" content="The desk is \$29\/mo\. A sort, not a signal\."/);
-  assert.match(out, /name="twitter:description" content="The desk is \$29\/mo\. A sort, not a signal\."/);
+  assert.match(
+    out,
+    /property="og:description" content="The desk is \$29\/mo\. A sort, not a signal\."/,
+  );
+  assert.match(
+    out,
+    /name="twitter:description" content="The desk is \$29\/mo\. A sort, not a signal\."/,
+  );
   assert.match(out, /name="description" content="The desk is \$29\/mo\. A sort, not a signal\."/);
   assert.match(out, /property="og:image" content="https:\/\/news\.algoswamp\.com\/og\.jpg"/);
   assert.doesNotMatch(out, /evil\.example/);
@@ -152,6 +152,52 @@ test("page description fills og and twitter text without replacing the host og:i
   });
   assert.equal(twice.split('property="og:image"').length - 1, 1);
   assert.equal(twice, out);
+});
+
+test("a same-site page image wins over the host card, and a page without one keeps /og.jpg", () => {
+  const ctx = {
+    host: "news.algoswamp.com",
+    cwd: blankWorkspace(),
+    site: { title: "ALGO Swamp News", card: "custom" },
+  };
+  const withImage = (path) =>
+    "<html><head><title>Classes</title>" +
+    `<link rel="canonical" href="https://news.algoswamp.com${path}">` +
+    `<meta property="og:image" content="https://news.algoswamp.com${path === "/learn" ? "/og-classes.jpg" : "/og-learn-201.jpg"}">` +
+    `<meta name="twitter:image" content="https://news.algoswamp.com${path === "/learn" ? "/og-classes.jpg" : "/og-learn-201.jpg"}">` +
+    "</head></html>";
+  const classes = injectGrokPwaHead(withImage("/learn"), ctx);
+  assert.match(
+    classes,
+    /property="og:image" content="https:\/\/news\.algoswamp\.com\/og-classes\.jpg"/,
+  );
+  assert.match(
+    classes,
+    /name="twitter:image" content="https:\/\/news\.algoswamp\.com\/og-classes\.jpg"/,
+  );
+  assert.doesNotMatch(classes, /content="https:\/\/news\.algoswamp\.com\/og\.jpg"/);
+  assert.equal(classes.split('property="og:image"').length - 1, 1);
+  assert.equal(injectGrokPwaHead(classes, ctx), classes);
+
+  const course = injectGrokPwaHead(withImage("/learn/options-201"), ctx);
+  assert.match(
+    course,
+    /property="og:image" content="https:\/\/news\.algoswamp\.com\/og-learn-201\.jpg"/,
+  );
+  assert.match(
+    course,
+    /name="twitter:image" content="https:\/\/news\.algoswamp\.com\/og-learn-201\.jpg"/,
+  );
+  assert.equal(injectGrokPwaHead(course, ctx), course);
+
+  const plain = injectGrokPwaHead(
+    '<html><head><title>Desk</title><link rel="canonical" href="https://news.algoswamp.com/desk"></head></html>',
+    ctx,
+  );
+  assert.match(plain, /property="og:image" content="https:\/\/news\.algoswamp\.com\/og\.jpg"/);
+  assert.match(plain, /name="twitter:image" content="https:\/\/news\.algoswamp\.com\/og\.jpg"/);
+  assert.equal(plain.split('property="og:image"').length - 1, 1);
+  assert.equal(injectGrokPwaHead(plain, ctx), plain);
 });
 
 test("site.description wins over the document description for share text", () => {
@@ -258,7 +304,7 @@ test("snapshotOgIdentity stamps banner from public/x-banner.jpg", () => {
 });
 
 test("emits x:game:image for a public host when site.banner is set", () => {
-  const html = "<html><head><meta property=\"x:game:image\" content=\"old\"></head></html>";
+  const html = '<html><head><meta property="x:game:image" content="old"></head></html>';
   const out = injectGrokPwaHead(html, {
     host: "wild-race.grok.me",
     site: { title: "Wild Race", type: "x:game", card: "custom", banner: "/x-banner.jpg" },
@@ -302,7 +348,10 @@ test("published grok.me slug is still a title fallback", () => {
 });
 
 test("rejects Vercel system hosts as og:image origins", () => {
-  assert.equal(publicAppHost("01a020b6-803a-71a2-bb47-e2bec57eb9a2-662k8x1l1-xai-org.vercel.app"), "");
+  assert.equal(
+    publicAppHost("01a020b6-803a-71a2-bb47-e2bec57eb9a2-662k8x1l1-xai-org.vercel.app"),
+    "",
+  );
   assert.equal(publicAppHost("demo.vercel.app:443"), "");
   assert.equal(publicAppHost("vercel.app"), "");
   assert.equal(publicAppHost("wild-race.grok.me"), "wild-race.grok.me");
@@ -403,10 +452,9 @@ test("placeholder og:image appends site.color when it is 6-digit hex", () => {
 });
 
 test("document title entities are not double-escaped on og:title", () => {
-  const out = injectGrokPwaHead(
-    "<html><head><title>Cats &amp; Dogs</title></head></html>",
-    { cwd: blankWorkspace() },
-  );
+  const out = injectGrokPwaHead("<html><head><title>Cats &amp; Dogs</title></head></html>", {
+    cwd: blankWorkspace(),
+  });
   assert.match(out, /property="og:title" content="Cats &amp; Dogs"/);
   assert.doesNotMatch(out, /Cats &amp;amp; Dogs/);
 });
@@ -420,7 +468,10 @@ test("site.json title wins over the host slug", () => {
 });
 
 test("injects into documents with no head element", () => {
-  const out = injectGrokPwaHead("<html><body>hi</body></html>", { appName: "Solo", cwd: blankWorkspace() });
+  const out = injectGrokPwaHead("<html><body>hi</body></html>", {
+    appName: "Solo",
+    cwd: blankWorkspace(),
+  });
   assert.match(out, /<head>/);
   assert.match(out, /property="og:title" content="Solo"/);
   assert.match(out, /<\/head>/);
@@ -487,7 +538,10 @@ test("is idempotent", () => {
 });
 
 test("uses the app name in the injected title tag", () => {
-  const out = injectGrokPwaHead("<html><head></head></html>", { appName: "Wild Race", cwd: blankWorkspace() });
+  const out = injectGrokPwaHead("<html><head></head></html>", {
+    appName: "Wild Race",
+    cwd: blankWorkspace(),
+  });
   assert.match(out, /apple-mobile-web-app-title" content="Wild Race"/);
 });
 
@@ -623,15 +677,17 @@ test("a route title beats site.json and canonical is re-emitted as og:url", () =
 
 test("an explicit og:url wins over a different canonical and stays singular", () => {
   const html =
-    '<html><head><title>Monthly</title>' +
+    "<html><head><title>Monthly</title>" +
     '<link rel="canonical" href="https://news.algoswamp.com/join?plan=annual">' +
     '<meta property="og:url" content="https://news.algoswamp.com/join?plan=monthly">' +
     "</head></html>";
   const ctx = { cwd: blankWorkspace(), site: { title: "ALGO Swamp News" } };
   const out = injectGrokPwaHead(html, ctx);
-  assert.match(out, /property="og:url" content="https:\/\/news\.algoswamp\.com\/join\?plan=monthly"/);
+  assert.match(
+    out,
+    /property="og:url" content="https:\/\/news\.algoswamp\.com\/join\?plan=monthly"/,
+  );
   assert.match(out, /rel="canonical" href="https:\/\/news\.algoswamp\.com\/join\?plan=annual"/);
   assert.equal(out.split('property="og:url"').length - 1, 1);
   assert.equal(injectGrokPwaHead(out, ctx), out);
 });
-

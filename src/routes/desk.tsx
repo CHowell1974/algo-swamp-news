@@ -74,7 +74,7 @@ function DeskPage() {
             to="/learn"
             className="font-medium text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
           >
-            Options 101: options trading for beginners
+            Options trading classes: 101 and 201
           </Link>
         </p>
       </footer>

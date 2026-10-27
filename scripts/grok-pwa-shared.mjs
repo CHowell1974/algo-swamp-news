@@ -111,9 +111,7 @@ export function publicAppHost(hostHeader) {
  * app — Envoy rewrites it to `*.vercel.app`.
  */
 export function resolvePublicHost(hostHeader) {
-  return (
-    publicAppHost(process.env?.VITE_PUBLIC_HOSTNAME) || publicAppHost(hostHeader)
-  );
+  return publicAppHost(process.env?.VITE_PUBLIC_HOSTNAME) || publicAppHost(hostHeader);
 }
 
 export function isInstallQuery(url) {
@@ -341,7 +339,10 @@ export function siteHasCustomCard(site = {}) {
  * Otherwise empty — caller emits the og.grok.me placeholder.
  */
 export function resolveOgCardAsset(site = {}, cwd = process.cwd()) {
-  return ogCardPublicPath(cwd) || (detectCustomOgCard(cwd, site) ? String(site.image ?? "").trim() || "/og.jpg" : "");
+  return (
+    ogCardPublicPath(cwd) ||
+    (detectCustomOgCard(cwd, site) ? String(site.image ?? "").trim() || "/og.jpg" : "")
+  );
 }
 
 /** Stamp `card=custom` when public/og.jpg or public/og.png is on disk. */
@@ -360,6 +361,56 @@ export function shareTitle(site = {}, appName = DEFAULT_APP_NAME, host = "", doc
   const fromDoc = String(documentTitle ?? "").trim();
   if (fromDoc) return fromDoc;
   return resolveOgTitle(site, appName, host, "");
+}
+
+/**
+ * The page's own share image, when it points at this site.
+ * Off-site URLs are ignored so a stray tag cannot replace the card.
+ * Root-relative paths are made absolute on `publicHost`.
+ */
+export function pageShareImage(html, publicHost = "") {
+  const source = String(html ?? "");
+  const metas = source.match(/<meta\b[^>]*>/gi) ?? [];
+  let og = "";
+  let twitter = "";
+  for (const tag of metas) {
+    const key = (attrFromTag(tag, "property") || attrFromTag(tag, "name")).toLowerCase();
+    const content = attrFromTag(tag, "content");
+    if (!content) continue;
+    if (key === "og:image" && !og) og = content;
+    if (key === "twitter:image" && !twitter) twitter = content;
+  }
+  const hosts = new Set();
+  const requestHost = String(publicHost ?? "").toLowerCase();
+  if (requestHost) hosts.add(requestHost);
+  const pageUrl = pageUrlFromDocument(source);
+  try {
+    const host = new URL(pageUrl).hostname.toLowerCase();
+    if (host) hosts.add(host);
+  } catch {
+    // No absolute page URL. Only the request host can own the image.
+  }
+  const ogSafe = safeShareImage(og, hosts, requestHost);
+  const twitterSafe = safeShareImage(twitter, hosts, requestHost);
+  return { og: ogSafe, twitter: twitterSafe || ogSafe };
+}
+
+function safeShareImage(raw, hosts, publicHost) {
+  const value = String(raw ?? "").trim();
+  if (!value || /[\s"'<>]/.test(value)) return "";
+  if (value.startsWith("/") && !value.startsWith("//")) {
+    if (!publicHost) return "";
+    return `https://${publicHost}${value}`;
+  }
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    return "";
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") return "";
+  if (!hosts.has(url.hostname.toLowerCase())) return "";
+  return value;
 }
 
 /** Absolute URL from `og:url`, otherwise the canonical link. */
@@ -394,6 +445,8 @@ export function grokOgHeadTags({
   documentTitle = "",
   documentDescription = "",
   pageUrl = "",
+  pageImage = "",
+  pageTwitterImage = "",
   cwd = process.cwd(),
 } = {}) {
   const title = shareTitle(site, appName, host, documentTitle);
@@ -404,7 +457,8 @@ export function grokOgHeadTags({
     `<meta name="twitter:title" content="${escapeHtml(title)}">`,
   ];
   // site.json wins when set. Otherwise keep the page's own description so a
-  // route head is not stripped and then dropped. og:image stays host-owned.
+  // route head is not stripped and then dropped. A same-site og:image wins;
+  // /og.jpg is only the fallback when the page did not set one.
   const description =
     String(site.description ?? "").trim() || String(documentDescription ?? "").trim();
   if (description) {
@@ -420,19 +474,26 @@ export function grokOgHeadTags({
   if (String(site.type ?? "").toLowerCase() === "x:game") {
     tags.push(`<meta property="og:type" content="x:game">`);
   }
-  if (publicHost) {
+  const ownImage = String(pageImage ?? "").trim() || String(pageTwitterImage ?? "").trim();
+  if (ownImage || publicHost) {
     const asset = resolveOgCardAsset(site, cwd);
     const custom = Boolean(asset);
-    let image = custom
-      ? `https://${publicHost}${asset.startsWith("/") ? asset : `/${asset}`}`
-      : `${ogServiceUrl()}/v1/card.png?host=${encodeURIComponent(publicHost)}&title=${encodeURIComponent(title)}`;
-    const color = !custom ? placeholderCardColor(site) : "";
-    if (color) image += `&color=${encodeURIComponent(color)}`;
+    let fallback = "";
+    if (!ownImage && publicHost) {
+      fallback = custom
+        ? `https://${publicHost}${asset.startsWith("/") ? asset : `/${asset}`}`
+        : `${ogServiceUrl()}/v1/card.png?host=${encodeURIComponent(publicHost)}&title=${encodeURIComponent(title)}`;
+      const color = !custom ? placeholderCardColor(site) : "";
+      if (color) fallback += `&color=${encodeURIComponent(color)}`;
+    }
+    const image = ownImage || fallback;
+    const twitterImage = String(pageTwitterImage ?? "").trim() || image;
     tags.push(`<meta property="og:image" content="${escapeHtml(image)}">`);
     tags.push(`<meta property="og:image:width" content="1200">`);
     tags.push(`<meta property="og:image:height" content="630">`);
+    tags.push(`<meta name="twitter:image" content="${escapeHtml(twitterImage)}">`);
     const banner = String(site.banner ?? "").trim();
-    if (banner) {
+    if (banner && publicHost) {
       const bannerUrl = `https://${publicHost}${banner.startsWith("/") ? banner : `/${banner}`}`;
       tags.push(`<meta property="x:game:image" content="${escapeHtml(bannerUrl)}">`);
       tags.push(`<meta property="x:game:image:width" content="1200">`);
@@ -502,12 +563,8 @@ export function injectGrokPwaHead(html, ctx = {}) {
   const documentTitle = titleFromDocument(html);
   const documentDescription = descriptionFromDocument(html);
   const pageUrl = pageUrlFromDocument(html);
-  const appName = resolveOgTitle(
-    site,
-    ctx.appName ?? DEFAULT_APP_NAME,
-    host,
-    documentTitle,
-  );
+  const shareImage = pageShareImage(html, resolvePublicHost(host));
+  const appName = resolveOgTitle(site, ctx.appName ?? DEFAULT_APP_NAME, host, documentTitle);
   let next = stripShareMetaTags(html);
   if (!readGrokExtensionsEnabled()) next = stripGrokExtensionsScript(next);
 
@@ -521,7 +578,17 @@ export function injectGrokPwaHead(html, ctx = {}) {
 
   next = insertAfterHeadOpen(
     next,
-    grokOgHeadTags({ host, appName, site, documentTitle, documentDescription, pageUrl, cwd }).join(""),
+    grokOgHeadTags({
+      host,
+      appName,
+      site,
+      documentTitle,
+      documentDescription,
+      pageUrl,
+      pageImage: shareImage.og,
+      pageTwitterImage: shareImage.twitter,
+      cwd,
+    }).join(""),
   );
 
   if (readGrokExtensionsEnabled() && !next.includes("/grok-app-builder/extensions.js")) {

@@ -1,0 +1,1023 @@
+{
+  "course": {
+    "id": "options-201",
+    "title": "Options 201: Vertical Spreads",
+    "tagline": "Wait. Then Bite.",
+    "level": "Intermediate",
+    "disclaimer": "This is educational content, not financial advice. Nothing in this course is a recommendation to buy or sell any security or to use any strategy, and nothing here suggests any level of profit or win rate. All prices in examples are hypothetical and use the made-up ticker XYZ. Options trading carries substantial risk, is not suitable for everyone, and you can lose money. Spreads typically require a specific options approval level from your broker, often higher than the level for buying calls and puts, and some brokers require a margin account. Review the Options Clearing Corporation's 'Characteristics and Risks of Standardized Options' before trading options.",
+    "intro": "Options 101 covered single calls and puts. Options 201 puts two of them together.\n\n**Recommended first:** Options 101. This course assumes you already know calls and puts, strike, expiration and premium, intrinsic and extrinsic value, the basic Greeks, how to read a thinkorswim option chain, and how to size a trade from max loss. If any of that is new, start with Options 101.\n\nA **vertical spread** is one of the most common defined-risk structures in options. This course covers all four types: the bull call spread, bear put spread, bull put spread and bear call spread. You'll learn how each one is built, how to calculate its max profit, max loss and break-even, how its Greeks behave, how to manage it, and how to build one in thinkorswim.\n\nThere are eight short modules. Each has a plain-language lesson, a worked example, a thinkorswim tip and a 5-question quiz. At the end there's a 15-question final exam. Score 80% (12 of 15) to pass.\n\nEvery price in this course is **hypothetical** and uses the made-up ticker **XYZ**. Do the math yourself. The multiplier is always 100.\n\n**Wait. Then Bite.** Know your max loss before you enter. Practice in paperMoney first.\n\n*This is educational content, not financial advice.*",
+    "modules": [
+      {
+        "id": "m1-what-is-a-vertical",
+        "title": "What a Vertical Spread Is and Why Traders Use One",
+        "learningObjectives": [
+          "Define a vertical spread: one long and one short option, same type, same underlying, same expiration, different strikes",
+          "Explain the difference between a debit vertical and a credit vertical",
+          "Describe why traders use verticals: defined risk, lower cost and a capped outcome"
+        ],
+        "lesson": "A **vertical spread** is two options traded together as one position:\n\n- Same underlying\n- Same type (both calls or both puts)\n- Same expiration\n- **Different strikes**\n- One is bought (long), one is sold (short), in equal quantity\n\nIt's called \"vertical\" because on an option chain the strikes are listed top to bottom. You're picking two strikes in the same column.\n\n**Debit or credit?**\nWhen you open a vertical, one leg costs more than the other.\n\n- If you **pay** more than you receive, it's a **debit spread**. You pay a net debit up front.\n- If you **receive** more than you pay, it's a **credit spread**. You collect a net credit up front.\n\nThat gives four basic verticals:\n\n| Spread | Built with | Debit or credit | Generally helped by |\n|---|---|---|---|\n| Bull call spread | Calls | Debit | Stock rising |\n| Bear put spread | Puts | Debit | Stock falling |\n| Bull put spread | Puts | Credit | Stock flat or rising |\n| Bear call spread | Calls | Credit | Stock flat or falling |\n\n**Why traders use them**\n- **Defined risk.** The long leg limits the loss of the short leg. You know your max loss before you enter.\n- **Lower cost than a single long option.** Selling the second leg lowers what you pay.\n- **Less exposure to time decay and volatility** than a single option, because the two legs partly offset each other.\n\n**The trade-off**\nA vertical also **caps the max profit**. Once the stock moves past both strikes, the spread can't be worth more than its **width** (the distance between the strikes). A single long call has open-ended upside. A bull call spread does not.\n\n**Width**\nWidth = higher strike - lower strike. A 100/105 spread is $5 wide. At expiration, a vertical is worth somewhere between $0 and its width, per share. Times 100, that's $0 to $500 per spread for a $5-wide vertical. That single fact drives all of the math in this course.\n\n**Approval and costs**\nSpreads typically need a specific options approval level from your broker, usually higher than the level for buying single calls and puts. Commissions and fees apply per contract, so a two-leg spread may cost more in fees than a single option. This course ignores commissions in the math, but they're real.",
+        "workedExample": {
+          "title": "Single long call vs. a bull call spread",
+          "scenario": "Hypothetical: XYZ at $100. A 30-day $100 call costs $3.00. A 30-day $105 call is bid at $1.20. Compare buying the $100 call alone with buying the 100/105 bull call spread.",
+          "steps": [
+            "Single long call cost: $3.00 x 100 = $300. Max loss = $300. Max profit is not capped. Break-even = $100 + $3.00 = $103.00.",
+            "Bull call spread: buy the $100 call for $3.00 and sell the $105 call for $1.20. Net debit = $3.00 - $1.20 = $1.80, or $180 per spread.",
+            "Spread max loss = net debit = $180.",
+            "Spread width = $105 - $100 = $5. Max profit = ($5.00 - $1.80) x 100 = $320, reached if XYZ is at or above $105 at expiration.",
+            "Spread break-even at expiration = long strike + debit = $100 + $1.80 = $101.80."
+          ],
+          "result": "The spread costs $120 less than the single call and has a lower break-even ($101.80 vs. $103.00), but its gain is capped at $320. Neither is 'better'; they are different trade-offs. Hypothetical prices, commissions ignored."
+        },
+        "tosTip": {
+          "title": "See verticals on the chain",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "Go to Trade > All Products and enter a symbol. Above the Option Chain, change the Spread selector from Single to Vertical. Each row now shows a two-strike vertical (for example 100/105) with a combined bid and ask for the whole spread instead of a single option. Switch back to Single to compare the individual legs. Practice this in paperMoney."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's YouTube link"
+        },
+        "keyTakeaways": [
+          "A vertical = one long + one short option, same type and expiration, different strikes.",
+          "Pay a net debit = debit spread. Collect a net credit = credit spread.",
+          "Verticals define risk and cap reward.",
+          "At expiration a vertical is worth between $0 and its width (x 100).",
+          "Spreads usually need a specific broker approval level; commissions apply per leg."
+        ],
+        "quiz": [
+          {
+            "id": "m1-q1",
+            "question": "Which describes a vertical spread?",
+            "options": [
+              "A call and a put at the same strike",
+              "One long and one short option of the same type and expiration, at different strikes",
+              "Two options at the same strike with different expirations",
+              "Buying 100 shares and selling a call"
+            ],
+            "answerIndex": 1,
+            "explanation": "Verticals use the same type and expiration but different strikes."
+          },
+          {
+            "id": "m1-q2",
+            "question": "You open a vertical and pay more than you receive. What is it?",
+            "options": [
+              "A credit spread",
+              "A calendar spread",
+              "A debit spread",
+              "A covered call"
+            ],
+            "answerIndex": 2,
+            "explanation": "Paying a net amount up front makes it a debit spread."
+          },
+          {
+            "id": "m1-q3",
+            "question": "Hypothetical: what is the width of a 45/50 put vertical?",
+            "options": [
+              "$5",
+              "$45",
+              "$50",
+              "$95"
+            ],
+            "answerIndex": 0,
+            "explanation": "Width = $50 - $45 = $5."
+          },
+          {
+            "id": "m1-q4",
+            "question": "What is the main trade-off of a vertical compared with a single long option?",
+            "options": [
+              "It has unlimited risk",
+              "It never expires",
+              "It can't be closed early",
+              "Its max profit is capped"
+            ],
+            "answerIndex": 3,
+            "explanation": "The short leg lowers cost but caps the gain."
+          },
+          {
+            "id": "m1-q5",
+            "question": "Which vertical is a credit spread?",
+            "options": [
+              "Bull call spread",
+              "Bear call spread",
+              "Bear put spread",
+              "A single long call"
+            ],
+            "answerIndex": 1,
+            "explanation": "Bear call and bull put spreads collect a net credit."
+          }
+        ]
+      },
+      {
+        "id": "m2-debit-verticals",
+        "title": "Debit Verticals: Bull Call Spread and Bear Put Spread",
+        "learningObjectives": [
+          "Build a bull call spread and a bear put spread from the correct legs",
+          "Calculate max loss, max profit and break-even for a debit vertical",
+          "Explain how a debit vertical's value changes at expiration across price zones"
+        ],
+        "lesson": "A **debit vertical** costs money to open. You buy the option closer to the money and sell one farther out of the money. The bought leg costs more, so you pay a **net debit**.\n\n**Bull call spread (call debit spread)**\n- **Buy** a call at a lower strike.\n- **Sell** a call at a higher strike, same expiration.\n- Generally helped by the stock **rising**.\n\n**Bear put spread (put debit spread)**\n- **Buy** a put at a higher strike.\n- **Sell** a put at a lower strike, same expiration.\n- Generally helped by the stock **falling**.\n\n**The math (per share; multiply by 100)**\n- **Max loss = net debit.** That's all you paid.\n- **Max profit = width - net debit.**\n- **Break-even at expiration:**\n  - Bull call: **long strike + debit**\n  - Bear put: **long strike - debit**\n\n**Three zones at expiration**\nThink of a debit vertical in three zones. Use a bear put spread as the example:\n\n1. **Stock at or above the long (higher) put strike:** both puts expire worthless. You lose the full debit.\n2. **Stock between the strikes:** the long put has intrinsic value and the short put is worthless. The spread is worth long strike - stock price. You may have a partial loss or a partial gain, depending on where the break-even sits.\n3. **Stock at or below the short (lower) put strike:** the spread is worth its full width. You reach max profit.\n\nA bull call spread is the mirror image: full loss at or below the long call strike, full width at or above the short call strike.\n\n**Why a debit spread instead of a single option?**\nThe short leg pays for part of the long leg. That lowers your cost and your break-even. It also reduces how much time decay and volatility hurt you, because the short leg partly offsets the long leg. The price you pay for that is a cap on the gain.\n\n**Things to watch**\n- **Time:** a debit spread generally needs the stock to move in your direction before expiration. If it just sits still, the spread tends to lose value over time.\n- **Width vs. debit:** a debit close to the width means little upside left. A very small debit usually means the strikes are far out of the money and less likely to finish in the money.\n- **Fills:** two legs means two bid-ask spreads. Use a limit order at a net debit you choose.\n\nThe math here assumes you hold to expiration. In practice, many traders close spreads before then. Module 7 covers that.",
+        "workedExample": {
+          "title": "A bear put spread at expiration",
+          "scenario": "Hypothetical: XYZ at $100. Buy the 30-day $100 put for $3.40 and sell the 30-day $95 put for $1.60.",
+          "steps": [
+            "Net debit = $3.40 - $1.60 = $1.80, or $180 per spread. Max loss = $180.",
+            "Width = $100 - $95 = $5. Max profit = ($5.00 - $1.80) x 100 = $320.",
+            "Break-even at expiration = long strike - debit = $100 - $1.80 = $98.20.",
+            "XYZ at $93 at expiration: spread worth its full $5 width = $500. Net = $500 - $180 = +$320 (max profit).",
+            "XYZ at $97: long $100 put worth $3, short $95 put worthless. Spread = $300. Net = $300 - $180 = +$120.",
+            "XYZ at $101: both puts expire worthless. Net = -$180 (max loss)."
+          ],
+          "result": "Max loss $180, max profit $320, break-even $98.20. The outcome is defined at both ends. Hypothetical prices, commissions ignored."
+        },
+        "tosTip": {
+          "title": "Check the debit on the Risk Profile",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In Trade > All Products, set the Spread selector to Vertical. Right-click a put vertical and choose the Analyze option for a buy trade, then open the Analyze tab and look at the Risk Profile. The expiration line shows a flat loss above the long strike, a flat gain below the short strike, and a slope in between. Hover over the line to see the P/L at different prices and find the break-even."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's YouTube link"
+        },
+        "keyTakeaways": [
+          "Bull call: buy lower call, sell higher call. Bear put: buy higher put, sell lower put.",
+          "Debit spread max loss = net debit; max profit = width - debit.",
+          "Call debit break-even = long strike + debit; put debit break-even = long strike - debit.",
+          "A debit spread generally needs a move in your direction before expiration.",
+          "Use a limit order at a net debit you choose."
+        ],
+        "quiz": [
+          {
+            "id": "m2-q1",
+            "question": "How is a bull call spread built?",
+            "options": [
+              "Buy a higher-strike call, sell a lower-strike call",
+              "Buy a lower-strike call, sell a higher-strike call",
+              "Buy a call and a put at the same strike",
+              "Sell a lower-strike put, buy a higher-strike put"
+            ],
+            "answerIndex": 1,
+            "explanation": "The long call is the lower strike; the short call is the higher strike."
+          },
+          {
+            "id": "m2-q2",
+            "question": "Hypothetical: a 50/55 bull call spread costs a $1.50 net debit. What is the max profit?",
+            "options": [
+              "$150",
+              "$500",
+              "$550",
+              "$350"
+            ],
+            "answerIndex": 3,
+            "explanation": "($5.00 - $1.50) x 100 = $350."
+          },
+          {
+            "id": "m2-q3",
+            "question": "Same 50/55 bull call spread at a $1.50 debit. What is the break-even at expiration?",
+            "options": [
+              "$51.50",
+              "$48.50",
+              "$53.50",
+              "$56.50"
+            ],
+            "answerIndex": 0,
+            "explanation": "Long strike + debit = $50 + $1.50."
+          },
+          {
+            "id": "m2-q4",
+            "question": "Hypothetical: an 80/70 bear put spread costs $4.00. What is the break-even at expiration?",
+            "options": [
+              "$84.00",
+              "$74.00",
+              "$76.00",
+              "$66.00"
+            ],
+            "answerIndex": 2,
+            "explanation": "Long (higher) put strike - debit = $80 - $4.00."
+          },
+          {
+            "id": "m2-q5",
+            "question": "What is the max loss on any debit vertical?",
+            "options": [
+              "The width x 100",
+              "Unlimited",
+              "The width minus the debit",
+              "The net debit paid"
+            ],
+            "answerIndex": 3,
+            "explanation": "You can't lose more than what you paid for the spread."
+          }
+        ]
+      },
+      {
+        "id": "m3-credit-verticals",
+        "title": "Credit Verticals: Bull Put Spread and Bear Call Spread",
+        "learningObjectives": [
+          "Build a bull put spread and a bear call spread from the correct legs",
+          "Calculate max profit, max loss and break-even for a credit vertical",
+          "Explain why a credit vertical's risk is larger than its credit and how that affects sizing"
+        ],
+        "lesson": "A **credit vertical** pays you to open it. You sell the option closer to the money and buy one farther out of the money. The sold leg is worth more, so you collect a **net credit**.\n\n**Bull put spread (put credit spread)**\n- **Sell** a put at a higher strike.\n- **Buy** a put at a lower strike, same expiration.\n- Generally helped by the stock staying **above** the short put strike.\n\n**Bear call spread (call credit spread)**\n- **Sell** a call at a lower strike.\n- **Buy** a call at a higher strike, same expiration.\n- Generally helped by the stock staying **below** the short call strike.\n\n**The math (per share; multiply by 100)**\n- **Max profit = net credit.** That's the most you can keep.\n- **Max loss = width - net credit.**\n- **Break-even at expiration:**\n  - Bull put: **short strike - credit**\n  - Bear call: **short strike + credit**\n\n**Three zones at expiration (bull put example)**\n1. **Stock at or above the short put strike:** both puts expire worthless. You keep the full credit.\n2. **Stock between the strikes:** the short put has intrinsic value and the long put does not. The spread costs short strike - stock price to close. Your result is the credit minus that amount.\n3. **Stock at or below the long put strike:** the spread is worth its full width. You reach max loss.\n\nA bear call spread is the mirror image above the market.\n\n**Risk is bigger than reward, by design**\nA credit spread often has a max loss several times its max credit. A $5-wide spread that collects $1.00 risks $4.00. That doesn't make it good or bad. It means the short strike is usually out of the money, and the trade is structured so it doesn't need the stock to move. But when it loses, the loss can be large compared with the credit. **Size from the max loss, not the credit.** That's the Options 101 rule.\n\n**Time and volatility**\nA credit spread generally benefits from time passing and from implied volatility falling, as long as the stock stays on the right side of the short strike. Module 6 covers this with the Greeks.\n\n**Approval and margin**\nCredit spreads usually need a spread-level options approval, and many brokers require a margin account. The broker typically holds the max loss (width - credit) as the buying power requirement while the spread is open.\n\n**Assignment**\nThe short leg is a real short option. If it's American-style and in the money, it can be assigned early. The long leg still limits your risk, but you have to manage the stock position that assignment creates. Module 7 covers it.",
+        "workedExample": {
+          "title": "A bull put spread at expiration",
+          "scenario": "Hypothetical: XYZ at $100. Sell the 30-day $95 put for $1.50 and buy the 30-day $90 put for $0.50.",
+          "steps": [
+            "Net credit = $1.50 - $0.50 = $1.00, or $100 per spread. Max profit = $100.",
+            "Width = $95 - $90 = $5. Max loss = ($5.00 - $1.00) x 100 = $400.",
+            "Break-even at expiration = short strike - credit = $95 - $1.00 = $94.00.",
+            "XYZ at $98 at expiration: both puts expire worthless. Net = +$100 (max profit).",
+            "XYZ at $92: short $95 put worth $3, long $90 put worthless. Spread worth $300. Net = $100 - $300 = -$200.",
+            "XYZ at $88: spread worth its full $5 width = $500. Net = $100 - $500 = -$400 (max loss)."
+          ],
+          "result": "Max profit $100, max loss $400, break-even $94.00. The broker would typically hold about $400 in buying power. Hypothetical prices, commissions ignored."
+        },
+        "tosTip": {
+          "title": "Selling a vertical from the chain",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In Trade > All Products with the Spread selector on Vertical, clicking the Bid of a vertical row creates an order to sell that spread (a credit), and clicking the Ask creates an order to buy it (a debit). The order ticket appears at the bottom of the Trade tab. Check that the side reads SELL, that the strikes are the ones you meant, and that the price is a credit before you continue. Practice in paperMoney."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's YouTube link"
+        },
+        "keyTakeaways": [
+          "Bull put: sell higher put, buy lower put. Bear call: sell lower call, buy higher call.",
+          "Credit spread max profit = net credit; max loss = width - credit.",
+          "Bull put break-even = short strike - credit; bear call break-even = short strike + credit.",
+          "Max loss is often several times the credit. Size from max loss.",
+          "Credit spreads usually need spread-level approval and often a margin account."
+        ],
+        "quiz": [
+          {
+            "id": "m3-q1",
+            "question": "How is a bear call spread built?",
+            "options": [
+              "Sell a lower-strike call, buy a higher-strike call",
+              "Buy a lower-strike call, sell a higher-strike call",
+              "Sell a higher-strike put, buy a lower-strike put",
+              "Sell a call and buy shares"
+            ],
+            "answerIndex": 0,
+            "explanation": "The short call is the lower strike; the long call above it caps risk."
+          },
+          {
+            "id": "m3-q2",
+            "question": "Hypothetical: a 60/55 bull put spread collects $1.25. What is the max loss?",
+            "options": [
+              "$125",
+              "$500",
+              "$375",
+              "$625"
+            ],
+            "answerIndex": 2,
+            "explanation": "($5.00 - $1.25) x 100 = $375."
+          },
+          {
+            "id": "m3-q3",
+            "question": "Same 60/55 bull put spread for a $1.25 credit. What is the break-even at expiration?",
+            "options": [
+              "$61.25",
+              "$58.75",
+              "$56.25",
+              "$53.75"
+            ],
+            "answerIndex": 1,
+            "explanation": "Short strike - credit = $60 - $1.25."
+          },
+          {
+            "id": "m3-q4",
+            "question": "Hypothetical: a 70/80 bear call spread collects $3.00. What is the break-even at expiration?",
+            "options": [
+              "$67.00",
+              "$77.00",
+              "$83.00",
+              "$73.00"
+            ],
+            "answerIndex": 3,
+            "explanation": "Short strike + credit = $70 + $3.00."
+          },
+          {
+            "id": "m3-q5",
+            "question": "Why should credit spreads be sized from max loss rather than the credit?",
+            "options": [
+              "The credit is never received",
+              "Max loss is often several times larger than the credit",
+              "Brokers ignore max loss",
+              "Credit spreads can't lose money"
+            ],
+            "answerIndex": 1,
+            "explanation": "Width - credit is usually much bigger than the credit itself."
+          }
+        ]
+      },
+      {
+        "id": "m4-strikes-width-expiration",
+        "title": "Choosing Strikes, Width and Expiration",
+        "learningObjectives": [
+          "Explain the trade-off between strike distance, credit or debit, and the model's probability estimates",
+          "Describe how width changes max profit, max loss and buying power",
+          "Judge liquidity using the bid-ask of each leg and of the spread as a whole"
+        ],
+        "lesson": "Every vertical comes down to three choices: **which strikes**, **how wide**, and **which expiration**. There's no free lunch in any of them. Each choice moves risk, reward and the model's probability estimates together.\n\n**Strike distance (credit spreads)**\n- A **short strike closer to the money** usually brings a bigger credit, but the stock needs to move less to reach it.\n- A **short strike farther out of the money** usually brings a smaller credit, and the stock needs to move more to reach it.\nFor debit spreads it's the reverse: strikes closer to the money cost more, and strikes farther out cost less but need a bigger move.\n\n**Delta as a rough probability guide**\nMany traders read the short leg's delta as a rough, model-based estimate of the chance the option finishes in the money. A 0.30 delta call is often read as about a 30% model chance of finishing ITM. thinkorswim's **Probability OTM** and **Probability ITM** columns give similar model estimates. These come from implied volatility. They are **estimates, not forecasts**, and they don't account for gaps, news or changing volatility.\n\nNotice the pattern: a higher model probability of keeping a credit usually comes with a smaller credit and a larger max loss relative to it. The market prices that trade-off in.\n\n**Width**\n- **Wider** spreads: larger max profit and larger max loss in dollars, and more buying power used.\n- **Narrower** spreads: fewer dollars at stake, but commissions and bid-ask costs are a bigger share of the trade.\nWidth is also a sizing lever. Two $5-wide spreads and one $10-wide spread can have similar dollar risk with different strike placement.\n\n**Expiration**\n- **Shorter-dated:** time decay is faster and gamma is higher. Prices change quickly near the short strike.\n- **Longer-dated:** slower decay, more vega (volatility exposure), and more time for the stock to move either way.\nAlso check the calendar: earnings dates, ex-dividend dates and economic releases inside your expiration add event risk.\n\n**Liquidity and the bid-ask**\nA vertical has two bid-ask spreads stacked together.\n- The **natural price** is the worst-case fill: sell at the bid and buy at the ask on each leg.\n- The **mid price** is halfway between.\nTight markets, solid open interest and active volume generally make fills closer to the mid more likely. Wide markets mean you start behind before the stock moves at all. Use **limit orders** at a net price you choose.\n\n**A simple checklist**\n1. Where is the short strike vs. the current price?\n2. What are the short leg's delta and Probability OTM?\n3. Width, max loss and break-even?\n4. Any events before expiration?\n5. Bid-ask on each leg and on the spread?",
+        "workedExample": {
+          "title": "Comparing three bear call spreads",
+          "scenario": "Hypothetical: XYZ at $100, 30-day options. $105 call: bid $1.35 / ask $1.45 (mid $1.40, delta 0.30). $110 call: bid $0.35 / ask $0.45 (mid $0.40, delta 0.15). $115 call: mid $0.10.",
+          "steps": [
+            "Spread A, 105/110: natural credit = $1.35 bid - $0.45 ask = $0.90. Mid credit = $1.40 - $0.40 = $1.00.",
+            "Spread A at a $1.00 credit: max profit $100; max loss ($5.00 - $1.00) x 100 = $400; break-even $105 + $1.00 = $106.00.",
+            "Spread B, 110/115 at mid: credit = $0.40 - $0.10 = $0.30. Max profit $30; max loss ($5.00 - $0.30) x 100 = $470; break-even $110 + $0.30 = $110.30.",
+            "Spread C, 105/115 ($10 wide) at mid: credit = $1.40 - $0.10 = $1.30. Max profit $130; max loss ($10.00 - $1.30) x 100 = $870; break-even $105 + $1.30 = $106.30.",
+            "Short-leg delta: A and C use a 0.30 delta short call; B uses a 0.15 delta short call, a lower model-estimated chance of finishing ITM."
+          ],
+          "result": "Farther strikes (B) mean a smaller credit and a bigger max loss relative to the credit. Wider (C) raises both the credit and the max loss. The gap between natural ($0.90) and mid ($1.00) is a real liquidity cost. Hypothetical prices, commissions ignored."
+        },
+        "tosTip": {
+          "title": "Add probability columns to the chain",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In Trade > All Products, open the Layout menu above the Option Chain and choose Customize. Add Delta, Probability OTM, Probability ITM, Open Int and Volume next to Bid and Ask, then save the layout. With the Spread selector on Vertical, compare the combined bid and ask of a few spreads. The Strikes dropdown changes how many strikes are shown around the current price."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's YouTube link"
+        },
+        "keyTakeaways": [
+          "Closer short strikes: more credit, less room. Farther: less credit, more room.",
+          "Delta and Probability OTM are model estimates, not forecasts.",
+          "Wider spreads raise both max profit and max loss in dollars.",
+          "Check events (earnings, ex-dividend) inside your expiration.",
+          "Natural vs. mid price shows your liquidity cost. Use limit orders."
+        ],
+        "quiz": [
+          {
+            "id": "m4-q1",
+            "question": "Moving a credit spread's short strike farther out of the money usually...",
+            "options": [
+              "Increases the credit",
+              "Removes all risk",
+              "Decreases the credit and increases max loss relative to it",
+              "Has no effect on price"
+            ],
+            "answerIndex": 2,
+            "explanation": "More room usually means less premium collected."
+          },
+          {
+            "id": "m4-q2",
+            "question": "What does a short call's delta of 0.25 roughly suggest?",
+            "options": [
+              "A guaranteed 25% return",
+              "About a 25% model-estimated chance of finishing in the money",
+              "The spread costs $25",
+              "A 75% chance the stock rises"
+            ],
+            "answerIndex": 1,
+            "explanation": "Delta is often used as a rough, model-based ITM probability, not a forecast."
+          },
+          {
+            "id": "m4-q3",
+            "question": "Compared with a $5-wide credit spread at the same short strike, a $10-wide one generally has...",
+            "options": [
+              "Larger max loss and a larger credit",
+              "Smaller max loss",
+              "No buying power requirement",
+              "The same max loss"
+            ],
+            "answerIndex": 0,
+            "explanation": "Wider spreads put more dollars at risk and usually collect more."
+          },
+          {
+            "id": "m4-q4",
+            "question": "Hypothetical: short leg bid $2.00 / ask $2.10, long leg bid $0.80 / ask $0.90. What is the natural credit?",
+            "options": [
+              "$1.30",
+              "$1.20",
+              "$1.00",
+              "$1.10"
+            ],
+            "answerIndex": 3,
+            "explanation": "Sell at the bid ($2.00) and buy at the ask ($0.90): $2.00 - $0.90 = $1.10."
+          },
+          {
+            "id": "m4-q5",
+            "question": "Why check earnings and ex-dividend dates before choosing an expiration?",
+            "options": [
+              "They change the multiplier",
+              "They can add gap risk and early assignment risk inside your trade",
+              "Options can't trade on those dates",
+              "They lock in gains"
+            ],
+            "answerIndex": 1,
+            "explanation": "Events can move the stock past your strikes or change assignment risk."
+          }
+        ]
+      },
+      {
+        "id": "m5-profit-loss-breakeven",
+        "title": "Max Profit, Max Loss and Break-Even Math",
+        "learningObjectives": [
+          "Calculate max profit, max loss and break-even for all four vertical types",
+          "Calculate P/L at expiration for any stock price",
+          "Check that max profit + max loss always equals the width"
+        ],
+        "lesson": "This module is all math. Learn these formulas cold. Every number is **per share**; multiply by **100** for one contract. Commissions are ignored here, but they exist and reduce results.\n\n**Debit spreads (you pay)**\n| | Bull call spread | Bear put spread |\n|---|---|---|\n| Legs | Buy lower call, sell higher call | Buy higher put, sell lower put |\n| Max loss | Net debit | Net debit |\n| Max profit | Width - debit | Width - debit |\n| Break-even | Long strike + debit | Long strike - debit |\n\n**Credit spreads (you collect)**\n| | Bull put spread | Bear call spread |\n|---|---|---|\n| Legs | Sell higher put, buy lower put | Sell lower call, buy higher call |\n| Max profit | Net credit | Net credit |\n| Max loss | Width - credit | Width - credit |\n| Break-even | Short strike - credit | Short strike + credit |\n\n**A built-in check**\nFor any vertical: **max profit + max loss = width.** If your numbers don't add up to the width (x 100), something is wrong.\n\n**P/L at expiration for any price**\n1. Find the spread's value at expiration. It's the difference between the two legs' intrinsic values, so it's always between $0 and the width.\n2. **Debit spread:** P/L = value - debit.\n3. **Credit spread:** P/L = credit - value.\n4. Multiply by 100.\n\n**Where people slip up**\n- **Forgetting the 100 multiplier.** A $1.20 credit is $120, not $1.20.\n- **Using the wrong strike for break-even.** Debit spreads use the **long** strike. Credit spreads use the **short** strike.\n- **Using the wrong sign.** Call spreads add to the strike; put spreads subtract.\n- **Mixing up width and max loss.** On a credit spread, max loss is width minus credit, not the full width.\n- **Assuming you'll get the mid price.** The fill price sets the numbers. A worse fill changes all three.\n\n**These are expiration numbers**\nBefore expiration, a spread's price also depends on time left and implied volatility. A spread can show a loss mid-trade even if it would finish fine at expiration, or the other way around. The Risk Profile in thinkorswim shows both an estimated P/L line for today and the expiration line.\n\n**Reward-to-risk is not a probability**\nA spread risking $380 to make $120 isn't automatically good or bad, and neither is one risking $200 to make $300. Reward-to-risk and model probability are linked by pricing. Neither one alone tells you anything about future results.",
+        "workedExample": {
+          "title": "All four verticals, side by side",
+          "scenario": "Hypothetical: XYZ at $100, all spreads $5 wide, same expiration. Bull call 100/105 for a $2.00 debit. Bear put 100/95 for a $2.00 debit. Bull put 95/90 for a $1.20 credit. Bear call 105/110 for a $1.20 credit.",
+          "steps": [
+            "Bull call 100/105: max loss $200; max profit ($5.00 - $2.00) x 100 = $300; break-even $100 + $2.00 = $102.00. Check: $200 + $300 = $500.",
+            "Bear put 100/95: max loss $200; max profit ($5.00 - $2.00) x 100 = $300; break-even $100 - $2.00 = $98.00. Check: $500.",
+            "Bull put 95/90: max profit $120; max loss ($5.00 - $1.20) x 100 = $380; break-even $95 - $1.20 = $93.80. Check: $120 + $380 = $500.",
+            "Bear call 105/110: max profit $120; max loss ($5.00 - $1.20) x 100 = $380; break-even $105 + $1.20 = $106.20. Check: $500.",
+            "P/L check, bull call with XYZ at $103 at expiration: spread value = $103 - $100 = $3.00. P/L = ($3.00 - $2.00) x 100 = +$100.",
+            "P/L check, bear call with XYZ at $108 at expiration: spread value = $108 - $105 = $3.00. P/L = ($1.20 - $3.00) x 100 = -$180."
+          ],
+          "result": "Every spread's max profit + max loss = $500, the width x 100. Debit spreads use the long strike for break-even; credit spreads use the short strike. Hypothetical prices, commissions ignored."
+        },
+        "tosTip": {
+          "title": "Verify your math with the Risk Profile",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In paperMoney, right-click a vertical in the Option Chain and choose the Analyze option to send it to the Analyze tab, then open Risk Profile. Compare the graph's max gain, max loss and break-even at expiration with your own hand math. If they disagree, check the price used and the 100 multiplier. The graph also shows an estimated P/L line for today, which differs from the expiration line."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's YouTube link"
+        },
+        "keyTakeaways": [
+          "Debit: max loss = debit; max profit = width - debit; break-even uses the long strike.",
+          "Credit: max profit = credit; max loss = width - credit; break-even uses the short strike.",
+          "Call spreads add to the strike for break-even; put spreads subtract.",
+          "Max profit + max loss always equals the width.",
+          "Always multiply by 100, and remember commissions."
+        ],
+        "quiz": [
+          {
+            "id": "m5-q1",
+            "question": "Hypothetical: a 40/50 bull call spread costs $3.50. What is the max profit?",
+            "options": [
+              "$350",
+              "$1,000",
+              "$650",
+              "$1,350"
+            ],
+            "answerIndex": 2,
+            "explanation": "($10.00 - $3.50) x 100 = $650."
+          },
+          {
+            "id": "m5-q2",
+            "question": "Hypothetical: a 30/27.50 bull put spread collects $0.75. What is the max loss?",
+            "options": [
+              "$175",
+              "$75",
+              "$250",
+              "$325"
+            ],
+            "answerIndex": 0,
+            "explanation": "Width $2.50 - $0.75 = $1.75, x 100 = $175."
+          },
+          {
+            "id": "m5-q3",
+            "question": "Hypothetical: a 45/40 bear put spread costs $1.60. What is the break-even?",
+            "options": [
+              "$46.60",
+              "$41.60",
+              "$38.40",
+              "$43.40"
+            ],
+            "answerIndex": 3,
+            "explanation": "Long strike - debit = $45 - $1.60."
+          },
+          {
+            "id": "m5-q4",
+            "question": "Hypothetical: a 120/125 bear call spread collects $0.90. What is the break-even?",
+            "options": [
+              "$120.90",
+              "$119.10",
+              "$125.90",
+              "$124.10"
+            ],
+            "answerIndex": 0,
+            "explanation": "Short strike + credit = $120 + $0.90."
+          },
+          {
+            "id": "m5-q5",
+            "question": "Hypothetical: a 50/55 bull call spread cost $2.00. XYZ is at $52 at expiration. What is the P/L?",
+            "options": [
+              "+$200",
+              "$0",
+              "-$200",
+              "+$300"
+            ],
+            "answerIndex": 1,
+            "explanation": "Value $2.00 - debit $2.00 = $0; XYZ is exactly at break-even."
+          }
+        ]
+      },
+      {
+        "id": "m6-greeks-on-verticals",
+        "title": "The Greeks on Verticals",
+        "learningObjectives": [
+          "Calculate a vertical's net delta, theta, vega and gamma from its legs",
+          "Explain why debit and credit verticals usually have opposite theta and vega exposure",
+          "Describe how a vertical's Greeks change as expiration approaches"
+        ],
+        "lesson": "In Options 101 you learned the Greeks for single options. A vertical's Greeks are just the **net** of its two legs.\n\n**How to net them**\n- Long leg: use its Greeks as shown.\n- Short leg: **flip the sign** of each Greek.\n- Add them together. Multiply by 100 for one contract.\n\n**Net delta: direction**\n- Bull call and bull put spreads have **positive** net delta. They generally gain value as the stock rises.\n- Bear put and bear call spreads have **negative** net delta.\nBecause the legs offset, a vertical's net delta is smaller than either leg alone. That's part of what \"defined risk\" feels like day to day.\n\n**Net theta: time**\n- **Debit spreads** usually have **negative** theta when the long leg is closer to the money. Time passing tends to hurt.\n- **Credit spreads** usually have **positive** theta when the short leg is closer to the money. Time passing tends to help.\nThe sign can change as the stock moves. A credit spread that has moved well in the money can have theta near zero or even working against it.\n\n**Net vega: volatility**\n- Debit spreads usually have **positive** vega. Rising implied volatility tends to help.\n- Credit spreads usually have **negative** vega. Rising implied volatility tends to hurt.\nNet vega on a vertical is small because the legs offset, but it isn't zero.\n\n**Net gamma: how fast delta changes**\nDebit spreads usually have small **positive** gamma and credit spreads small **negative** gamma, while the stock sits near the closer-to-the-money leg.\n\n**Near expiration**\nThis is where verticals change character:\n- **Gamma grows** for options near the money. A small stock move can swing the spread from near $0 to near full width.\n- **Theta speeds up** for at-the-money options.\n- **Vega shrinks**, because there's little time left for volatility to matter.\n- If the stock is **between the strikes**, the spread's value is very sensitive to price. If it's **beyond both strikes**, the spread sits near $0 or near full width and the Greeks flatten out.\n\nIn plain terms: early in a trade, verticals tend to move slowly. Close to expiration, they can move fast. That's one reason many traders choose not to hold verticals into the final days. Module 7 covers that.\n\n**Greeks are estimates**\nGreeks are model outputs for small moves, right now. They change as price, time and volatility change. Use them to understand exposure, not to predict outcomes.",
+        "workedExample": {
+          "title": "Netting Greeks on two spreads",
+          "scenario": "Hypothetical: XYZ at $100, 30 days. $100 call: delta 0.55, theta -0.05, vega 0.12, gamma 0.04. $105 call: delta 0.30, theta -0.04, vega 0.10, gamma 0.03. $95 put: delta -0.30, theta -0.04. $90 put: delta -0.12, theta -0.02.",
+          "steps": [
+            "Bull call 100/105 (long $100 call, short $105 call). Net delta = 0.55 - 0.30 = +0.25, or about +25 shares-equivalent per spread.",
+            "Net theta = -0.05 - (-0.04) = -0.01, or about -$1 per day per spread, all else equal.",
+            "Net vega = 0.12 - 0.10 = +0.02, or about +$2 per 1-point rise in IV. Net gamma = 0.04 - 0.03 = +0.01.",
+            "Bull put 95/90 (short $95 put, long $90 put). Net delta = -(-0.30) + (-0.12) = +0.18, or about +18 shares-equivalent.",
+            "Net theta = -(-0.04) + (-0.02) = +0.02, or about +$2 per day, all else equal."
+          ],
+          "result": "Both spreads are bullish (positive delta). The debit spread has negative theta and positive vega; the credit spread has positive theta. All figures are hypothetical model estimates and will change as price, time and IV change."
+        },
+        "tosTip": {
+          "title": "Watch Greeks and time on the Risk Profile",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In paperMoney, open a vertical, then go to Monitor > Activity and Positions to see the position. Position Greek columns such as Delta and Theta can be added through the column customization if they aren't showing. On Analyze > Risk Profile, move the date setting forward toward expiration and watch the estimated P/L line bend toward the expiration line."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's YouTube link"
+        },
+        "keyTakeaways": [
+          "Net Greeks = long leg Greeks minus short leg Greeks.",
+          "Bullish verticals have positive delta; bearish verticals have negative delta.",
+          "Debit spreads: usually negative theta, positive vega. Credit spreads: usually the reverse.",
+          "Near expiration, gamma rises and verticals can swing quickly between $0 and full width.",
+          "Greeks are estimates that change constantly."
+        ],
+        "quiz": [
+          {
+            "id": "m6-q1",
+            "question": "Hypothetical: long call delta 0.60, short call delta 0.35. What is the net delta per share?",
+            "options": [
+              "+0.95",
+              "+0.25",
+              "-0.25",
+              "+0.35"
+            ],
+            "answerIndex": 1,
+            "explanation": "0.60 - 0.35 = +0.25."
+          },
+          {
+            "id": "m6-q2",
+            "question": "What sign is the net delta of a bear call spread?",
+            "options": [
+              "Negative",
+              "Positive",
+              "Always zero",
+              "It depends only on the multiplier"
+            ],
+            "answerIndex": 0,
+            "explanation": "A bear call spread is bearish, so net delta is negative."
+          },
+          {
+            "id": "m6-q3",
+            "question": "A credit vertical with its short strike out of the money usually has which theta?",
+            "options": [
+              "Negative",
+              "Zero",
+              "Positive",
+              "Undefined"
+            ],
+            "answerIndex": 2,
+            "explanation": "Decay of the closer-to-the-money short leg tends to help the credit spread."
+          },
+          {
+            "id": "m6-q4",
+            "question": "A debit vertical usually has which vega exposure?",
+            "options": [
+              "Negative: rising IV hurts",
+              "None at all",
+              "Only on Fridays",
+              "Positive: rising IV tends to help"
+            ],
+            "answerIndex": 3,
+            "explanation": "The long leg nearer the money carries more vega than the short leg."
+          },
+          {
+            "id": "m6-q5",
+            "question": "Near expiration, with the stock between the strikes, a vertical's value generally...",
+            "options": [
+              "Becomes very sensitive to price because gamma rises",
+              "Stops changing because all Greeks go to zero",
+              "Can no longer be closed",
+              "Depends mostly on vega"
+            ],
+            "answerIndex": 0,
+            "explanation": "Near-the-money gamma grows near expiration, so small moves swing the value."
+          }
+        ]
+      },
+      {
+        "id": "m7-managing-closing-rolling",
+        "title": "Managing, Closing and Rolling Verticals",
+        "learningObjectives": [
+          "Explain early assignment risk on short legs, especially in-the-money short calls before an ex-dividend date",
+          "Describe pin risk and why many traders close verticals before expiration",
+          "Calculate the result of closing and of rolling a vertical, and explain legging risk"
+        ],
+        "lesson": "Opening a vertical is half the job.\n\n**Closing early**\nYou can close a vertical any time the market is open by placing the opposite order as one spread. To close a credit spread, you **buy** it back at a debit. To close a debit spread, you **sell** it at a credit. P/L = what you received minus what you paid, x 100. Many traders write down an exit plan before entering.\n\n**Early assignment**\nMost stock and ETF options are American-style, so a **short leg** can be assigned before expiration.\n- Risk is higher when the short option is **in the money** and has **little extrinsic value** left.\n- **Short calls before an ex-dividend date** are a well-known case. If an ITM short call's extrinsic value is less than the upcoming dividend, a call holder may exercise early to capture the dividend. You could be assigned the day before the ex-dividend date and end up short shares, owing the dividend.\n- Deep ITM short puts can also be assigned early.\n\nIf you're assigned, the long leg is still there to limit risk, but you now hold stock (or short stock) plus the long option. You'll need to decide how to handle it, and margin can change.\n\n**Pin risk**\nPin risk happens when the stock closes **right near your short strike** at expiration. You may not know whether you'll be assigned, and prices can move after the close. If the short leg is assigned and the long leg expires worthless, you could start the next trading day with a stock position and no hedge. Closing before expiration avoids that uncertainty.\n\n**Rolling**\n**Rolling** means closing the current spread and opening a new one, usually at a later expiration and sometimes at different strikes. It can often be entered as one combined order. A roll is really two trades: it locks in the result of the first spread and starts a new risk. It does not erase a loss. Would you open the new spread on its own?\n\n**Legging risk**\n**Legging** means entering or exiting the two legs separately. The risk: the market moves between fills, one leg fills at a worse price, or the second leg doesn't fill at all. Closing only the long leg can leave an uncovered short option, which may exceed your approval level and carries much larger risk. Entering and exiting **as one spread order** avoids most legging risk.\n\n**Plan checklist**\n1. Exit plan written before entry?\n2. Short leg ITM and near an ex-dividend date?\n3. Close before the final day to avoid pin risk?\n4. If rolling, does the new spread fit your max-loss rule?",
+        "workedExample": {
+          "title": "Closing vs. rolling a bear call spread, plus an ex-dividend check",
+          "scenario": "Hypothetical: you sold the XYZ 105/110 bear call spread for a $1.20 credit. With 10 days left, XYZ is at $104 and the spread costs $2.00 to buy back. A 45-day 110/115 bear call spread can be sold for $1.50.",
+          "steps": [
+            "Close only: P/L = ($1.20 - $2.00) x 100 = -$80, realized.",
+            "Roll as one order: buy back the 105/110 at $2.00 and sell the 110/115 at $1.50. Net roll debit = $2.00 - $1.50 = $0.50.",
+            "The -$80 on the first spread is still realized. New 110/115 spread: max profit $150; max loss ($5.00 - $1.50) x 100 = $350; break-even $110 + $1.50 = $111.50.",
+            "Combined range across both trades: best case -$80 + $150 = +$70; worst case -$80 - $350 = -$430.",
+            "Ex-dividend check (separate hypothetical): XYZ at $108, short $105 call bid $3.10. Intrinsic = $108 - $105 = $3.00, extrinsic = $0.10. With a $0.50 dividend going ex tomorrow, extrinsic is less than the dividend, so early assignment risk on that short call is elevated."
+          ],
+          "result": "A roll realizes the first result and opens a new risk; it doesn't erase the loss. An ITM short call with less extrinsic value than an upcoming dividend has elevated early assignment risk. Hypothetical prices, commissions ignored."
+        },
+        "tosTip": {
+          "title": "Close a vertical as one order",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "In paperMoney, go to Monitor > Activity and Positions, right-click the spread in the Position Statement and choose Create closing order. thinkorswim builds one order for both legs. Review the side, strikes, quantity and limit price in the order ticket before you click Confirm and Send. Closing both legs together helps avoid legging risk."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's YouTube link"
+        },
+        "keyTakeaways": [
+          "Close a vertical as one spread order; P/L = received - paid, x 100.",
+          "ITM short calls with extrinsic value below an upcoming dividend have elevated early assignment risk.",
+          "Pin risk: a stock near the short strike at expiration creates assignment uncertainty.",
+          "A roll is two trades; it locks in the first result and starts a new risk.",
+          "Legging in or out can leave an uncovered short leg or a worse fill."
+        ],
+        "quiz": [
+          {
+            "id": "m7-q1",
+            "question": "When is early assignment risk on a short call generally elevated?",
+            "options": [
+              "When it is far out of the money",
+              "When it is in the money and its extrinsic value is less than an upcoming dividend",
+              "Only after expiration",
+              "Whenever implied volatility is high"
+            ],
+            "answerIndex": 1,
+            "explanation": "Holders may exercise ITM calls to capture a dividend larger than the remaining extrinsic value."
+          },
+          {
+            "id": "m7-q2",
+            "question": "What is pin risk?",
+            "options": [
+              "The risk of a wide bid-ask",
+              "The risk of a commission increase",
+              "Uncertainty about assignment when the stock closes near the short strike at expiration",
+              "The risk that an option can't be exercised"
+            ],
+            "answerIndex": 2,
+            "explanation": "Near the short strike at expiration, you may not know if you'll be assigned."
+          },
+          {
+            "id": "m7-q3",
+            "question": "What is legging risk?",
+            "options": [
+              "The risk that prices move between fills when entering or exiting legs separately",
+              "The risk of holding a vertical to expiration",
+              "The risk that the multiplier changes",
+              "The risk of rolling to a later date"
+            ],
+            "answerIndex": 0,
+            "explanation": "Separate fills can mean a worse price or an uncovered leg."
+          },
+          {
+            "id": "m7-q4",
+            "question": "Hypothetical: you sold a credit spread for $0.90 and buy it back for $1.60. What is the P/L?",
+            "options": [
+              "+$70",
+              "-$160",
+              "-$0.70",
+              "-$70"
+            ],
+            "answerIndex": 3,
+            "explanation": "($0.90 - $1.60) x 100 = -$70."
+          },
+          {
+            "id": "m7-q5",
+            "question": "What does rolling a vertical do?",
+            "options": [
+              "Erases any loss on the original spread",
+              "Closes the current spread and opens a new one, often at a later expiration",
+              "Converts the spread to shares",
+              "Removes assignment risk permanently"
+            ],
+            "answerIndex": 1,
+            "explanation": "A roll is a close plus a new open; the first result is realized."
+          }
+        ]
+      },
+      {
+        "id": "m8-verticals-in-thinkorswim",
+        "title": "Building and Placing Verticals in thinkorswim",
+        "learningObjectives": [
+          "Build a vertical from the Option Chain using the Spread selector set to Vertical",
+          "Set a limit order at a net debit or net credit and review the order before sending",
+          "Use Analyze > Risk Profile and paperMoney to check a spread before placing it"
+        ],
+        "lesson": "This module walks through building a vertical in thinkorswim desktop on Windows. Do every step in **paperMoney** first. Menu labels can differ slightly between thinkorswim versions, so match these steps to what you see on your screen.\n\n**1. Open the chain**\nGo to the **Trade** tab and choose **All Products**. Enter the symbol. Expand an expiration in the **Option Chain**.\n\n**2. Switch to verticals**\nAbove the chain, change the **Spread** selector from **Single** to **Vertical**. Each row now shows a two-strike spread with a combined bid and ask for the spread.\n\n**3. Choose the side**\n- Click the **Ask** of a vertical row to **buy** it (debit).\n- Click the **Bid** of a vertical row to **sell** it (credit).\nCalls are on the left, puts on the right. A bull call or bear put spread is bought. A bull put or bear call spread is sold.\n\n**4. Review the order ticket**\nAn order ticket opens at the bottom of the Trade tab. Check each field:\n- **Side:** BUY or SELL, matching debit or credit\n- **Quantity**\n- **Expiration and both strikes**, and calls vs. puts\n- **Price** and order type **LMT**\n- **Time in force**, such as DAY\n\n**5. Set the limit price**\nA vertical's price is entered as a **net** amount for the whole spread: a **net debit** to buy, a **net credit** to sell. Many traders start near the mid and adjust in small steps. Avoid market orders on spreads; with two bid-ask spreads, a market fill can be poor.\n\n**6. Analyze before sending**\nRight-click the spread and choose the **Analyze** option for a buy or sell trade. On the **Analyze** tab, the **Risk Profile** graph shows the expiration P/L line and an estimated P/L line for today. Check max loss, max profit and break-even against your Module 5 math.\n\n**7. Confirm and send**\nClick **Confirm and Send**. Read the confirmation dialog: the order description, the debit or credit, and the buying power effect. Compare it with your max loss and your position-size rule from Options 101. Then send it, or cancel.\n\n**8. Monitor and close**\nTrack the position on **Monitor > Activity and Positions**. Working and filled orders show there too. To exit, right-click the position and create a closing order for both legs together.\n\n**Approval levels**\nIn live accounts, verticals require the right options approval level. If an order is rejected for approval, contact your broker. Don't try to work around it by legging into the spread.",
+        "workedExample": {
+          "title": "Building a bull put spread in paperMoney",
+          "scenario": "Hypothetical: XYZ at $100, 30-day expiration. $95 put: bid $1.45 / ask $1.55. $90 put: bid $0.45 / ask $0.55. Goal: practice selling the 95/90 bull put spread in paperMoney.",
+          "steps": [
+            "Trade > All Products, enter the symbol, expand the 30-day expiration, set Spread to Vertical.",
+            "On the put side, click the Bid of the 95/90 vertical row. The ticket should read SELL, quantity 1, the 95/90 put vertical.",
+            "Natural credit = $1.45 bid - $0.55 ask = $0.90. Mid credit = $1.50 - $0.50 = $1.00. Set LMT at a $1.00 credit for this practice order.",
+            "Expected numbers at a $1.00 fill: max profit $100; max loss ($5.00 - $1.00) x 100 = $400; break-even $95 - $1.00 = $94.00.",
+            "Right-click > Analyze and check that the Risk Profile matches those numbers. Click Confirm and Send and check that the buying power effect is about $400."
+          ],
+          "result": "The order ticket, Risk Profile and confirmation dialog should all agree with your hand math before anything is sent. Hypothetical prices; commissions and fees not included."
+        },
+        "tosTip": {
+          "title": "Start every session in paperMoney",
+          "platform": "thinkorswim desktop (Windows)",
+          "text": "On the thinkorswim login screen, choose paperMoney before logging in. It uses the same Trade tab, Option Chain, Spread selector, order ticket and Analyze tab as live trading, with simulated money. Build each of the four vertical types there, check each Risk Profile, and practice closing them from Monitor > Activity and Positions."
+        },
+        "videoLink": {
+          "url": "",
+          "title": "",
+          "note": "Add Chris's YouTube link"
+        },
+        "keyTakeaways": [
+          "Trade > All Products, then set the Spread selector to Vertical.",
+          "Click the Ask to buy a spread (debit), the Bid to sell one (credit).",
+          "Enter a limit order at a net debit or net credit for the whole spread.",
+          "Check Analyze > Risk Profile and the confirmation dialog against your own math.",
+          "Practice in paperMoney; live spreads need the right approval level."
+        ],
+        "quiz": [
+          {
+            "id": "m8-q1",
+            "question": "In thinkorswim's Option Chain, how do you view two-strike spreads?",
+            "options": [
+              "Charts tab > Studies",
+              "Change the Spread selector from Single to Vertical",
+              "Monitor tab > Account Statement",
+              "Tools > Calculator"
+            ],
+            "answerIndex": 1,
+            "explanation": "The Spread selector above the chain switches to vertical rows."
+          },
+          {
+            "id": "m8-q2",
+            "question": "With the chain set to Vertical, clicking the Bid of a row creates...",
+            "options": [
+              "An order to buy the spread",
+              "A market order for 100 shares",
+              "An order to sell the spread",
+              "A price alert"
+            ],
+            "answerIndex": 2,
+            "explanation": "Clicking the bid sells; clicking the ask buys."
+          },
+          {
+            "id": "m8-q3",
+            "question": "How is the limit price of a vertical entered?",
+            "options": [
+              "As a net debit or net credit for the whole spread",
+              "As the price of the short leg only",
+              "As the stock price",
+              "As the width of the spread"
+            ],
+            "answerIndex": 0,
+            "explanation": "Verticals are priced as one net amount."
+          },
+          {
+            "id": "m8-q4",
+            "question": "Where can you see a spread's P/L graph before sending the order?",
+            "options": [
+              "Monitor > Account Statement",
+              "Charts > Drawings",
+              "MarketWatch > Quotes",
+              "Analyze > Risk Profile"
+            ],
+            "answerIndex": 3,
+            "explanation": "Risk Profile shows expiration and estimated P/L lines."
+          },
+          {
+            "id": "m8-q5",
+            "question": "A live spread order is rejected for options approval level. What is the appropriate step?",
+            "options": [
+              "Leg into the spread one option at a time",
+              "Contact your broker about approval",
+              "Switch to a market order",
+              "Double the quantity"
+            ],
+            "answerIndex": 1,
+            "explanation": "Approval levels exist for risk reasons; legging around them adds risk."
+          }
+        ]
+      }
+    ],
+    "finalExam": {
+      "passingScorePercent": 80,
+      "passingScoreCount": 12,
+      "questions": [
+        {
+          "id": "fe-q1",
+          "question": "Which is true of every vertical spread?",
+          "options": [
+            "Same expiration and type, different strikes",
+            "Different expirations, same strike",
+            "One call and one put",
+            "It always collects a credit"
+          ],
+          "answerIndex": 0,
+          "explanation": "Verticals share type and expiration and differ by strike."
+        },
+        {
+          "id": "fe-q2",
+          "question": "Which vertical is built by selling a higher-strike put and buying a lower-strike put?",
+          "options": [
+            "Bear put spread",
+            "Bull call spread",
+            "Bull put spread",
+            "Bear call spread"
+          ],
+          "answerIndex": 2,
+          "explanation": "Selling the higher put for a credit makes a bull put spread."
+        },
+        {
+          "id": "fe-q3",
+          "question": "Hypothetical: a 100/105 bull call spread costs $2.25. What is the max profit?",
+          "options": [
+            "$225",
+            "$500",
+            "$725",
+            "$275"
+          ],
+          "answerIndex": 3,
+          "explanation": "($5.00 - $2.25) x 100 = $275."
+        },
+        {
+          "id": "fe-q4",
+          "question": "Hypothetical: a 50/40 bull put spread collects $2.50. What is the max loss?",
+          "options": [
+            "$250",
+            "$750",
+            "$1,000",
+            "$1,250"
+          ],
+          "answerIndex": 1,
+          "explanation": "($10.00 - $2.50) x 100 = $750."
+        },
+        {
+          "id": "fe-q5",
+          "question": "Same 50/40 bull put spread for $2.50. What is the break-even at expiration?",
+          "options": [
+            "$47.50",
+            "$52.50",
+            "$42.50",
+            "$37.50"
+          ],
+          "answerIndex": 0,
+          "explanation": "Short strike - credit = $50 - $2.50."
+        },
+        {
+          "id": "fe-q6",
+          "question": "Hypothetical: an 80/85 bear call spread collects $1.10. What is the break-even?",
+          "options": [
+            "$78.90",
+            "$86.10",
+            "$81.10",
+            "$83.90"
+          ],
+          "answerIndex": 2,
+          "explanation": "Short strike + credit = $80 + $1.10."
+        },
+        {
+          "id": "fe-q7",
+          "question": "Hypothetical: a 60/55 bear put spread costs $1.80. What is the break-even?",
+          "options": [
+            "$61.80",
+            "$56.80",
+            "$53.20",
+            "$58.20"
+          ],
+          "answerIndex": 3,
+          "explanation": "Long strike - debit = $60 - $1.80."
+        },
+        {
+          "id": "fe-q8",
+          "question": "For any vertical, max profit + max loss equals...",
+          "options": [
+            "The width (x 100)",
+            "The net debit",
+            "Zero",
+            "The stock price"
+          ],
+          "answerIndex": 0,
+          "explanation": "The two outcomes always add up to the width."
+        },
+        {
+          "id": "fe-q9",
+          "question": "Hypothetical: a short put has delta -0.45 and the long put -0.20. What is the bull put spread's net delta per share?",
+          "options": [
+            "-0.65",
+            "+0.25",
+            "-0.25",
+            "+0.65"
+          ],
+          "answerIndex": 1,
+          "explanation": "-(-0.45) + (-0.20) = +0.25; the spread is bullish."
+        },
+        {
+          "id": "fe-q10",
+          "question": "A credit vertical with its short strike OTM usually has which theta and vega?",
+          "options": [
+            "Negative theta, positive vega",
+            "Zero theta, zero vega",
+            "Positive theta, negative vega",
+            "Negative theta, negative vega"
+          ],
+          "answerIndex": 2,
+          "explanation": "Credit spreads tend to benefit from time passing and falling IV."
+        },
+        {
+          "id": "fe-q11",
+          "question": "When is early assignment on a short call especially worth watching?",
+          "options": [
+            "When it is far OTM",
+            "When it's ITM with extrinsic value below an upcoming dividend",
+            "When the long leg is ITM",
+            "Only on monthly expirations"
+          ],
+          "answerIndex": 1,
+          "explanation": "A dividend larger than the remaining extrinsic value gives holders a reason to exercise."
+        },
+        {
+          "id": "fe-q12",
+          "question": "Why do many traders close verticals before expiration?",
+          "options": [
+            "Spreads can't be held to expiration",
+            "Commissions are waived on closing orders",
+            "To raise the max profit",
+            "To avoid pin risk and assignment uncertainty near the short strike"
+          ],
+          "answerIndex": 3,
+          "explanation": "Closing early removes uncertainty about assignment near the short strike."
+        },
+        {
+          "id": "fe-q13",
+          "question": "Entering a vertical as two separate orders creates which risk?",
+          "options": [
+            "Pin risk",
+            "Dividend risk",
+            "Legging risk",
+            "Vega risk only"
+          ],
+          "answerIndex": 2,
+          "explanation": "Prices can move between fills, or one leg may not fill."
+        },
+        {
+          "id": "fe-q14",
+          "question": "In thinkorswim, how do you sell a vertical from the Option Chain?",
+          "options": [
+            "Set Spread to Vertical and click the Bid of the spread row",
+            "Set Spread to Single and click the Ask",
+            "Open Charts and draw a trendline",
+            "Use Monitor > Account Statement"
+          ],
+          "answerIndex": 0,
+          "explanation": "With the Spread selector on Vertical, the Bid creates a sell order."
+        },
+        {
+          "id": "fe-q15",
+          "question": "Hypothetical: risk budget $1,000; a credit spread's max loss is $380. How many spreads fit?",
+          "options": [
+            "3",
+            "1",
+            "2",
+            "0"
+          ],
+          "answerIndex": 2,
+          "explanation": "$1,000 / $380 = 2.63, rounded down to 2."
+        }
+      ]
+    },
+    "closing": {
+      "text": "You made it through Options 201: Vertical Spreads.\n\nHere's what you covered: what a vertical is, debit verticals (bull call and bear put), credit verticals (bull put and bear call), choosing strikes, width and expiration, max profit, max loss and break-even math, net Greeks, managing, closing and rolling (early assignment, pin risk, legging risk), and building verticals in thinkorswim.\n\nNext steps:\n1. Retake any quiz where you missed more than one question.\n2. In paperMoney, build all four vertical types and check each Risk Profile against your own math.\n3. Write down your exit plan and max-loss rule before every practice trade.\n\nWait. Then Bite. Know the max loss, the break-even and the exit before you enter.\n\nWant to keep going? Try the free Road Map study, or start the desk 7-day trial.\n\n*This is educational content, not financial advice. Options trading carries substantial risk and is not suitable for everyone. Spreads typically require a specific options approval level from your broker. All prices in this course are hypothetical.*",
+      "ctas": [
+        {
+          "label": "Free Road Map study",
+          "url": "https://news.algoswamp.com/tools"
+        },
+        {
+          "label": "Start the desk 7-day trial",
+          "url": "",
+          "note": "Add trial URL"
+        }
+      ]
+    }
+  }
+}

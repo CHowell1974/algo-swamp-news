@@ -12,14 +12,23 @@ import {
   LEARN_CERTIFICATE_PAGE,
   LEARN_EXAM_PAGE,
   LEARN_PAGE,
+  LEARN_201_CERTIFICATE_PAGE,
+  LEARN_201_EXAM_PAGE,
   LOGIN_PAGE,
   OG_IMAGE,
+  OG_LEARN_201_IMAGE,
+  OPTIONS_201_PAGE,
   TOOLS_PAGE,
+  CLASSES_PAGE,
+  COURSE_201_FAQ,
+  COURSE_FAQ,
   joinPage,
   moduleJsonLd,
+  options201ModuleJsonLd,
   pageUrl,
   routeHead,
 } from "./seo.ts";
+import { FREE_201_MODULE_COUNT, MODULE_SEO_201 } from "./course/catalog-options-201.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -51,8 +60,12 @@ describe("news route head", () => {
       DESK_PAGE,
       TOOLS_PAGE,
       LEARN_PAGE,
+      CLASSES_PAGE,
+      OPTIONS_201_PAGE,
       LEARN_EXAM_PAGE,
       LEARN_CERTIFICATE_PAGE,
+      LEARN_201_EXAM_PAGE,
+      LEARN_201_CERTIFICATE_PAGE,
       LOGIN_PAGE,
       ACCOUNT_PAGE,
       joinPage("monthly"),
@@ -63,23 +76,15 @@ describe("news route head", () => {
     for (const page of pages) {
       const head = routeHead(page);
       const title = head.meta.find((item) => "title" in item);
-      assert.equal(
-        title && "title" in title ? title.title : undefined,
-        page.title,
-      );
+      assert.equal(title && "title" in title ? title.title : undefined, page.title);
       assert.equal(meta(page, "description"), page.description);
       assert.equal(meta(page, "og:url", "property"), pageUrl(page.pathname));
       assert.equal(meta(page, "og:title", "property"), page.title);
-      assert.equal(
-        meta(page, "og:image", "property"),
-        page.ogImage ?? OG_IMAGE,
-      );
+      assert.equal(meta(page, "og:image", "property"), page.ogImage ?? OG_IMAGE);
       assert.equal(meta(page, "og:type", "property"), page.ogType ?? "website");
       assert.equal(meta(page, "og:site_name", "property"), "ALGO Swamp");
       assert.equal(meta(page, "og:locale", "property"), "en_US");
-      assert.deepEqual(head.links, [
-        { rel: "canonical", href: pageUrl(page.pathname) },
-      ]);
+      assert.deepEqual(head.links, [{ rel: "canonical", href: pageUrl(page.pathname) }]);
     }
   });
 
@@ -87,33 +92,40 @@ describe("news route head", () => {
     assert.equal(meta(joinPage("monthly"), "robots"), "noindex,follow");
     assert.equal(meta(joinPage("annual"), "robots"), "noindex,follow");
     assert.equal(
-      routeHead(HOME_PAGE).meta.some(
-        (item) => "name" in item && item.name === "robots",
-      ),
+      routeHead(HOME_PAGE).meta.some((item) => "name" in item && item.name === "robots"),
       false,
     );
 
     const sitemap = readFileSync(join(root, "public/sitemap.xml"), "utf8");
-    assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/<\/loc>/);
-    assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/desk<\/loc>/);
-    assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/tools<\/loc>/);
-    assert.match(sitemap, /<loc>https:\/\/news\.algoswamp\.com\/learn<\/loc>/);
-    assert.match(
-      sitemap,
-      /<loc>https:\/\/news\.algoswamp\.com\/learn\/m1-what-is-an-option<\/loc>/,
-    );
-    assert.match(
-      sitemap,
-      /<loc>https:\/\/news\.algoswamp\.com\/learn\/m2-calls-and-puts<\/loc>/,
-    );
-    assert.doesNotMatch(sitemap, /learn\/(m[3-8]-|exam|certificate)/);
+    const loc = (path: string) =>
+      new RegExp(
+        `<loc>https://news\\.algoswamp\\.com${path.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}</loc>`,
+      );
+    for (const path of ["/", "/desk", "/tools"]) assert.match(sitemap, loc(path));
+    for (const path of [
+      "/learn",
+      "/learn/options-101",
+      "/learn/options-101/m1-what-is-an-option",
+      "/learn/options-101/m2-calls-and-puts",
+      "/learn/options-201",
+      "/learn/options-201/m1-what-is-a-vertical",
+      "/learn/options-201/m2-debit-verticals",
+      "/learn/options-201/m3-credit-verticals",
+    ]) {
+      assert.match(sitemap, loc(path));
+    }
+    MODULE_SEO_201.forEach((module, index) => {
+      const entry = loc(`/learn/options-201/${module.id}`);
+      if (index < FREE_201_MODULE_COUNT) assert.match(sitemap, entry);
+      else assert.doesNotMatch(sitemap, entry);
+    });
+    assert.doesNotMatch(sitemap, /learn\/options-101\/(m[3-8]-|exam|certificate)/);
+    assert.doesNotMatch(sitemap, /learn\/options-201\/(m[4-8]-|exam|certificate)/);
+    assert.doesNotMatch(sitemap, /learn\/(m\d-|exam<|certificate<)/);
     assert.doesNotMatch(sitemap, /join/);
 
     const robots = readFileSync(join(root, "public/robots.txt"), "utf8");
-    assert.match(
-      robots,
-      /Sitemap: https:\/\/news\.algoswamp\.com\/sitemap\.xml/,
-    );
+    assert.match(robots, /Sitemap: https:\/\/news\.algoswamp\.com\/sitemap\.xml/);
     assert.match(robots, /Disallow: \/assets\//);
     assert.match(robots, /Disallow: \/__grok\//);
     assert.doesNotMatch(robots, /Disallow:\s*\/learn/);
@@ -159,7 +171,8 @@ describe("news route head", () => {
     assert.equal(parts?.[1]?.isAccessibleForFree, true);
     assert.equal(parts?.[2]?.isAccessibleForFree, false);
     const faq = learn["@graph"].find((node) => node["@type"] === "FAQPage");
-    assert.equal(faq?.mainEntity?.length, 6);
+    assert.equal(faq?.mainEntity?.length, 7);
+    assert.equal(COURSE_FAQ.at(-1)?.question, "What comes after Options 101?");
 
     assert.equal(LEARN_PAGE.title.length, 55);
     assert.equal(
@@ -168,9 +181,7 @@ describe("news route head", () => {
     );
     assert.ok(LEARN_PAGE.description.length <= 155);
     assert.equal(
-      routeHead(LEARN_PAGE).meta.some(
-        (item) => "name" in item && item.name === "robots",
-      ),
+      routeHead(LEARN_PAGE).meta.some((item) => "name" in item && item.name === "robots"),
       false,
     );
     assert.equal(meta(LEARN_EXAM_PAGE, "robots"), "noindex,follow");
@@ -211,5 +222,119 @@ describe("news route head", () => {
       lockedLesson["@graph"].map((node) => node["@type"]),
       ["BreadcrumbList"],
     );
+
+    const options201Script = routeHead(OPTIONS_201_PAGE).scripts?.[0];
+    const options201 = JSON.parse(options201Script?.children ?? "{}") as {
+      "@graph": Array<{
+        "@type": string;
+        "@id"?: string;
+        offers?: Array<{ price: string; category?: string }>;
+        hasPart?: Array<{ isAccessibleForFree?: boolean }>;
+        url?: string;
+        coursePrerequisites?: { "@id"?: string };
+        mainEntity?: unknown[];
+      }>;
+    };
+    assert.deepEqual(
+      options201["@graph"].map((node) => node["@type"]),
+      ["Organization", "Course", "BreadcrumbList", "FAQPage"],
+    );
+    const course201 = options201["@graph"].find((node) => node["@type"] === "Course");
+    assert.equal(course201?.offers?.[0]?.price, "39.00");
+    assert.equal(course201?.offers?.[0]?.category, "Paid");
+    assert.equal(course201?.offers?.[1]?.price, "29.00");
+    assert.equal(course201?.offers?.[1]?.category, "Subscription");
+    assert.equal(
+      course201?.coursePrerequisites?.["@id"],
+      pageUrl("/learn/options-101") + "#course",
+    );
+    assert.equal(course201?.url, pageUrl("/learn/options-201"));
+    assert.equal(course201?.hasPart?.length, 8);
+    assert.equal(course201?.hasPart?.[0]?.isAccessibleForFree, true);
+    assert.equal(course201?.hasPart?.[1]?.isAccessibleForFree, true);
+    assert.equal(course201?.hasPart?.[2]?.isAccessibleForFree, true);
+    assert.equal(course201?.hasPart?.[3]?.isAccessibleForFree, false);
+    const faq201 = options201["@graph"].find((node) => node["@type"] === "FAQPage");
+    assert.equal(faq201?.mainEntity?.length, 8);
+    assert.equal(COURSE_201_FAQ.length, 8);
+    assert.match(COURSE_201_FAQ[0]?.answer ?? "", /\$39 once, or included with/);
+    assert.match(COURSE_201_FAQ[1]?.answer ?? "", /^No\. Options 101 is recommended/);
+    assert.doesNotMatch(JSON.stringify(COURSE_201_FAQ), /prerequisite|required/i);
+    assert.equal(OPTIONS_201_PAGE.title.length, 52);
+    assert.equal(
+      OPTIONS_201_PAGE.description,
+      "Learn vertical spreads: bull call, bear put, bull put and bear call spreads, max loss, break-even, Greeks, and thinkorswim. 8 lessons, Modules 1–3 free.",
+    );
+    assert.equal(CLASSES_PAGE.title.length, 55);
+    assert.equal(
+      CLASSES_PAGE.description,
+      "Options trading classes in plain English: Options 101 for beginners, then Options 201: Vertical Spreads. Free preview lessons, quizzes, and final exams.",
+    );
+    assert.equal(meta(OPTIONS_201_PAGE, "og:image", "property"), OG_LEARN_201_IMAGE);
+    assert.equal(meta(LEARN_201_EXAM_PAGE, "robots"), "noindex,follow");
+    assert.equal(meta(LEARN_201_CERTIFICATE_PAGE, "robots"), "noindex,follow");
+    assert.equal(routeHead(LEARN_201_EXAM_PAGE).scripts, undefined);
+    assert.equal(routeHead(LEARN_201_CERTIFICATE_PAGE).scripts, undefined);
+    assert.equal(
+      routeHead(CLASSES_PAGE).meta.some((item) => "name" in item && item.name === "robots"),
+      false,
+    );
+    const classesScript = routeHead(CLASSES_PAGE).scripts?.[0];
+    const classes = JSON.parse(classesScript?.children ?? "{}") as {
+      "@graph": Array<{ "@type": string; numberOfItems?: number }>;
+    };
+    assert.deepEqual(
+      classes["@graph"].map((node) => node["@type"]),
+      ["Organization", "ItemList", "BreadcrumbList"],
+    );
+    assert.equal(classes["@graph"].find((node) => node["@type"] === "ItemList")?.numberOfItems, 2);
+    const first201 = MODULE_SEO_201[0];
+    assert.ok(first201);
+    const open201 = options201ModuleJsonLd(0, first201) as {
+      "@graph": Array<{ "@type": string; teaches?: string }>;
+    };
+    assert.deepEqual(
+      open201["@graph"].map((node) => node["@type"]),
+      ["LearningResource", "BreadcrumbList"],
+    );
+    assert.equal(open201["@graph"][0]?.teaches, "Vertical spreads: debit vs. credit spreads");
+    const third201 = MODULE_SEO_201[2];
+    assert.ok(third201);
+    const openThird = options201ModuleJsonLd(2, third201) as {
+      "@graph": Array<{ "@type": string }>;
+    };
+    assert.deepEqual(
+      openThird["@graph"].map((node) => node["@type"]),
+      ["LearningResource", "BreadcrumbList"],
+    );
+    const locked201Seo = MODULE_SEO_201[3];
+    assert.ok(locked201Seo);
+    const locked201 = options201ModuleJsonLd(3, locked201Seo) as {
+      "@graph": Array<{ "@type": string }>;
+    };
+    assert.deepEqual(
+      locked201["@graph"].map((node) => node["@type"]),
+      ["BreadcrumbList"],
+    );
+
+    const rendered = [
+      CLASSES_PAGE,
+      LEARN_PAGE,
+      OPTIONS_201_PAGE,
+      LEARN_201_EXAM_PAGE,
+      LEARN_201_CERTIFICATE_PAGE,
+    ]
+      .map((page) => JSON.stringify(routeHead(page)))
+      .concat(
+        MODULE_SEO.map((seo, index) => JSON.stringify(moduleJsonLd(index, seo))),
+        MODULE_SEO_201.map((seo, index) => JSON.stringify(options201ModuleJsonLd(index, seo))),
+        COURSE_FAQ.map((item) => item.question + item.answer),
+        COURSE_201_FAQ.map((item) => item.question + item.answer),
+      )
+      .join("\n");
+    assert.equal(rendered.includes("{{"), false);
+    assert.equal(rendered.includes('"price":"0.00"'), false);
+    assert.equal(LOGIN_PAGE.description.includes("your classes"), true);
+    assert.equal(ACCOUNT_PAGE.description.includes("class progress"), true);
   });
 });

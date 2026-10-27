@@ -121,6 +121,9 @@ export function checkoutIntegrationId(random: () => number = Math.random): strin
   return `algo_swamp_desk_${randomLetters(random)}`;
 }
 
-export function courseCheckoutIntegrationId(random: () => number = Math.random): string {
-  return `algo_swamp_course_${randomLetters(random)}`;
+export function courseCheckoutIntegrationId(
+  random: () => number = Math.random,
+  prefix = "algo_swamp_course_",
+): string {
+  return `${prefix}${randomLetters(random)}`;
 }

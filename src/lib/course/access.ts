@@ -1,22 +1,109 @@
 import type { CourseQuestion } from "./schema.ts";
 
 export const COURSE_ID = "options-101";
+export const OPTIONS_201_ID = "options-201";
 export const OPTIONS_101_PRICE_CENTS = 3900;
 export const OPTIONS_101_PRICE_USD = OPTIONS_101_PRICE_CENTS / 100;
+export const OPTIONS_201_PRICE_CENTS = 3900;
+export const OPTIONS_201_PRICE_USD = OPTIONS_201_PRICE_CENTS / 100;
+/** Live one-time price for Options 201. STRIPE_PRICE_OPTIONS_201 overrides it. */
+export const OPTIONS_201_STRIPE_PRICE_ID = "price_1UV9vCLAdDbAQPuJWWlzGRUu";
+/**
+ * Chris, 2026-10-27. Modules 1–3 are the free Options 201 preview.
+ * Change this together with the landing copy, robots, sitemap, and JSON-LD.
+ */
+export const OPTIONS_201_FREE_MODULE_COUNT = 3;
+/** Active desk members get Options 201 the same way they get Options 101. */
+export const OPTIONS_201_INCLUDED_WITH_DESK = true;
+/**
+ * Options 101 is recommended before Options 201 and is not required.
+ * Set this to "options-101" to lock paid 201 modules until that exam is passed.
+ */
+export const OPTIONS_201_PREREQUISITE_COURSE_ID: string | null = null;
 
 /** Desk trial checkout. Used when the course JSON leaves that CTA url blank. */
 export const DESK_TRIAL_PATH = "/join?plan=monthly";
 
-export function courseEntitled(input: {
-  membershipActive: boolean;
-  purchased: boolean;
-}): boolean {
+export type CourseOffer = {
+  id: string;
+  shortName: string;
+  priceCents: number;
+  priceUsd: number;
+  /** Last free module index, inclusive. Options 101 is 1 (modules 1–2). Options 201 is 2 (modules 1–3). */
+  freeThroughIndex: number;
+  includedWithDesk: boolean;
+  /** Null means the earlier course is recommended, not required. */
+  prerequisiteCourseId: string | null;
+  homePath: "/learn/options-101" | "/learn/options-201";
+  productName: string;
+  productDescription: string;
+  integrationPrefix: "algo_swamp_course_" | "algo_swamp_c201_";
+};
+
+const COURSE_OFFERS: Record<string, CourseOffer> = {
+  [COURSE_ID]: {
+    id: COURSE_ID,
+    shortName: "Options 101",
+    priceCents: OPTIONS_101_PRICE_CENTS,
+    priceUsd: OPTIONS_101_PRICE_USD,
+    freeThroughIndex: 1,
+    includedWithDesk: true,
+    prerequisiteCourseId: null,
+    homePath: "/learn/options-101",
+    productName: "Options 101",
+    productDescription: "ALGO Swamp beginner options course. One-time purchase.",
+    integrationPrefix: "algo_swamp_course_",
+  },
+  [OPTIONS_201_ID]: {
+    id: OPTIONS_201_ID,
+    shortName: "Options 201",
+    priceCents: OPTIONS_201_PRICE_CENTS,
+    priceUsd: OPTIONS_201_PRICE_USD,
+    freeThroughIndex: OPTIONS_201_FREE_MODULE_COUNT - 1,
+    includedWithDesk: OPTIONS_201_INCLUDED_WITH_DESK,
+    prerequisiteCourseId: OPTIONS_201_PREREQUISITE_COURSE_ID,
+    homePath: "/learn/options-201",
+    productName: "Options 201: Vertical Spreads",
+    productDescription: "ALGO Swamp vertical spreads course. One-time purchase.",
+    integrationPrefix: "algo_swamp_c201_",
+  },
+};
+
+export function courseOffer(id: string | null | undefined): CourseOffer | null {
+  if (!id) return null;
+  return COURSE_OFFERS[id] ?? null;
+}
+
+/**
+ * Options 201 uses the live Dashboard price unless STRIPE_PRICE_OPTIONS_201 is set.
+ * Options 101 stays on its env price, and an empty result falls back to inline price_data.
+ */
+export function resolveCoursePriceId(
+  courseId: string,
+  envPrice: string | null | undefined,
+): string | null {
+  const override = envPrice?.trim() || "";
+  if (override) return override;
+  if (courseId === OPTIONS_201_ID) return OPTIONS_201_STRIPE_PRICE_ID;
+  return null;
+}
+
+export function courseEntitled(input: { membershipActive: boolean; purchased: boolean }): boolean {
   return input.purchased || input.membershipActive;
 }
 
-/** Modules 1 and 2 (indexes 0 and 1) are the free previews. Later modules need a purchase or an active desk. */
-export function canReadModule(index: number, entitled: boolean): boolean {
-  return index <= 1 || entitled;
+/**
+ * Free preview is per course. `freeThroughIndex` is inclusive.
+ * Options 101 opens indexes 0 and 1. Options 201 opens indexes 0, 1, and 2.
+ */
+export function canReadModule(index: number, entitled: boolean, freeThroughIndex = 1): boolean {
+  return index <= freeThroughIndex || entitled;
+}
+
+export function freePreviewLabel(freeThroughIndex: number): string {
+  const count = freeThroughIndex + 1;
+  if (count <= 1) return "Module 1 is free.";
+  return `Modules 1–${count} are free.`;
 }
 
 export type PublicQuestion = {
@@ -46,20 +133,13 @@ export type GradeResult = {
   }[];
 };
 
-export function gradeSubmission(
-  questions: CourseQuestion[],
-  selected: number[],
-): GradeResult {
+export function gradeSubmission(questions: CourseQuestion[], selected: number[]): GradeResult {
   if (selected.length !== questions.length) {
     throw new Error("Answer every question.");
   }
   const results = questions.map((question, index) => {
     const choice = selected[index];
-    if (
-      !Number.isInteger(choice) ||
-      choice < 0 ||
-      choice >= question.options.length
-    ) {
+    if (!Number.isInteger(choice) || choice < 0 || choice >= question.options.length) {
       throw new Error("Answer every question.");
     }
     return {
@@ -79,17 +159,11 @@ export function gradeSubmission(
   };
 }
 
-export function examPassed(
-  correct: number,
-  passingScoreCount: number,
-): boolean {
+export function examPassed(correct: number, passingScoreCount: number): boolean {
   return correct >= passingScoreCount;
 }
 
-export function nextBestCorrect(
-  previous: number | null,
-  correct: number,
-): number {
+export function nextBestCorrect(previous: number | null, correct: number): number {
   if (previous == null) return correct;
   return Math.max(previous, correct);
 }
@@ -108,16 +182,9 @@ export type CourseCtaLink =
  * Blank CTA urls are the desk 7-day trial placeholder from the course file.
  * The Road Map link stays on this site instead of leaving a preview host.
  */
-export function resolveCourseCta(cta: {
-  label: string;
-  url: string;
-}): CourseCtaLink {
+export function resolveCourseCta(cta: { label: string; url: string }): CourseCtaLink {
   const url = cta.url.trim();
-  if (
-    !url ||
-    url === DESK_TRIAL_PATH ||
-    url === "https://news.algoswamp.com/join?plan=monthly"
-  ) {
+  if (!url || url === DESK_TRIAL_PATH || url === "https://news.algoswamp.com/join?plan=monthly") {
     return { label: cta.label, kind: "desk-trial" };
   }
   if (url === "/tools" || url === "https://news.algoswamp.com/tools") {
@@ -141,11 +208,7 @@ export function youtubeId(url: string): string | null {
     const id = parsed.pathname.split("/").filter(Boolean)[0] ?? "";
     return idPattern.test(id) ? id : null;
   }
-  if (
-    host === "youtube.com" ||
-    host === "m.youtube.com" ||
-    host === "youtube-nocookie.com"
-  ) {
+  if (host === "youtube.com" || host === "m.youtube.com" || host === "youtube-nocookie.com") {
     if (parsed.pathname === "/watch") {
       const id = parsed.searchParams.get("v") ?? "";
       return idPattern.test(id) ? id : null;
@@ -164,7 +227,7 @@ export function lessonVideo(link: {
   if (!id) return null;
   return {
     embedUrl: `https://www.youtube-nocookie.com/embed/${id}`,
-    title: link.title.trim() || "Options 101 video",
+    title: link.title.trim() || "Lesson video",
   };
 }
 
@@ -174,14 +237,11 @@ export type CheckoutFulfillmentInput = {
   courseId: string | null;
 };
 
-/** Grant only a paid (or no-payment-required) one-time Checkout for this course. */
-export function courseFulfillmentDecision(
-  input: CheckoutFulfillmentInput,
-): "grant" | "skip" {
+/** Grant only a paid (or no-payment-required) one-time Checkout for a known course. */
+export function courseFulfillmentDecision(input: CheckoutFulfillmentInput): "grant" | "skip" {
   if (input.mode !== "payment") return "skip";
-  if (input.courseId !== COURSE_ID) return "skip";
-  if (input.paymentStatus == null || input.paymentStatus === "unpaid")
-    return "skip";
+  if (!courseOffer(input.courseId)) return "skip";
+  if (input.paymentStatus == null || input.paymentStatus === "unpaid") return "skip";
   return "grant";
 }
 
@@ -212,6 +272,7 @@ export function courseCheckoutParams(input: {
   priceId: string | null;
   customerId: string | null;
   integrationId: string;
+  courseId?: string;
 }): {
   mode: "payment";
   line_items: CourseLineItem[];
@@ -224,33 +285,34 @@ export function courseCheckoutParams(input: {
   integration_identifier: string;
   payment_intent_data: { metadata: { user_id: string; course_id: string } };
 } {
+  const offer = courseOffer(input.courseId ?? COURSE_ID);
+  if (!offer) throw new Error("That course is not available.");
   const lineItem: CourseLineItem = input.priceId
     ? { price: input.priceId, quantity: 1 }
     : {
         quantity: 1,
         price_data: {
           currency: "usd",
-          unit_amount: OPTIONS_101_PRICE_CENTS,
+          unit_amount: offer.priceCents,
           product_data: {
-            name: "Options 101",
-            description:
-              "ALGO Swamp beginner options course. One-time purchase.",
+            name: offer.productName,
+            description: offer.productDescription,
           },
         },
       };
   return {
     mode: "payment",
     line_items: [lineItem],
-    success_url: `${input.origin}/learn?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${input.origin}/learn`,
+    success_url: `${input.origin}${offer.homePath}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${input.origin}${offer.homePath}`,
     client_reference_id: input.userId,
     ...(input.customerId
       ? { customer: input.customerId }
       : { customer_creation: "always" as const }),
-    metadata: { user_id: input.userId, course_id: COURSE_ID },
+    metadata: { user_id: input.userId, course_id: offer.id },
     integration_identifier: input.integrationId,
     payment_intent_data: {
-      metadata: { user_id: input.userId, course_id: COURSE_ID },
+      metadata: { user_id: input.userId, course_id: offer.id },
     },
   };
 }
