@@ -200,6 +200,43 @@ test("a same-site page image wins over the host card, and a page without one kee
   assert.equal(injectGrokPwaHead(plain, ctx), plain);
 });
 
+test("keeps a page og:type and og:site_name, and fills website / ALGO Swamp when missing", () => {
+  const ctx = {
+    host: "news.algoswamp.com",
+    cwd: blankWorkspace(),
+    site: { title: "ALGO Swamp News", card: "custom" },
+  };
+  const course = injectGrokPwaHead(
+    "<html><head><title>Lesson</title>" +
+      '<meta property="og:type" content="article">' +
+      '<meta property="og:site_name" content="ALGO Swamp Classes">' +
+      "</head></html>",
+    ctx,
+  );
+  assert.match(course, /property="og:type" content="article"/);
+  assert.match(course, /property="og:site_name" content="ALGO Swamp Classes"/);
+  assert.doesNotMatch(course, /property="og:type" content="website"/);
+  assert.equal(course.split('property="og:type"').length - 1, 1);
+  assert.equal(course.split('property="og:site_name"').length - 1, 1);
+  assert.equal(injectGrokPwaHead(course, ctx), course);
+
+  const home = injectGrokPwaHead("<html><head><title>Home</title></head></html>", ctx);
+  assert.match(home, /property="og:type" content="website"/);
+  assert.match(home, /property="og:site_name" content="ALGO Swamp"/);
+  assert.equal(home.split('property="og:type"').length - 1, 1);
+  assert.equal(home.split('property="og:site_name"').length - 1, 1);
+  assert.equal(injectGrokPwaHead(home, ctx), home);
+
+  const game = injectGrokPwaHead(
+    '<html><head><meta property="og:type" content="article"></head></html>',
+    { ...ctx, site: { title: "Pixel Nova", type: "x:game", card: "custom" } },
+  );
+  assert.match(game, /property="og:type" content="x:game"/);
+  assert.doesNotMatch(game, /property="og:type" content="article"/);
+  assert.match(game, /property="og:site_name" content="ALGO Swamp"/);
+  assert.equal(game.split('property="og:type"').length - 1, 1);
+});
+
 test("site.description wins over the document description for share text", () => {
   const out = injectGrokPwaHead(
     '<html><head><meta name="description" content="from the page"></head></html>',

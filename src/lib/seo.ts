@@ -322,6 +322,7 @@ export const LEARN_EXAM_PAGE: PageSeo = {
     "The 15-question final exam for the Options 101 beginner course. Score 12 of 15 to pass and print your certificate. Not financial advice.",
   pathname: "/learn/options-101/exam",
   robots: "noindex,follow",
+  ogImage: OG_LEARN_IMAGE,
 };
 
 export const LEARN_CERTIFICATE_PAGE: PageSeo = {
@@ -330,6 +331,7 @@ export const LEARN_CERTIFICATE_PAGE: PageSeo = {
     "Pass the Options 101 final exam to print a certificate of completion with your name and date. Educational only, not a trading credential.",
   pathname: "/learn/options-101/certificate",
   robots: "noindex,follow",
+  ogImage: OG_LEARN_IMAGE,
 };
 
 const OPTIONS_201_URL = COURSE_201_URL;

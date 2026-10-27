@@ -16,6 +16,7 @@ import {
   LEARN_201_EXAM_PAGE,
   LOGIN_PAGE,
   OG_IMAGE,
+  OG_LEARN_IMAGE,
   OG_LEARN_201_IMAGE,
   OPTIONS_201_PAGE,
   TOOLS_PAGE,
@@ -186,6 +187,8 @@ describe("news route head", () => {
     );
     assert.equal(meta(LEARN_EXAM_PAGE, "robots"), "noindex,follow");
     assert.equal(meta(LEARN_CERTIFICATE_PAGE, "robots"), "noindex,follow");
+    assert.equal(meta(LEARN_EXAM_PAGE, "og:image", "property"), OG_LEARN_IMAGE);
+    assert.equal(meta(LEARN_CERTIFICATE_PAGE, "og:image", "property"), OG_LEARN_IMAGE);
     assert.equal(routeHead(LEARN_EXAM_PAGE).scripts, undefined);
     assert.equal(routeHead(LEARN_CERTIFICATE_PAGE).scripts, undefined);
 

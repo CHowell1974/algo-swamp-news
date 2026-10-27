@@ -395,6 +395,31 @@ export function pageShareImage(html, publicHost = "") {
   return { og: ogSafe, twitter: twitterSafe || ogSafe };
 }
 
+/**
+ * The page's own `og:type` and `og:site_name`, read before those tags are
+ * stripped and put back. Unsafe values are dropped so the defaults apply.
+ */
+export function pageOpenGraphIdentity(html) {
+  const source = String(html ?? "");
+  const metas = source.match(/<meta\b[^>]*>/gi) ?? [];
+  let ogType = "";
+  let siteName = "";
+  for (const tag of metas) {
+    const key = (attrFromTag(tag, "property") || attrFromTag(tag, "name")).toLowerCase();
+    const content = shareMetaValue(attrFromTag(tag, "content"));
+    if (!content) continue;
+    if (key === "og:type" && !ogType) ogType = content;
+    if (key === "og:site_name" && !siteName) siteName = content;
+  }
+  return { ogType, siteName };
+}
+
+function shareMetaValue(raw) {
+  const value = String(raw ?? "").trim();
+  if (!value || /[<>"'\r\n]/.test(value)) return "";
+  return value;
+}
+
 function safeShareImage(raw, hosts, publicHost) {
   const value = String(raw ?? "").trim();
   if (!value || /[\s"'<>]/.test(value)) return "";
@@ -447,6 +472,8 @@ export function grokOgHeadTags({
   pageUrl = "",
   pageImage = "",
   pageTwitterImage = "",
+  pageType = "",
+  pageSiteName = "",
   cwd = process.cwd(),
 } = {}) {
   const title = shareTitle(site, appName, host, documentTitle);
@@ -471,9 +498,16 @@ export function grokOgHeadTags({
   if (/^https?:\/\//i.test(shareUrl)) {
     tags.push(`<meta property="og:url" content="${escapeHtml(shareUrl)}">`);
   }
-  if (String(site.type ?? "").toLowerCase() === "x:game") {
-    tags.push(`<meta property="og:type" content="x:game">`);
-  }
+  // Stripped above and put back here so each page keeps one og:type and one
+  // og:site_name. A page value wins. An x:game site still forces its type.
+  // Missing tags fall back to website and ALGO Swamp.
+  const ogType =
+    String(site.type ?? "").toLowerCase() === "x:game"
+      ? "x:game"
+      : shareMetaValue(pageType) || "website";
+  tags.push(`<meta property="og:type" content="${escapeHtml(ogType)}">`);
+  const siteName = shareMetaValue(pageSiteName) || "ALGO Swamp";
+  tags.push(`<meta property="og:site_name" content="${escapeHtml(siteName)}">`);
   const ownImage = String(pageImage ?? "").trim() || String(pageTwitterImage ?? "").trim();
   if (ownImage || publicHost) {
     const asset = resolveOgCardAsset(site, cwd);
@@ -564,6 +598,7 @@ export function injectGrokPwaHead(html, ctx = {}) {
   const documentDescription = descriptionFromDocument(html);
   const pageUrl = pageUrlFromDocument(html);
   const shareImage = pageShareImage(html, resolvePublicHost(host));
+  const openGraph = pageOpenGraphIdentity(html);
   const appName = resolveOgTitle(site, ctx.appName ?? DEFAULT_APP_NAME, host, documentTitle);
   let next = stripShareMetaTags(html);
   if (!readGrokExtensionsEnabled()) next = stripGrokExtensionsScript(next);
@@ -587,6 +622,8 @@ export function injectGrokPwaHead(html, ctx = {}) {
       pageUrl,
       pageImage: shareImage.og,
       pageTwitterImage: shareImage.twitter,
+      pageType: openGraph.ogType,
+      pageSiteName: openGraph.siteName,
       cwd,
     }).join(""),
   );
