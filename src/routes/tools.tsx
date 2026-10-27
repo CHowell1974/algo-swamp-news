@@ -116,7 +116,7 @@ function ToolsPage() {
             <p className="mt-4 text-sm text-pretty text-fg">
               New to options?{" "}
               <Link
-                to="/learn"
+                to="/learn/options-101"
                 className={`font-medium text-signal ${focusRing}`}
               >
                 Start Options 101 free

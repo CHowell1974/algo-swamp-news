@@ -213,10 +213,16 @@ function MarketHome() {
                 Start Modules 1–2 free: What is an option?
               </Link>
               <Link
-                to="/learn"
+                to="/learn/options-101"
                 className={`inline-flex min-h-11 items-center text-sm font-medium text-fg ${focusRing}`}
               >
                 See all 8 modules of Options 101
+              </Link>
+              <Link
+                to="/learn/options-201"
+                className={`inline-flex min-h-11 items-center text-sm font-medium text-fg ${focusRing}`}
+              >
+                Options 201: vertical spreads — 101 recommended first
               </Link>
             </div>
           </div>

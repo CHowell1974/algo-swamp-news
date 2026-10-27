@@ -71,7 +71,7 @@ function DeskPage() {
         <p className="mx-auto max-w-6xl px-4 py-4 text-sm text-muted md:px-8">
           Learning options?{" "}
           <Link
-            to="/learn"
+            to="/learn/options-101"
             className="font-medium text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
           >
             Options 101: options trading for beginners

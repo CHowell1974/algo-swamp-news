@@ -110,5 +110,9 @@ describe("checkout commercials", () => {
       courseCheckoutIntegrationId(() => 0),
       "algo_swamp_course_aaaaaaaa",
     );
+    assert.equal(
+      courseCheckoutIntegrationId(() => 0, "algo_swamp_c201_"),
+      "algo_swamp_c201_aaaaaaaa",
+    );
   });
 });

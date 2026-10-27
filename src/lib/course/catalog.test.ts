@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { COURSE_URL, MODULE_SEO, moduleRobots } from "./catalog.ts";
+import { MODULE_SEO_201, moduleRobots201 } from "./catalog-201.ts";
 import { SITE_ORIGIN } from "../site.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -18,21 +19,16 @@ function sourceFiles(dir: string): string[] {
 
 describe("options 101 SEO catalog", () => {
   it("matches the course module ids and stays within title and description limits", () => {
-    const file = JSON.parse(
-      readFileSync(join(root, "src/content/options-101.json"), "utf8"),
-    ) as {
+    const file = JSON.parse(readFileSync(join(root, "src/content/options-101.json"), "utf8")) as {
       course: { modules: { id: string }[] };
     };
     assert.deepEqual(
       MODULE_SEO.map((module) => module.id),
       file.course.modules.map((module) => module.id),
     );
-    assert.equal(COURSE_URL, `${SITE_ORIGIN}/learn`);
+    assert.equal(COURSE_URL, `${SITE_ORIGIN}/learn/options-101`);
     for (const module of MODULE_SEO) {
-      assert.ok(
-        module.title.length <= 60,
-        `${module.id} title is ${module.title.length}`,
-      );
+      assert.ok(module.title.length <= 60, `${module.id} title is ${module.title.length}`);
       assert.ok(
         module.description.length <= 155,
         `${module.id} description is ${module.description.length}`,
@@ -55,9 +51,35 @@ describe("options 101 SEO catalog", () => {
     for (const path of sourceFiles(join(root, "src"))) {
       if (path.endsWith(".test.ts")) continue;
       const source = readFileSync(path, "utf8");
-      if (source.includes("options-101.json") && !allowed.has(path))
+      if (
+        (source.includes("options-101.json") || source.includes("options-201.json")) &&
+        !allowed.has(path)
+      ) {
         offenders.push(path);
+      }
     }
     assert.deepEqual(offenders, []);
+  });
+});
+
+describe("options 201 SEO catalog", () => {
+  it("matches the course module ids and indexes only module 1", () => {
+    const file = JSON.parse(readFileSync(join(root, "src/content/options-201.json"), "utf8")) as {
+      course: { modules: { id: string }[] };
+    };
+    assert.deepEqual(
+      MODULE_SEO_201.map((module) => module.id),
+      file.course.modules.map((module) => module.id),
+    );
+    for (const module of MODULE_SEO_201) {
+      assert.ok(module.title.length <= 60, `${module.id} title is ${module.title.length}`);
+      assert.ok(
+        module.description.length <= 155,
+        `${module.id} description is ${module.description.length}`,
+      );
+    }
+    assert.equal(moduleRobots201(0), undefined);
+    assert.equal(moduleRobots201(1), "noindex,follow");
+    assert.equal(moduleRobots201(7), "noindex,follow");
   });
 });

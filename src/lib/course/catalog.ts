@@ -8,7 +8,7 @@ export type ModuleSeo = {
   description: string; // <= 155 chars
 };
 
-export const COURSE_PATH = "/learn";
+export const COURSE_PATH = "/learn/options-101";
 export const COURSE_URL = `${SITE_ORIGIN}${COURSE_PATH}`;
 
 export const MODULE_SEO: ModuleSeo[] = [

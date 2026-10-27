@@ -1,14 +1,15 @@
 import { readMembership } from "@/lib/membership.functions";
 import {
-  OPTIONS_101_PRICE_USD,
   canReadModule,
   courseEntitled,
+  courseOffer,
   examPassed,
   formatCertificateDate,
   gradeSubmission,
   lessonVideo,
   resolveCourseCta,
   toPublicQuestion,
+  type CourseOffer,
 } from "./access";
 import { getCourse, moduleAt } from "./content.server";
 import {
@@ -20,23 +21,26 @@ import {
   studentDisplayName,
   type SavedExam,
 } from "./store.server";
-import type {
-  CourseHome,
-  ExamPage,
-  ModuleNeighbor,
-  ModulePage,
-  QuizScore,
-} from "./types";
+import type { Course } from "./schema";
+import type { CourseHome, ExamPage, ModuleNeighbor, ModulePage, QuizScore } from "./types";
 
-async function entitlement(userId: string | null): Promise<{
+function requireOffer(courseId: string): CourseOffer {
+  const offer = courseOffer(courseId);
+  if (!offer) throw new Error("That course is not available.");
+  return offer;
+}
+
+async function entitlement(
+  userId: string | null,
+  courseId: string,
+): Promise<{
   signedIn: boolean;
   entitled: boolean;
   accessVia: "purchase" | "desk" | null;
 }> {
   if (!userId) return { signedIn: false, entitled: false, accessVia: null };
-  const course = getCourse();
   const membership = await readMembership(userId);
-  const purchased = await hasPaidCourse(userId, course.id);
+  const purchased = await hasPaidCourse(userId, courseId);
   return {
     signedIn: true,
     entitled: courseEntitled({
@@ -47,8 +51,7 @@ async function entitlement(userId: string | null): Promise<{
   };
 }
 
-function neighbor(index: number, delta: number): ModuleNeighbor {
-  const course = getCourse();
+function neighbor(course: Course, index: number, delta: number): ModuleNeighbor {
   const module = course.modules[index + delta];
   if (!module) return null;
   return { id: module.id, title: module.title };
@@ -71,14 +74,11 @@ function examSummary(
   };
 }
 
-export async function loadCourseHome(
-  userId: string | null,
-): Promise<CourseHome> {
-  const course = getCourse();
-  const access = await entitlement(userId);
-  const progress = userId
-    ? await listModuleProgress(userId, course.id)
-    : new Map();
+export async function loadCourseHome(userId: string | null, courseId: string): Promise<CourseHome> {
+  const offer = requireOffer(courseId);
+  const course = getCourse(offer.id);
+  const access = await entitlement(userId, course.id);
+  const progress = userId ? await listModuleProgress(userId, course.id) : new Map();
   const savedExam = userId ? await readExam(userId, course.id) : null;
   const modules = course.modules.map((module, index) => {
     const row = progress.get(module.id);
@@ -86,8 +86,8 @@ export async function loadCourseHome(
       id: module.id,
       title: module.title,
       learningObjectives: module.learningObjectives,
-      free: index <= 1,
-      locked: !canReadModule(index, access.entitled),
+      free: index <= offer.freeThroughIndex,
+      locked: !canReadModule(index, access.entitled, offer.freeThroughIndex),
       completed: Boolean(row),
       bestCorrect: row ? row.bestCorrect : null,
       questionCount: module.quiz.length,
@@ -101,7 +101,7 @@ export async function loadCourseHome(
     level: course.level,
     disclaimer: course.disclaimer,
     intro: course.intro,
-    priceUsd: OPTIONS_101_PRICE_USD,
+    priceUsd: offer.priceUsd,
     signedIn: access.signedIn,
     entitled: access.entitled,
     accessVia: access.accessVia,
@@ -118,35 +118,37 @@ export async function loadCourseHome(
 
 export async function loadModulePage(
   userId: string | null,
+  courseId: string,
   moduleId: string,
 ): Promise<ModulePage> {
-  const found = moduleAt(moduleId);
+  const offer = requireOffer(courseId);
+  const found = moduleAt(offer.id, moduleId);
   if (!found) throw new Error("That module is not in this course.");
-  const course = getCourse();
-  const access = await entitlement(userId);
+  const course = getCourse(offer.id);
+  const access = await entitlement(userId, course.id);
   const { module, index } = found;
   const shared = {
     disclaimer: course.disclaimer,
+    courseId: course.id,
     courseTitle: course.title,
+    freeThroughIndex: offer.freeThroughIndex,
     index,
     moduleCount: course.modules.length,
     id: module.id,
     title: module.title,
     learningObjectives: module.learningObjectives,
-    prev: neighbor(index, -1),
-    next: neighbor(index, 1),
+    prev: neighbor(course, index, -1),
+    next: neighbor(course, index, 1),
   };
-  if (!canReadModule(index, access.entitled)) {
+  if (!canReadModule(index, access.entitled, offer.freeThroughIndex)) {
     return {
       access: "locked",
       ...shared,
-      priceUsd: OPTIONS_101_PRICE_USD,
+      priceUsd: offer.priceUsd,
       signedIn: access.signedIn,
     };
   }
-  const progress = userId
-    ? await listModuleProgress(userId, course.id)
-    : new Map();
+  const progress = userId ? await listModuleProgress(userId, course.id) : new Map();
   const row = progress.get(module.id);
   return {
     access: "open",
@@ -160,21 +162,23 @@ export async function loadModulePage(
     showExamLink: index === course.modules.length - 1,
     signedIn: access.signedIn,
     entitled: access.entitled,
-    priceUsd: OPTIONS_101_PRICE_USD,
+    priceUsd: offer.priceUsd,
     bestCorrect: row ? row.bestCorrect : null,
     attempts: row?.attempts ?? 0,
   };
 }
 
-export async function loadExamPage(userId: string | null): Promise<ExamPage> {
-  const course = getCourse();
-  const access = await entitlement(userId);
+export async function loadExamPage(userId: string | null, courseId: string): Promise<ExamPage> {
+  const offer = requireOffer(courseId);
+  const course = getCourse(offer.id);
+  const access = await entitlement(userId, course.id);
   if (!access.entitled) {
     return {
       access: "locked",
       disclaimer: course.disclaimer,
+      courseId: course.id,
       courseTitle: course.title,
-      priceUsd: OPTIONS_101_PRICE_USD,
+      priceUsd: offer.priceUsd,
       signedIn: access.signedIn,
       passingScoreCount: course.finalExam.passingScoreCount,
       questionCount: course.finalExam.questions.length,
@@ -201,21 +205,21 @@ export async function loadExamPage(userId: string | null): Promise<ExamPage> {
 
 export async function gradeModuleQuiz(
   userId: string,
+  courseId: string,
   moduleId: string,
   answers: number[],
 ): Promise<QuizScore> {
-  const found = moduleAt(moduleId);
+  const offer = requireOffer(courseId);
+  const found = moduleAt(offer.id, moduleId);
   if (!found) throw new Error("That module is not in this course.");
-  const access = await entitlement(userId);
-  if (!canReadModule(found.index, access.entitled)) {
-    throw new Error(
-      "This module is locked until you buy Options 101 or start a desk plan.",
-    );
+  const access = await entitlement(userId, offer.id);
+  if (!canReadModule(found.index, access.entitled, offer.freeThroughIndex)) {
+    throw new Error(`This module is locked until you buy ${offer.shortName} or start a desk plan.`);
   }
   const graded = gradeSubmission(found.module.quiz, answers);
   const saved = await saveModuleQuiz({
     userId,
-    courseId: getCourse().id,
+    courseId: offer.id,
     moduleId,
     correct: graded.correct,
     questionCount: graded.total,
@@ -231,13 +235,15 @@ export async function gradeModuleQuiz(
 
 export async function gradeFinalExam(
   userId: string,
+  courseId: string,
   answers: number[],
 ): Promise<QuizScore> {
-  const course = getCourse();
-  const access = await entitlement(userId);
+  const offer = requireOffer(courseId);
+  const course = getCourse(offer.id);
+  const access = await entitlement(userId, course.id);
   if (!access.entitled) {
     throw new Error(
-      "The final exam is locked until you buy Options 101 or start a desk plan.",
+      `The final exam is locked until you buy ${offer.shortName} or start a desk plan.`,
     );
   }
   const graded = gradeSubmission(course.finalExam.questions, answers);
@@ -258,12 +264,14 @@ export async function gradeFinalExam(
   };
 }
 
-export async function loadCertificate(userId: string | null) {
-  const course = getCourse();
+export async function loadCertificate(userId: string | null, courseId: string) {
+  const offer = requireOffer(courseId);
+  const course = getCourse(offer.id);
   if (!userId) {
     return {
       passed: false as const,
       signedIn: false as const,
+      courseId: course.id,
       courseTitle: course.title,
       disclaimer: course.disclaimer,
     };
@@ -273,6 +281,7 @@ export async function loadCertificate(userId: string | null) {
     return {
       passed: false as const,
       signedIn: true as const,
+      courseId: course.id,
       courseTitle: course.title,
       disclaimer: course.disclaimer,
     };
@@ -282,6 +291,7 @@ export async function loadCertificate(userId: string | null) {
     passed: true as const,
     signedIn: true as const,
     name,
+    courseId: course.id,
     courseTitle: course.title,
     completedOn: formatCertificateDate(saved.passedAt),
     disclaimer: course.disclaimer,

@@ -53,7 +53,9 @@ export type PublicQuizQuestion = {
 export type OpenModulePage = {
   access: "open";
   disclaimer: string;
+  courseId: string;
   courseTitle: string;
+  freeThroughIndex: number;
   index: number;
   moduleCount: number;
   id: string;
@@ -83,7 +85,9 @@ export type OpenModulePage = {
 export type LockedModulePage = {
   access: "locked";
   disclaimer: string;
+  courseId: string;
   courseTitle: string;
+  freeThroughIndex: number;
   index: number;
   moduleCount: number;
   id: string;
@@ -122,6 +126,7 @@ export type OpenExamPage = {
 export type LockedExamPage = {
   access: "locked";
   disclaimer: string;
+  courseId: string;
   courseTitle: string;
   priceUsd: number;
   signedIn: boolean;
@@ -143,6 +148,7 @@ export type CertificatePage =
       passed: true;
       signedIn: true;
       name: string;
+      courseId: string;
       courseTitle: string;
       completedOn: string;
       disclaimer: string;
@@ -152,6 +158,7 @@ export type CertificatePage =
   | {
       passed: false;
       signedIn: boolean;
+      courseId: string;
       courseTitle: string;
       disclaimer: string;
     };

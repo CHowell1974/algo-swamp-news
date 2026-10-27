@@ -11,11 +11,10 @@ import {
   type FounderOffer,
 } from "@/lib/billing";
 import {
-  COURSE_ID,
-  OPTIONS_101_PRICE_CENTS,
   courseCheckoutOwner,
   courseCheckoutParams,
   courseFulfillmentDecision,
+  courseOffer,
 } from "@/lib/course/access";
 import {
   hasPaidCourse,
@@ -297,18 +296,28 @@ export async function assertLocalBilling(userId: string): Promise<void> {
 }
 
 const COURSE_NOT_READY =
-  "Stripe checkout is not switched on for this server yet. Options 101 is $39, but a card cannot be charged until the server has its Stripe secret.";
+  "Stripe checkout is not switched on for this server yet. A card cannot be charged until the server has its Stripe secret.";
 
 function purchaseFromSession(session: Stripe.Checkout.Session, userId: string) {
+  const offer = courseOffer(session.metadata?.course_id ?? null);
+  if (!offer) throw new Error("That course is not available.");
   return {
     stripeCheckoutSessionId: session.id,
     userId,
-    courseId: COURSE_ID,
+    courseId: offer.id,
     stripePaymentIntentId: stripeId(session.payment_intent),
     stripeCustomerId: stripeId(session.customer),
-    amountCents: session.amount_total ?? OPTIONS_101_PRICE_CENTS,
+    amountCents: session.amount_total ?? offer.priceCents,
     currency: session.currency ?? "usd",
   };
+}
+
+function coursePriceId(courseId: string): string | null {
+  const raw =
+    courseId === "options-201"
+      ? process.env.STRIPE_PRICE_OPTIONS_201
+      : process.env.STRIPE_PRICE_OPTIONS_101;
+  return raw?.trim() || null;
 }
 
 async function fulfillCourseFromSession(session: Stripe.Checkout.Session): Promise<void> {
@@ -326,22 +335,28 @@ async function fulfillCourseFromSession(session: Stripe.Checkout.Session): Promi
   await savePaidCoursePurchase(purchaseFromSession(session, owner));
 }
 
-export async function createCourseCheckoutUrl(userId: string): Promise<string> {
+export async function createCourseCheckoutUrl(userId: string, courseId: string): Promise<string> {
+  const offer = courseOffer(courseId);
+  if (!offer) throw new Error("That course is not available.");
   if (!process.env.STRIPE_SECRET_KEY?.trim()) throw new Error(COURSE_NOT_READY);
-  if (await hasPaidCourse(userId, COURSE_ID)) throw new Error("You already own Options 101.");
+  if (await hasPaidCourse(userId, offer.id)) {
+    throw new Error(`You already own ${offer.shortName}.`);
+  }
   const { readMembership } = await import("@/lib/membership.functions");
   const membership = await readMembership(userId);
-  if (membership.active) throw new Error("Options 101 is included with your desk.");
+  if (membership.active) {
+    throw new Error(`${offer.shortName} is included with your desk.`);
+  }
   const stripe = stripeClient();
-  const priceId = process.env.STRIPE_PRICE_OPTIONS_101?.trim() || null;
   const customerId = await stripeCustomerForUser(userId);
   const session = await stripe.checkout.sessions.create(
     courseCheckoutParams({
       userId,
       origin: requestOrigin(),
-      priceId,
+      priceId: coursePriceId(offer.id),
       customerId,
-      integrationId: courseCheckoutIntegrationId(),
+      integrationId: courseCheckoutIntegrationId(Math.random, offer.integrationPrefix),
+      courseId: offer.id,
     }),
   );
   if (!session.url) throw new Error("Stripe did not return a checkout link.");
@@ -351,9 +366,10 @@ export async function createCourseCheckoutUrl(userId: string): Promise<string> {
 export async function confirmCourseCheckoutSession(
   userId: string,
   sessionId: string,
-): Promise<void> {
+): Promise<string> {
   const stripe = stripeClient();
   const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const offer = courseOffer(session.metadata?.course_id ?? null);
   const owner = courseCheckoutOwner({
     clientReferenceId: session.client_reference_id,
     metadataUserId: session.metadata?.user_id ?? null,
@@ -365,12 +381,14 @@ export async function confirmCourseCheckoutSession(
     paymentStatus: session.payment_status,
     courseId: session.metadata?.course_id ?? null,
   });
-  if (decision !== "grant") {
+  if (decision !== "grant" || !offer) {
+    const name = offer?.shortName ?? "The course";
     throw new Error(
-      "Payment is still processing. Options 101 opens when Stripe marks the payment paid.",
+      `Payment is still processing. ${name} opens when Stripe marks the payment paid.`,
     );
   }
   await savePaidCoursePurchase(purchaseFromSession(session, userId));
+  return offer.id;
 }
 
 export async function handleStripeWebhook(request: Request): Promise<Response> {
