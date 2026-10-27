@@ -35,6 +35,9 @@ export function ModuleLesson({ page }: { page: ModulePage }) {
           {seo?.h1 ?? page.title}
         </h1>
         {page.access === "locked" ? <LockedModule page={page} /> : <OpenModule page={page} />}
+        {page.courseId === "options-101" && page.index === page.moduleCount - 1 ? (
+          <NextCourse />
+        ) : null}
         <ModulePager page={page} />
       </main>
     </CourseShell>
@@ -170,18 +173,21 @@ function OpenModule({ page }: { page: Extract<ModulePage, { access: "open" }> })
           in Options 201.
         </p>
       ) : null}
-      {page.courseId === "options-101" && page.showExamLink ? (
-        <section className="mt-10 border-t border-line pt-6">
-          <h2 className="font-display text-2xl text-fg">Next: Options 201: Vertical Spreads</h2>
-          <p className="mt-3 text-sm text-fg">
-            Put two options together with defined risk.{" "}
-            <Link to="/learn/options-201" className={`font-medium text-signal ${focusRing}`}>
-              Start Options 201: Vertical Spreads
-            </Link>
-          </p>
-        </section>
-      ) : null}
     </>
+  );
+}
+
+function NextCourse() {
+  return (
+    <section className="mt-10 border-t border-line pt-6">
+      <h2 className="font-display text-2xl text-fg">Next: Options 201: Vertical Spreads</h2>
+      <p className="mt-3 text-sm text-fg">
+        Put two options together with defined risk.{" "}
+        <Link to="/learn/options-201" className={`font-medium text-signal ${focusRing}`}>
+          Start Options 201: Vertical Spreads
+        </Link>
+      </p>
+    </section>
   );
 }
 

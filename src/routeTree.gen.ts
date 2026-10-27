@@ -109,25 +109,25 @@ const ApiWirePreviewRoute = ApiWirePreviewRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnOptions101IndexRoute = LearnOptions101IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => LearnOptions101Route,
+  id: '/learn/options-101/',
+  path: '/learn/options-101/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LearnOptions101ModuleIdRoute = LearnOptions101ModuleIdRouteImport.update({
-  id: '/$moduleId',
-  path: '/$moduleId',
-  getParentRoute: () => LearnOptions101Route,
+  id: '/learn/options-101/$moduleId',
+  path: '/learn/options-101/$moduleId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LearnOptions101CertificateRoute =
   LearnOptions101CertificateRouteImport.update({
-    id: '/certificate',
-    path: '/certificate',
-    getParentRoute: () => LearnOptions101Route,
+    id: '/learn/options-101/certificate',
+    path: '/learn/options-101/certificate',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const LearnOptions101ExamRoute = LearnOptions101ExamRouteImport.update({
-  id: '/exam',
-  path: '/exam',
-  getParentRoute: () => LearnOptions101Route,
+  id: '/learn/options-101/exam',
+  path: '/learn/options-101/exam',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LearnOptions201IndexRoute = LearnOptions201IndexRouteImport.update({
   id: '/learn/options-201/',
@@ -321,9 +321,13 @@ export interface RootRouteChildren {
   ApiCronPremarketWireRoute: typeof ApiCronPremarketWireRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
   ApiWirePreviewRoute: typeof ApiWirePreviewRoute
+  LearnOptions101ModuleIdRoute: typeof LearnOptions101ModuleIdRoute
+  LearnOptions101CertificateRoute: typeof LearnOptions101CertificateRoute
+  LearnOptions101ExamRoute: typeof LearnOptions101ExamRoute
   LearnOptions201ModuleIdRoute: typeof LearnOptions201ModuleIdRoute
   LearnOptions201CertificateRoute: typeof LearnOptions201CertificateRoute
   LearnOptions201ExamRoute: typeof LearnOptions201ExamRoute
+  LearnOptions101IndexRoute: typeof LearnOptions101IndexRoute
   LearnOptions201IndexRoute: typeof LearnOptions201IndexRoute
 }
 
@@ -436,31 +440,31 @@ declare module '@tanstack/react-router' {
     }
     '/learn/options-101/': {
       id: '/learn/options-101/'
-      path: '/'
+      path: '/learn/options-101'
       fullPath: '/learn/options-101/'
       preLoaderRoute: typeof LearnOptions101IndexRouteImport
-      parentRoute: typeof LearnOptions101Route
+      parentRoute: typeof rootRouteImport
     }
     '/learn/options-101/$moduleId': {
       id: '/learn/options-101/$moduleId'
-      path: '/$moduleId'
+      path: '/learn/options-101/$moduleId'
       fullPath: '/learn/options-101/$moduleId'
       preLoaderRoute: typeof LearnOptions101ModuleIdRouteImport
-      parentRoute: typeof LearnOptions101Route
+      parentRoute: typeof rootRouteImport
     }
     '/learn/options-101/certificate': {
       id: '/learn/options-101/certificate'
-      path: '/certificate'
+      path: '/learn/options-101/certificate'
       fullPath: '/learn/options-101/certificate'
       preLoaderRoute: typeof LearnOptions101CertificateRouteImport
-      parentRoute: typeof LearnOptions101Route
+      parentRoute: typeof rootRouteImport
     }
     '/learn/options-101/exam': {
       id: '/learn/options-101/exam'
-      path: '/exam'
+      path: '/learn/options-101/exam'
       fullPath: '/learn/options-101/exam'
       preLoaderRoute: typeof LearnOptions101ExamRouteImport
-      parentRoute: typeof LearnOptions101Route
+      parentRoute: typeof rootRouteImport
     }
     '/learn/options-201/': {
       id: '/learn/options-201/'
@@ -509,9 +513,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCronPremarketWireRoute: ApiCronPremarketWireRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
   ApiWirePreviewRoute: ApiWirePreviewRoute,
+  LearnOptions101ModuleIdRoute: LearnOptions101ModuleIdRoute,
+  LearnOptions101CertificateRoute: LearnOptions101CertificateRoute,
+  LearnOptions101ExamRoute: LearnOptions101ExamRoute,
   LearnOptions201ModuleIdRoute: LearnOptions201ModuleIdRoute,
   LearnOptions201CertificateRoute: LearnOptions201CertificateRoute,
   LearnOptions201ExamRoute: LearnOptions201ExamRoute,
+  LearnOptions101IndexRoute: LearnOptions101IndexRoute,
   LearnOptions201IndexRoute: LearnOptions201IndexRoute,
 }
 export const routeTree = rootRouteImport
