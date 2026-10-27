@@ -9,5 +9,17 @@ export function courseHomePath(courseId: string): string {
 }
 
 export function courseModulePath(courseId: string, moduleId: string): string {
-  return isOptions201(courseId) ? `/learn/options-201/${moduleId}` : `/learn/${moduleId}`;
+  return isOptions201(courseId)
+    ? `/learn/options-201/${moduleId}`
+    : `/learn/options-101/${moduleId}`;
+}
+
+export function courseExamPath(courseId: string): string {
+  return isOptions201(courseId) ? "/learn/options-201/exam" : "/learn/options-101/exam";
+}
+
+export function courseCertificatePath(courseId: string): string {
+  return isOptions201(courseId)
+    ? "/learn/options-201/certificate"
+    : "/learn/options-101/certificate";
 }

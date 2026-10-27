@@ -6,6 +6,18 @@ export const OPTIONS_101_PRICE_CENTS = 3900;
 export const OPTIONS_101_PRICE_USD = OPTIONS_101_PRICE_CENTS / 100;
 export const OPTIONS_201_PRICE_CENTS = 3900;
 export const OPTIONS_201_PRICE_USD = OPTIONS_201_PRICE_CENTS / 100;
+/**
+ * Chris, 2026-10-27. Modules 1–3 are the free Options 201 preview.
+ * Change this together with the landing copy, robots, sitemap, and JSON-LD.
+ */
+export const OPTIONS_201_FREE_MODULE_COUNT = 3;
+/** Active desk members get Options 201 the same way they get Options 101. */
+export const OPTIONS_201_INCLUDED_WITH_DESK = true;
+/**
+ * Options 101 is recommended before Options 201 and is not required.
+ * Set this to "options-101" to lock paid 201 modules until that exam is passed.
+ */
+export const OPTIONS_201_PREREQUISITE_COURSE_ID: string | null = null;
 
 /** Desk trial checkout. Used when the course JSON leaves that CTA url blank. */
 export const DESK_TRIAL_PATH = "/join?plan=monthly";
@@ -15,8 +27,11 @@ export type CourseOffer = {
   shortName: string;
   priceCents: number;
   priceUsd: number;
-  /** Last free module index, inclusive. Options 101 is 1. Options 201 is 0. */
+  /** Last free module index, inclusive. Options 101 is 1 (modules 1–2). Options 201 is 2 (modules 1–3). */
   freeThroughIndex: number;
+  includedWithDesk: boolean;
+  /** Null means the earlier course is recommended, not required. */
+  prerequisiteCourseId: string | null;
   homePath: "/learn/options-101" | "/learn/options-201";
   productName: string;
   productDescription: string;
@@ -30,6 +45,8 @@ const COURSE_OFFERS: Record<string, CourseOffer> = {
     priceCents: OPTIONS_101_PRICE_CENTS,
     priceUsd: OPTIONS_101_PRICE_USD,
     freeThroughIndex: 1,
+    includedWithDesk: true,
+    prerequisiteCourseId: null,
     homePath: "/learn/options-101",
     productName: "Options 101",
     productDescription: "ALGO Swamp beginner options course. One-time purchase.",
@@ -40,7 +57,9 @@ const COURSE_OFFERS: Record<string, CourseOffer> = {
     shortName: "Options 201",
     priceCents: OPTIONS_201_PRICE_CENTS,
     priceUsd: OPTIONS_201_PRICE_USD,
-    freeThroughIndex: 0,
+    freeThroughIndex: OPTIONS_201_FREE_MODULE_COUNT - 1,
+    includedWithDesk: OPTIONS_201_INCLUDED_WITH_DESK,
+    prerequisiteCourseId: OPTIONS_201_PREREQUISITE_COURSE_ID,
     homePath: "/learn/options-201",
     productName: "Options 201: Vertical Spreads",
     productDescription: "ALGO Swamp vertical spreads course. One-time purchase.",
@@ -58,11 +77,17 @@ export function courseEntitled(input: { membershipActive: boolean; purchased: bo
 }
 
 /**
- * Free preview is per course. Options 101 opens indexes 0 and 1.
- * Options 201 opens index 0 only. Later modules need a purchase or an active desk.
+ * Free preview is per course. `freeThroughIndex` is inclusive.
+ * Options 101 opens indexes 0 and 1. Options 201 opens indexes 0, 1, and 2.
  */
 export function canReadModule(index: number, entitled: boolean, freeThroughIndex = 1): boolean {
   return index <= freeThroughIndex || entitled;
+}
+
+export function freePreviewLabel(freeThroughIndex: number): string {
+  const count = freeThroughIndex + 1;
+  if (count <= 1) return "Module 1 is free.";
+  return `Modules 1–${count} are free.`;
 }
 
 export type PublicQuestion = {

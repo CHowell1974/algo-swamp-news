@@ -11,9 +11,10 @@ import {
   CourseShell,
   focusRing,
 } from "@/components/course-ui";
+import { freePreviewLabel } from "@/lib/course/access";
 import { courseModulePath, isOptions201 } from "@/lib/course/paths";
 import { moduleSeo as moduleSeo101 } from "@/lib/course/catalog";
-import { moduleSeo as moduleSeo201 } from "@/lib/course/catalog-201";
+import { moduleSeo201 } from "@/lib/course/catalog-options-201";
 import type { ModulePage } from "@/lib/course/types";
 
 function seoFor(courseId: string, moduleId: string) {
@@ -45,6 +46,19 @@ function OpenModule({ page }: { page: Extract<ModulePage, { access: "open" }> })
   const showCheckout = page.index === page.freeThroughIndex && !page.entitled;
   return (
     <>
+      {page.id === "m1-what-is-a-vertical" ? (
+        <p className="mt-6 text-sm text-fg">
+          New to calls and puts?{" "}
+          <CourseModuleLink
+            courseId="options-101"
+            moduleId="m2-calls-and-puts"
+            className={`font-medium text-signal ${focusRing}`}
+          >
+            Calls and puts explained
+          </CourseModuleLink>{" "}
+          (free, Options 101).
+        </p>
+      ) : null}
       <section className="mt-6">
         <h2 className="text-xs font-medium tracking-widest text-muted uppercase">
           What you'll learn in this module
@@ -143,12 +157,36 @@ function OpenModule({ page }: { page: Extract<ModulePage, { access: "open" }> })
           />
         </div>
       ) : null}
+      {page.id === "m5-buying-vs-selling" ? (
+        <p className="mt-8 text-sm text-fg">
+          Go deeper:{" "}
+          <CourseModuleLink
+            courseId="options-201"
+            moduleId="m3-credit-verticals"
+            className={`font-medium text-signal ${focusRing}`}
+          >
+            bull put and bear call credit spreads
+          </CourseModuleLink>{" "}
+          in Options 201.
+        </p>
+      ) : null}
+      {page.courseId === "options-101" && page.showExamLink ? (
+        <section className="mt-10 border-t border-line pt-6">
+          <h2 className="font-display text-2xl text-fg">Next: Options 201: Vertical Spreads</h2>
+          <p className="mt-3 text-sm text-fg">
+            Put two options together with defined risk.{" "}
+            <Link to="/learn/options-201" className={`font-medium text-signal ${focusRing}`}>
+              Start Options 201: Vertical Spreads
+            </Link>
+          </p>
+        </section>
+      ) : null}
     </>
   );
 }
 
 function LockedModule({ page }: { page: Extract<ModulePage, { access: "locked" }> }) {
-  const freeLabel = page.freeThroughIndex <= 0 ? "Module 1 is free." : "Modules 1–2 are free.";
+  const freeLabel = freePreviewLabel(page.freeThroughIndex);
   return (
     <section className="mt-6 rounded-card border border-line bg-surface px-4 py-5">
       <p className="text-sm text-pretty text-fg">

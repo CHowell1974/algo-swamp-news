@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { CourseLanding } from "@/components/course-home";
+import { focusRing } from "@/components/course-ui";
 import { getCourseHome } from "@/lib/course.functions";
 import { COURSE_FAQ, LEARN_PAGE, routeHead } from "@/lib/seo";
 
@@ -14,7 +15,7 @@ const OUTCOMES = [
   "Position sizing from max loss",
 ];
 
-export const Route = createFileRoute("/learn/options-101")({
+export const Route = createFileRoute("/learn/options-101/")({
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => {
     const raw = typeof search.session_id === "string" ? search.session_id : "";
     return raw.startsWith("cs_") ? { session_id: raw } : {};
@@ -36,6 +37,14 @@ function Options101Page() {
       outcomes={OUTCOMES}
       faqTitle="Options 101 FAQ"
       faq={COURSE_FAQ}
+      afterOutline={
+        <p className="mt-4 text-sm text-fg">
+          Finished Options 101?{" "}
+          <Link to="/learn/options-201" className={`font-medium text-signal ${focusRing}`}>
+            Next: Options 201: Vertical Spreads
+          </Link>
+        </p>
+      }
     />
   );
 }

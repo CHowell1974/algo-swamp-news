@@ -190,7 +190,7 @@ function MarketHome() {
         >
           <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-12">
             <p className="text-xs font-medium tracking-widest text-muted uppercase">
-              Course
+              Classes
             </p>
             <h2
               id="course-teaser-title"
@@ -206,7 +206,7 @@ function MarketHome() {
             </p>
             <div className="mt-2 flex flex-col items-start">
               <Link
-                to="/learn/$moduleId"
+                to="/learn/options-101/$moduleId"
                 params={{ moduleId: "m1-what-is-an-option" }}
                 className={`inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
               >
@@ -218,11 +218,26 @@ function MarketHome() {
               >
                 See all 8 modules of Options 101
               </Link>
+              <h3 className="mt-6 font-display text-2xl text-fg">
+                Options 201: Vertical Spreads
+              </h3>
+              <p className="mt-2 max-w-xl text-sm text-pretty text-muted">
+                Bull call, bear put, and credit spreads, with max loss and
+                break-even math and thinkorswim walkthroughs. Modules 1–3 are
+                free.
+              </p>
               <Link
-                to="/learn/options-201"
+                to="/learn/options-201/$moduleId"
+                params={{ moduleId: "m1-what-is-a-vertical" }}
+                className={`inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
+              >
+                Start free: What is a vertical spread?
+              </Link>
+              <Link
+                to="/learn"
                 className={`inline-flex min-h-11 items-center text-sm font-medium text-fg ${focusRing}`}
               >
-                Options 201: vertical spreads — 101 recommended first
+                See all classes
               </Link>
             </div>
           </div>

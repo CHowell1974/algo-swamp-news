@@ -5,6 +5,7 @@ import {
   CourseDisclaimer,
   CourseExamLink,
   CourseHomeLink,
+  CourseModuleLink,
   CourseShell,
   focusRing,
 } from "@/components/course-ui";
@@ -98,6 +99,29 @@ export function CertificateView({
               </CourseHomeLink>
             </div>
           </>
+        )}
+        {page.courseId === "options-101" ? (
+          <section className="mt-10 border-t border-line pt-6 print:hidden">
+            <h2 className="font-display text-2xl text-fg">Next: Options 201: Vertical Spreads</h2>
+            <p className="mt-3 text-sm text-fg">
+              <CourseModuleLink
+                courseId="options-201"
+                moduleId="m1-what-is-a-vertical"
+                className={`font-medium text-signal ${focusRing}`}
+              >
+                Start Options 201 free: What is a vertical spread?
+              </CourseModuleLink>
+            </p>
+          </section>
+        ) : (
+          <section className="mt-10 border-t border-line pt-6 print:hidden">
+            <h2 className="font-display text-2xl text-fg">What's next</h2>
+            <p className="mt-3 text-sm text-fg">
+              <Link to="/learn" className={`font-medium text-signal ${focusRing}`}>
+                All classes
+              </Link>
+            </p>
+          </section>
         )}
       </main>
     </CourseShell>

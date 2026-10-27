@@ -66,7 +66,7 @@ export function CourseModuleLink({
     );
   }
   return (
-    <Link to="/learn/$moduleId" params={{ moduleId }} className={className}>
+    <Link to="/learn/options-101/$moduleId" params={{ moduleId }} className={className}>
       {children}
     </Link>
   );
@@ -89,7 +89,7 @@ export function CourseExamLink({
     );
   }
   return (
-    <Link to="/learn/exam" className={className}>
+    <Link to="/learn/options-101/exam" className={className}>
       {children}
     </Link>
   );
@@ -112,7 +112,7 @@ export function CourseCertificateLink({
     );
   }
   return (
-    <Link to="/learn/certificate" className={className}>
+    <Link to="/learn/options-101/certificate" className={className}>
       {children}
     </Link>
   );
@@ -139,6 +139,12 @@ export function CourseBreadcrumb({
         <li>
           <Link to="/" activeOptions={{ exact: true }} className={focusRing}>
             ALGO Swamp
+          </Link>{" "}
+          ›
+        </li>
+        <li>
+          <Link to="/learn" className={focusRing}>
+            Classes
           </Link>{" "}
           ›
         </li>

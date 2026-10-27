@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Lock } from "lucide-react";
@@ -28,6 +28,10 @@ export function CourseLanding({
   outcomes,
   faqTitle,
   faq,
+  headline,
+  srSeparator = ": ",
+  lead,
+  afterOutline,
 }: {
   initial: CourseHome;
   sessionId?: string;
@@ -36,6 +40,10 @@ export function CourseLanding({
   outcomes: string[];
   faqTitle?: string;
   faq?: { question: string; answer: string }[];
+  headline?: string;
+  srSeparator?: string;
+  lead?: ReactNode;
+  afterOutline?: ReactNode;
 }) {
   const router = useRouter();
   const { user, isPending } = useCurrentUserState();
@@ -90,11 +98,12 @@ export function CourseLanding({
           {home.level}
         </p>
         <h1 className="mt-3 font-display text-5xl text-balance text-fg md:text-7xl">
-          {product}
-          <span className="sr-only">: </span>
+          {headline ?? product}
+          <span className="sr-only">{srSeparator}</span>
           <span className="block text-2xl text-muted md:text-3xl">{subtitle}</span>
         </h1>
         <p className="mt-3 font-display text-2xl text-signal italic md:text-3xl">{home.tagline}</p>
+        {lead}
         <div className="mt-6 max-w-2xl">
           <CourseMarkdown text={home.intro} />
         </div>
@@ -103,8 +112,12 @@ export function CourseLanding({
             {formatMoney(home.priceUsd)}
           </span>
           <span className="ml-2">once</span>
-          <span className="mx-2">·</span>
-          included with an active desk
+          {offer?.includedWithDesk ? (
+            <>
+              <span className="mx-2">·</span>
+              included with an active desk
+            </>
+          ) : null}
         </p>
         <div className="mt-6 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {target.kind === "module" && firstId ? (
@@ -223,6 +236,7 @@ export function CourseLanding({
                 )}
               </li>
             </ol>
+            {afterOutline}
           </section>
           <CourseProgress home={home} />
         </div>

@@ -122,6 +122,15 @@ function ToolsPage() {
                 Start Options 101 free
               </Link>
             </p>
+            <p className="mt-2 text-sm text-pretty text-fg">
+              Trading spreads?{" "}
+              <Link
+                to="/learn/options-201"
+                className={`font-medium text-signal ${focusRing}`}
+              >
+                Options 201: Vertical Spreads
+              </Link>
+            </p>
           </div>
         </section>
       </main>

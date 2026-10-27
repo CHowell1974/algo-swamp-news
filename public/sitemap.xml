@@ -16,15 +16,21 @@
     <loc>https://news.algoswamp.com/learn/options-101</loc>
   </url>
   <url>
-    <loc>https://news.algoswamp.com/learn/m1-what-is-an-option</loc>
+    <loc>https://news.algoswamp.com/learn/options-101/m1-what-is-an-option</loc>
   </url>
   <url>
-    <loc>https://news.algoswamp.com/learn/m2-calls-and-puts</loc>
+    <loc>https://news.algoswamp.com/learn/options-101/m2-calls-and-puts</loc>
   </url>
   <url>
     <loc>https://news.algoswamp.com/learn/options-201</loc>
   </url>
   <url>
     <loc>https://news.algoswamp.com/learn/options-201/m1-what-is-a-vertical</loc>
+  </url>
+  <url>
+    <loc>https://news.algoswamp.com/learn/options-201/m2-debit-verticals</loc>
+  </url>
+  <url>
+    <loc>https://news.algoswamp.com/learn/options-201/m3-credit-verticals</loc>
   </url>
 </urlset>

@@ -20,11 +20,14 @@ import { Route as LearnIndexRouteImport } from './routes/learn/index'
 import { Route as LearnModuleIdRouteImport } from './routes/learn/$moduleId'
 import { Route as LearnCertificateRouteImport } from './routes/learn/certificate'
 import { Route as LearnExamRouteImport } from './routes/learn/exam'
-import { Route as LearnOptions101RouteImport } from './routes/learn/options-101'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCronPremarketWireRouteImport } from './routes/api/cron/premarket-wire'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiWirePreviewRouteImport } from './routes/api/wire/preview'
+import { Route as LearnOptions101IndexRouteImport } from './routes/learn/options-101/index'
+import { Route as LearnOptions101ModuleIdRouteImport } from './routes/learn/options-101/$moduleId'
+import { Route as LearnOptions101CertificateRouteImport } from './routes/learn/options-101/certificate'
+import { Route as LearnOptions101ExamRouteImport } from './routes/learn/options-101/exam'
 import { Route as LearnOptions201IndexRouteImport } from './routes/learn/options-201/index'
 import { Route as LearnOptions201ModuleIdRouteImport } from './routes/learn/options-201/$moduleId'
 import { Route as LearnOptions201CertificateRouteImport } from './routes/learn/options-201/certificate'
@@ -85,11 +88,6 @@ const LearnExamRoute = LearnExamRouteImport.update({
   path: '/learn/exam',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LearnOptions101Route = LearnOptions101RouteImport.update({
-  id: '/learn/options-101',
-  path: '/learn/options-101',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -109,6 +107,27 @@ const ApiWirePreviewRoute = ApiWirePreviewRouteImport.update({
   id: '/api/wire/preview',
   path: '/api/wire/preview',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LearnOptions101IndexRoute = LearnOptions101IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnOptions101Route,
+} as any)
+const LearnOptions101ModuleIdRoute = LearnOptions101ModuleIdRouteImport.update({
+  id: '/$moduleId',
+  path: '/$moduleId',
+  getParentRoute: () => LearnOptions101Route,
+} as any)
+const LearnOptions101CertificateRoute =
+  LearnOptions101CertificateRouteImport.update({
+    id: '/certificate',
+    path: '/certificate',
+    getParentRoute: () => LearnOptions101Route,
+  } as any)
+const LearnOptions101ExamRoute = LearnOptions101ExamRouteImport.update({
+  id: '/exam',
+  path: '/exam',
+  getParentRoute: () => LearnOptions101Route,
 } as any)
 const LearnOptions201IndexRoute = LearnOptions201IndexRouteImport.update({
   id: '/learn/options-201/',
@@ -143,15 +162,18 @@ export interface FileRoutesByFullPath {
   '/learn/$moduleId': typeof LearnModuleIdRoute
   '/learn/certificate': typeof LearnCertificateRoute
   '/learn/exam': typeof LearnExamRoute
-  '/learn/options-101': typeof LearnOptions101Route
   '/learn/': typeof LearnIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
+  '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
+  '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
+  '/learn/options-101/exam': typeof LearnOptions101ExamRoute
   '/learn/options-201/$moduleId': typeof LearnOptions201ModuleIdRoute
   '/learn/options-201/certificate': typeof LearnOptions201CertificateRoute
   '/learn/options-201/exam': typeof LearnOptions201ExamRoute
+  '/learn/options-101/': typeof LearnOptions101IndexRoute
   '/learn/options-201/': typeof LearnOptions201IndexRoute
 }
 export interface FileRoutesByTo {
@@ -165,15 +187,18 @@ export interface FileRoutesByTo {
   '/learn/$moduleId': typeof LearnModuleIdRoute
   '/learn/certificate': typeof LearnCertificateRoute
   '/learn/exam': typeof LearnExamRoute
-  '/learn/options-101': typeof LearnOptions101Route
   '/learn': typeof LearnIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
+  '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
+  '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
+  '/learn/options-101/exam': typeof LearnOptions101ExamRoute
   '/learn/options-201/$moduleId': typeof LearnOptions201ModuleIdRoute
   '/learn/options-201/certificate': typeof LearnOptions201CertificateRoute
   '/learn/options-201/exam': typeof LearnOptions201ExamRoute
+  '/learn/options-101': typeof LearnOptions101IndexRoute
   '/learn/options-201': typeof LearnOptions201IndexRoute
 }
 export interface FileRoutesById {
@@ -188,15 +213,18 @@ export interface FileRoutesById {
   '/learn/$moduleId': typeof LearnModuleIdRoute
   '/learn/certificate': typeof LearnCertificateRoute
   '/learn/exam': typeof LearnExamRoute
-  '/learn/options-101': typeof LearnOptions101Route
   '/learn/': typeof LearnIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
+  '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
+  '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
+  '/learn/options-101/exam': typeof LearnOptions101ExamRoute
   '/learn/options-201/$moduleId': typeof LearnOptions201ModuleIdRoute
   '/learn/options-201/certificate': typeof LearnOptions201CertificateRoute
   '/learn/options-201/exam': typeof LearnOptions201ExamRoute
+  '/learn/options-101/': typeof LearnOptions101IndexRoute
   '/learn/options-201/': typeof LearnOptions201IndexRoute
 }
 export interface FileRouteTypes {
@@ -212,15 +240,18 @@ export interface FileRouteTypes {
     | '/learn/$moduleId'
     | '/learn/certificate'
     | '/learn/exam'
-    | '/learn/options-101'
     | '/learn/'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
     | '/api/wire/preview'
+    | '/learn/options-101/$moduleId'
+    | '/learn/options-101/certificate'
+    | '/learn/options-101/exam'
     | '/learn/options-201/$moduleId'
     | '/learn/options-201/certificate'
     | '/learn/options-201/exam'
+    | '/learn/options-101/'
     | '/learn/options-201/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -234,15 +265,18 @@ export interface FileRouteTypes {
     | '/learn/$moduleId'
     | '/learn/certificate'
     | '/learn/exam'
-    | '/learn/options-101'
     | '/learn'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
     | '/api/wire/preview'
+    | '/learn/options-101/$moduleId'
+    | '/learn/options-101/certificate'
+    | '/learn/options-101/exam'
     | '/learn/options-201/$moduleId'
     | '/learn/options-201/certificate'
     | '/learn/options-201/exam'
+    | '/learn/options-101'
     | '/learn/options-201'
   id:
     | '__root__'
@@ -256,15 +290,18 @@ export interface FileRouteTypes {
     | '/learn/$moduleId'
     | '/learn/certificate'
     | '/learn/exam'
-    | '/learn/options-101'
     | '/learn/'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
     | '/api/wire/preview'
+    | '/learn/options-101/$moduleId'
+    | '/learn/options-101/certificate'
+    | '/learn/options-101/exam'
     | '/learn/options-201/$moduleId'
     | '/learn/options-201/certificate'
     | '/learn/options-201/exam'
+    | '/learn/options-101/'
     | '/learn/options-201/'
   fileRoutesById: FileRoutesById
 }
@@ -279,7 +316,6 @@ export interface RootRouteChildren {
   LearnModuleIdRoute: typeof LearnModuleIdRoute
   LearnCertificateRoute: typeof LearnCertificateRoute
   LearnExamRoute: typeof LearnExamRoute
-  LearnOptions101Route: typeof LearnOptions101Route
   LearnIndexRoute: typeof LearnIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPremarketWireRoute: typeof ApiCronPremarketWireRoute
@@ -370,13 +406,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnExamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/learn/options-101': {
-      id: '/learn/options-101'
-      path: '/learn/options-101'
-      fullPath: '/learn/options-101'
-      preLoaderRoute: typeof LearnOptions101RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -404,6 +433,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/wire/preview'
       preLoaderRoute: typeof ApiWirePreviewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/learn/options-101/': {
+      id: '/learn/options-101/'
+      path: '/'
+      fullPath: '/learn/options-101/'
+      preLoaderRoute: typeof LearnOptions101IndexRouteImport
+      parentRoute: typeof LearnOptions101Route
+    }
+    '/learn/options-101/$moduleId': {
+      id: '/learn/options-101/$moduleId'
+      path: '/$moduleId'
+      fullPath: '/learn/options-101/$moduleId'
+      preLoaderRoute: typeof LearnOptions101ModuleIdRouteImport
+      parentRoute: typeof LearnOptions101Route
+    }
+    '/learn/options-101/certificate': {
+      id: '/learn/options-101/certificate'
+      path: '/certificate'
+      fullPath: '/learn/options-101/certificate'
+      preLoaderRoute: typeof LearnOptions101CertificateRouteImport
+      parentRoute: typeof LearnOptions101Route
+    }
+    '/learn/options-101/exam': {
+      id: '/learn/options-101/exam'
+      path: '/exam'
+      fullPath: '/learn/options-101/exam'
+      preLoaderRoute: typeof LearnOptions101ExamRouteImport
+      parentRoute: typeof LearnOptions101Route
     }
     '/learn/options-201/': {
       id: '/learn/options-201/'
@@ -447,7 +504,6 @@ const rootRouteChildren: RootRouteChildren = {
   LearnModuleIdRoute: LearnModuleIdRoute,
   LearnCertificateRoute: LearnCertificateRoute,
   LearnExamRoute: LearnExamRoute,
-  LearnOptions101Route: LearnOptions101Route,
   LearnIndexRoute: LearnIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPremarketWireRoute: ApiCronPremarketWireRoute,

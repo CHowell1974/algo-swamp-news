@@ -1,7 +1,14 @@
 import type { PlanId } from "@/lib/plans";
 import { SITE_ORIGIN } from "./site.ts";
 import { COURSE_URL, MODULE_SEO, type ModuleSeo } from "@/lib/course/catalog";
-import { MODULE_SEO_201, OPTIONS_201_PATH } from "@/lib/course/catalog-201";
+import {
+  COURSE_201_URL,
+  FREE_201_MODULE_COUNT,
+  MODULE_SEO_201,
+  OPTIONS_201_INCLUDED_WITH_DESK,
+  OPTIONS_201_PATH,
+  OPTIONS_201_PRICE_USD,
+} from "@/lib/course/catalog-options-201";
 
 export { SITE_ORIGIN } from "./site.ts";
 
@@ -11,6 +18,7 @@ type HeadMeta =
 export const OG_IMAGE = `${SITE_ORIGIN}/og.jpg`;
 export const OG_LEARN_IMAGE = `${SITE_ORIGIN}/og-learn.jpg`;
 export const OG_LEARN_201_IMAGE = `${SITE_ORIGIN}/og-learn-201.jpg`;
+export const OG_CLASSES_IMAGE = `${SITE_ORIGIN}/og-classes.jpg`;
 
 export type PageSeo = {
   title: string;
@@ -182,6 +190,11 @@ export const COURSE_FAQ: { question: string; answer: string }[] = [
     answer:
       "No. Options 101 is educational content, not a recommendation to buy or sell any security or to use any strategy. Options trading carries substantial risk and is not suitable for everyone.",
   },
+  {
+    question: "What comes after Options 101?",
+    answer:
+      "Options 201: Vertical Spreads. It shows you how to combine a long and a short option into bull call, bear put, bull put, and bear call spreads, with defined max loss and break-even.",
+  },
 ];
 
 function learnJsonLd() {
@@ -251,7 +264,7 @@ function learnJsonLd() {
           "@type": "LearningResource",
           position: index + 1,
           name: seo.h1,
-          url: `${SITE_ORIGIN}/learn/${seo.id}`,
+          url: `${COURSE_URL}/${seo.id}`,
           isAccessibleForFree: index <= 1,
         })),
       },
@@ -268,6 +281,12 @@ function learnJsonLd() {
           {
             "@type": "ListItem",
             position: 2,
+            name: "Classes",
+            item: `${SITE_ORIGIN}/learn`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
             name: "Options 101",
             item: COURSE_URL,
           },
@@ -301,7 +320,7 @@ export const LEARN_EXAM_PAGE: PageSeo = {
   title: "Options 101 Final Exam — ALGO Swamp",
   description:
     "The 15-question final exam for the Options 101 beginner course. Score 12 of 15 to pass and print your certificate. Not financial advice.",
-  pathname: "/learn/exam",
+  pathname: "/learn/options-101/exam",
   robots: "noindex,follow",
 };
 
@@ -309,35 +328,95 @@ export const LEARN_CERTIFICATE_PAGE: PageSeo = {
   title: "Options 101 Certificate of Completion — ALGO Swamp",
   description:
     "Pass the Options 101 final exam to print a certificate of completion with your name and date. Educational only, not a trading credential.",
-  pathname: "/learn/certificate",
+  pathname: "/learn/options-101/certificate",
   robots: "noindex,follow",
 };
 
-const OPTIONS_201_URL = `${SITE_ORIGIN}${OPTIONS_201_PATH}`;
+const OPTIONS_201_URL = COURSE_201_URL;
+
+const OPTIONS_201_FREE_PHRASE =
+  FREE_201_MODULE_COUNT <= 1 ? "Module 1 is free." : `Modules 1–${FREE_201_MODULE_COUNT} are free.`;
+
+function options201PricePhrase(): string {
+  if (OPTIONS_201_PRICE_USD == null) return "";
+  const amount = `$${OPTIONS_201_PRICE_USD}`;
+  return OPTIONS_201_INCLUDED_WITH_DESK
+    ? `${amount} once, or included with an active ALGO Swamp desk plan, including the 7-day trial.`
+    : `${amount} once.`;
+}
 
 /** Visible FAQ on /learn/options-201. The FAQPage node is built from this same list. */
-export const OPTIONS_201_FAQ: { question: string; answer: string }[] = [
+export const COURSE_201_FAQ: { question: string; answer: string }[] = [
   {
     question: "Is Options 201 free?",
-    answer:
-      "Module 1 (What a Vertical Spread Is and Why Traders Use One) is free. The full course, with all eight modules, the quizzes, the final exam and the certificate, is $39 once, or included with an active ALGO Swamp desk plan, including the 7-day trial.",
+    answer: `Modules 1–3 (What Is a Vertical Spread?, Bull Call Spread and Bear Put Spread, and Credit Spreads: Bull Put and Bear Call) are free. The full course, with all eight modules, the quizzes, the final exam and the certificate, is ${options201PricePhrase() || "included with an active ALGO Swamp desk plan, including the 7-day trial."}`,
   },
   {
-    question: "Do I need Options 101 first?",
+    question: "Do I need to take Options 101 first?",
     answer:
-      "Options 101 is recommended first. Options 201 assumes you already know calls and puts, strike, expiration, premium, the basic Greeks, and how to size a trade from max loss.",
+      "Options 101 is the prerequisite. Options 201 assumes you already know calls and puts, strike, expiration and premium, intrinsic and extrinsic value, the basic Greeks, how to read a thinkorswim option chain, and how to size a trade from max loss.",
   },
   {
-    question: "How does the Options 201 final exam work?",
+    question: "What is a vertical spread?",
+    answer:
+      "A vertical spread is one long and one short option of the same type, on the same underlying, with the same expiration and different strikes. It defines your risk and caps your reward. At expiration it is worth between $0 and the width between the strikes, times 100.",
+  },
+  {
+    question: "What is the difference between a debit spread and a credit spread?",
+    answer:
+      "You pay a net debit to open a debit spread, such as a bull call spread or a bear put spread. You collect a net credit to open a credit spread, such as a bull put spread or a bear call spread. A debit spread's max loss is the debit; a credit spread's max loss is the width minus the credit.",
+  },
+  {
+    question: "How do you calculate the max loss and break-even of a vertical spread?",
+    answer:
+      "Debit spread: max loss = the debit, max profit = width minus the debit, and break-even = long strike plus the debit for a call spread or minus the debit for a put spread. Credit spread: max profit = the credit, max loss = width minus the credit, and break-even = short strike minus the credit for a bull put spread or plus the credit for a bear call spread. Multiply by 100 per contract, and remember commissions.",
+  },
+  {
+    question: "Do I need thinkorswim or special broker approval?",
+    answer:
+      "You don't need thinkorswim to learn the material. Each module has a thinkorswim tip, and Module 8 walks through placing a vertical in thinkorswim. Practice in paperMoney first. To trade spreads, brokers typically require a specific options approval level, often higher than for buying calls and puts, and some require a margin account.",
+  },
+  {
+    question: "How does the final exam work?",
     answer:
       "The final exam has 15 questions. Score 80% (12 of 15) to pass and print a certificate of completion with your name and the date.",
   },
   {
     question: "Is Options 201 financial advice?",
     answer:
-      "No. Options 201 is educational content, not a recommendation to buy or sell any security or to use any strategy. Options trading carries substantial risk and is not suitable for everyone.",
+      "No. Options 201 is educational content, not a recommendation to buy or sell any security or to use any strategy. All prices in the course are hypothetical. Options trading carries substantial risk and is not suitable for everyone.",
   },
 ];
+
+export const OPTIONS_201_FAQ = COURSE_201_FAQ;
+
+function options201Offers(): Array<Record<string, string>> {
+  const offers: Array<Record<string, string>> = [];
+  if (OPTIONS_201_PRICE_USD != null) {
+    offers.push({
+      "@type": "Offer",
+      category: "Paid",
+      name: "Options 201 (one-time)",
+      price: OPTIONS_201_PRICE_USD.toFixed(2),
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      url: OPTIONS_201_URL,
+    });
+  }
+  if (OPTIONS_201_INCLUDED_WITH_DESK) {
+    offers.push({
+      "@type": "Offer",
+      category: "Subscription",
+      name: "Included with the ALGO Swamp desk",
+      price: "29.00",
+      priceCurrency: "USD",
+      description:
+        "Options 201 is included with an active desk plan, including the 7-day free trial.",
+      url: `${SITE_ORIGIN}/join?plan=monthly`,
+    });
+  }
+  return offers;
+}
 
 function options201JsonLd() {
   return {
@@ -355,21 +434,26 @@ function options201JsonLd() {
         "@id": `${OPTIONS_201_URL}#course`,
         name: "Options 201: Vertical Spreads",
         alternateName: "Options 201",
-        description:
-          "Intermediate course on vertical spreads: debit and credit verticals, strike width, max profit, max loss, break-even, the Greeks, and building a vertical in thinkorswim. Eight modules with quizzes and a 15-question final exam. Module 1 is free. Options 101 is recommended first. Educational content, not financial advice.",
+        description: `Intermediate options course on vertical spreads: the bull call spread, bear put spread, bull put spread and bear call spread, debit vs. credit spreads, choosing strikes, width and expiration, max profit, max loss and break-even math, the Greeks on spreads, managing, closing and rolling, and placing verticals in thinkorswim. Eight modules with quizzes and a 15-question final exam. ${OPTIONS_201_FREE_PHRASE} Educational content, not financial advice.`,
         url: OPTIONS_201_URL,
         courseCode: "OPTIONS-201",
         inLanguage: "en",
         educationalLevel: "Intermediate",
+        coursePrerequisites: {
+          "@type": "Course",
+          "@id": `${COURSE_URL}#course`,
+          name: "Options 101: Options Trading for Beginners",
+          url: COURSE_URL,
+        },
         teaches: [
           "What a vertical spread is",
-          "Debit verticals: bull call and bear put",
-          "Credit verticals: bull put and bear call",
+          "Bull call spread and bear put spread (debit spreads)",
+          "Bull put spread and bear call spread (credit spreads)",
           "Choosing strikes, width and expiration",
-          "Max profit, max loss and break-even",
-          "The Greeks on verticals",
-          "Managing, closing and rolling verticals",
-          "Building verticals in thinkorswim",
+          "Max profit, max loss and break-even of a vertical spread",
+          "Net Greeks of vertical spreads",
+          "Managing, closing and rolling vertical spreads",
+          "Placing a vertical spread in thinkorswim",
         ],
         provider: { "@id": `${SITE_ORIGIN}/#org` },
         publisher: { "@id": `${SITE_ORIGIN}/#org` },
@@ -378,36 +462,16 @@ function options201JsonLd() {
         hasCourseInstance: {
           "@type": "CourseInstance",
           courseMode: "Online",
-          courseWorkload: "PT2H",
+          courseWorkload: "PT2H30M",
           inLanguage: "en",
         },
-        offers: [
-          {
-            "@type": "Offer",
-            category: "Paid",
-            name: "Options 201 (one-time)",
-            price: "39.00",
-            priceCurrency: "USD",
-            availability: "https://schema.org/InStock",
-            url: OPTIONS_201_URL,
-          },
-          {
-            "@type": "Offer",
-            category: "Subscription",
-            name: "Included with the ALGO Swamp desk",
-            price: "29.00",
-            priceCurrency: "USD",
-            description:
-              "Options 201 is included with an active desk plan, including the 7-day free trial.",
-            url: `${SITE_ORIGIN}/join?plan=monthly`,
-          },
-        ],
+        ...(options201Offers().length ? { offers: options201Offers() } : {}),
         hasPart: MODULE_SEO_201.map((seo, index) => ({
           "@type": "LearningResource",
           position: index + 1,
           name: seo.h1,
           url: `${OPTIONS_201_URL}/${seo.id}`,
-          isAccessibleForFree: index === 0,
+          isAccessibleForFree: index < FREE_201_MODULE_COUNT,
         })),
       },
       {
@@ -423,6 +487,12 @@ function options201JsonLd() {
           {
             "@type": "ListItem",
             position: 2,
+            name: "Classes",
+            item: `${SITE_ORIGIN}/learn`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
             name: "Options 201",
             item: OPTIONS_201_URL,
           },
@@ -431,7 +501,7 @@ function options201JsonLd() {
       {
         "@type": "FAQPage",
         "@id": `${OPTIONS_201_URL}#faq`,
-        mainEntity: OPTIONS_201_FAQ.map((item) => ({
+        mainEntity: COURSE_201_FAQ.map((item) => ({
           "@type": "Question",
           name: item.question,
           acceptedAnswer: { "@type": "Answer", text: item.answer },
@@ -441,10 +511,10 @@ function options201JsonLd() {
   };
 }
 
-export const OPTIONS_201_PAGE: PageSeo = {
-  title: "Options 201: Vertical Spreads — ALGO Swamp",
+export const LEARN_201_PAGE: PageSeo = {
+  title: "Options 201: Vertical Spreads Explained — ALGO Swamp",
   description:
-    "Vertical spreads explained: debit and credit, max profit, max loss, and break-even. Module 1 free. 101 recommended first. $39 or included with the desk.",
+    "Learn vertical spreads: bull call, bear put, bull put and bear call spreads, max loss, break-even, Greeks, and thinkorswim. 8 lessons, Modules 1–3 free.",
   pathname: OPTIONS_201_PATH,
   ogImage: OG_LEARN_201_IMAGE,
   get jsonLd() {
@@ -452,21 +522,29 @@ export const OPTIONS_201_PAGE: PageSeo = {
   },
 };
 
-export const OPTIONS_201_EXAM_PAGE: PageSeo = {
-  title: "Options 201 Final Exam — ALGO Swamp",
+export const OPTIONS_201_PAGE = LEARN_201_PAGE;
+
+export const LEARN_201_EXAM_PAGE: PageSeo = {
+  title: "Options 201 Final Exam: Vertical Spreads — ALGO Swamp",
   description:
-    "The 15-question final exam for Options 201 vertical spreads. Score 12 of 15 to pass and print your certificate. Not financial advice.",
+    "The 15-question final exam for Options 201: Vertical Spreads. Score 12 of 15 to pass and print your certificate. Not financial advice.",
   pathname: "/learn/options-201/exam",
   robots: "noindex,follow",
+  ogImage: OG_LEARN_201_IMAGE,
 };
 
-export const OPTIONS_201_CERTIFICATE_PAGE: PageSeo = {
+export const OPTIONS_201_EXAM_PAGE = LEARN_201_EXAM_PAGE;
+
+export const LEARN_201_CERTIFICATE_PAGE: PageSeo = {
   title: "Options 201 Certificate of Completion — ALGO Swamp",
   description:
-    "Pass the Options 201 final exam to print a certificate of completion with your name and date. Educational only, not a trading credential.",
+    "Pass the Options 201: Vertical Spreads final exam to print a certificate of completion with your name and date. Educational only, not a trading credential.",
   pathname: "/learn/options-201/certificate",
   robots: "noindex,follow",
+  ogImage: OG_LEARN_201_IMAGE,
 };
+
+export const OPTIONS_201_CERTIFICATE_PAGE = LEARN_201_CERTIFICATE_PAGE;
 
 function classesJsonLd() {
   return {
@@ -481,24 +559,47 @@ function classesJsonLd() {
       },
       {
         "@type": "ItemList",
-        name: "ALGO Swamp options classes",
+        "@id": `${SITE_ORIGIN}/learn#classes`,
+        name: "ALGO Swamp options trading classes",
+        url: `${SITE_ORIGIN}/learn`,
+        itemListOrder: "https://schema.org/ItemListOrderAscending",
+        numberOfItems: 2,
         itemListElement: [
           {
             "@type": "ListItem",
             position: 1,
-            name: "Options 101: Options Trading for Beginners",
             url: COURSE_URL,
+            item: {
+              "@type": "Course",
+              "@id": `${COURSE_URL}#course`,
+              name: "Options 101: Options Trading for Beginners",
+              description:
+                "Beginner options trading course: calls and puts, strike, expiration and premium, intrinsic and extrinsic value, the Greeks, reading a thinkorswim option chain, and position sizing.",
+              url: COURSE_URL,
+              educationalLevel: "Beginner",
+              provider: { "@id": `${SITE_ORIGIN}/#org` },
+            },
           },
           {
             "@type": "ListItem",
             position: 2,
-            name: "Options 201: Vertical Spreads",
             url: OPTIONS_201_URL,
+            item: {
+              "@type": "Course",
+              "@id": `${OPTIONS_201_URL}#course`,
+              name: "Options 201: Vertical Spreads",
+              description:
+                "Intermediate options course on vertical spreads: bull call, bear put, bull put and bear call spreads, max profit, max loss and break-even, Greeks, managing spreads, and thinkorswim.",
+              url: OPTIONS_201_URL,
+              educationalLevel: "Intermediate",
+              provider: { "@id": `${SITE_ORIGIN}/#org` },
+            },
           },
         ],
       },
       {
         "@type": "BreadcrumbList",
+        "@id": `${SITE_ORIGIN}/learn#breadcrumb`,
         itemListElement: [
           {
             "@type": "ListItem",
@@ -519,17 +620,24 @@ function classesJsonLd() {
 }
 
 export const CLASSES_PAGE: PageSeo = {
-  title: "Options Classes — 101 and 201 — ALGO Swamp",
+  title: "Options Trading Classes: Options 101 & 201 — ALGO Swamp",
   description:
-    "ALGO Swamp options classes: Options 101 for beginners (2 modules free) and Options 201 vertical spreads. 101 recommended first. $39 or with the desk.",
+    "Options trading classes in plain English: Options 101 for beginners, then Options 201: Vertical Spreads. Free preview lessons, quizzes, and final exams.",
   pathname: "/learn",
+  ogImage: OG_CLASSES_IMAGE,
   get jsonLd() {
     return classesJsonLd();
   },
 };
 
-/** Module 1 gets a lesson node. Later Options 201 modules are noindex, so they only get a breadcrumb. */
-export function options201ModuleJsonLd(index: number, seo: ModuleSeo) {
+const OPTIONS_201_TEACHES = [
+  "Vertical spreads: debit vs. credit spreads",
+  "Bull call spread and bear put spread",
+  "Bull put spread and bear call spread (credit spreads)",
+];
+
+/** Free Options 201 modules get a lesson node. Later modules are noindex, so they only get a breadcrumb. */
+export function module201JsonLd(index: number, seo: ModuleSeo) {
   const url = `${OPTIONS_201_URL}/${seo.id}`;
   const breadcrumb = {
     "@type": "BreadcrumbList",
@@ -543,18 +651,24 @@ export function options201ModuleJsonLd(index: number, seo: ModuleSeo) {
       {
         "@type": "ListItem",
         position: 2,
+        name: "Classes",
+        item: `${SITE_ORIGIN}/learn`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
         name: "Options 201",
         item: OPTIONS_201_URL,
       },
       {
         "@type": "ListItem",
-        position: 3,
+        position: 4,
         name: `Module ${index + 1}: ${seo.h1}`,
         item: url,
       },
     ],
   };
-  if (index > 0) {
+  if (index >= FREE_201_MODULE_COUNT) {
     return { "@context": "https://schema.org", "@graph": [breadcrumb] };
   }
   return {
@@ -568,6 +682,7 @@ export function options201ModuleJsonLd(index: number, seo: ModuleSeo) {
         url,
         learningResourceType: "Lesson",
         educationalLevel: "Intermediate",
+        ...(OPTIONS_201_TEACHES[index] ? { teaches: OPTIONS_201_TEACHES[index] } : {}),
         inLanguage: "en",
         position: index + 1,
         isAccessibleForFree: true,
@@ -583,23 +698,25 @@ export function options201ModuleJsonLd(index: number, seo: ModuleSeo) {
   };
 }
 
+export const options201ModuleJsonLd = module201JsonLd;
+
 export const LOGIN_PAGE: PageSeo = {
   title: "Sign in — ALGO Swamp News",
-  description: "Sign in to ALGO Swamp to open the desk, Options 101, and your saved progress.",
+  description: "Sign in to ALGO Swamp to open the desk, your classes, and your saved progress.",
   pathname: "/login",
   robots: "noindex,follow",
 };
 
 export const ACCOUNT_PAGE: PageSeo = {
   title: "Your account — ALGO Swamp News",
-  description: "Your ALGO Swamp account: desk plan, billing, and Options 101 progress.",
+  description: "Your ALGO Swamp account: desk plan, billing, and class progress.",
   pathname: "/account",
   robots: "noindex,follow",
 };
 
 /** Modules 1 and 2 get a lesson node. Later modules are noindex, so they only get a breadcrumb. */
 export function moduleJsonLd(index: number, seo: ModuleSeo) {
-  const url = `${SITE_ORIGIN}/learn/${seo.id}`;
+  const url = `${COURSE_URL}/${seo.id}`;
   const breadcrumb = {
     "@type": "BreadcrumbList",
     itemListElement: [
@@ -612,12 +729,18 @@ export function moduleJsonLd(index: number, seo: ModuleSeo) {
       {
         "@type": "ListItem",
         position: 2,
+        name: "Classes",
+        item: `${SITE_ORIGIN}/learn`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
         name: "Options 101",
         item: COURSE_URL,
       },
       {
         "@type": "ListItem",
-        position: 3,
+        position: 4,
         name: `Module ${index + 1}: ${seo.h1}`,
         item: url,
       },

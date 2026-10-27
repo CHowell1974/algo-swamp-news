@@ -1,35 +1,15 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
-import { LessonNotFound, ModuleLesson } from "@/components/course-lesson";
-import { getModulePage } from "@/lib/course.functions";
-import { moduleRobots, moduleSeo } from "@/lib/course/catalog";
-import { OG_LEARN_IMAGE, moduleJsonLd, routeHead } from "@/lib/seo";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
+import { moduleSeo } from "@/lib/course/catalog";
 
 export const Route = createFileRoute("/learn/$moduleId")({
-  loader: async ({ params }) => {
-    if (!moduleSeo(params.moduleId)) throw notFound();
-    return getModulePage({ data: { courseId: "options-101", moduleId: params.moduleId } });
-  },
-  head: ({ loaderData }) => {
-    const seo = loaderData ? moduleSeo(loaderData.id) : undefined;
-    if (!loaderData || !seo) {
-      return routeHead({
-        title: "Lesson not found — Options 101 — ALGO Swamp",
-        description: "That Options 101 lesson does not exist. Start from the course outline.",
-        pathname: "/learn/options-101",
-        robots: "noindex,follow",
+  beforeLoad: ({ params }) => {
+    if (moduleSeo(params.moduleId)) {
+      throw redirect({
+        to: "/learn/options-101/$moduleId",
+        params: { moduleId: params.moduleId },
+        statusCode: 301,
       });
     }
-    return routeHead({
-      title: seo.title,
-      description: seo.description,
-      pathname: `/learn/${seo.id}`,
-      robots: moduleRobots(loaderData.index),
-      ogImage: OG_LEARN_IMAGE,
-      jsonLd: moduleJsonLd(loaderData.index, seo),
-    });
-  },
-  notFoundComponent: () => <LessonNotFound courseId="options-101" />,
-  component: function ModuleRoute() {
-    return <ModuleLesson page={Route.useLoaderData()} />;
+    throw notFound();
   },
 });

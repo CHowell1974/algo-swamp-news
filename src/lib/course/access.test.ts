@@ -263,6 +263,10 @@ describe("course checkout", () => {
     assert.equal(canReadModule(0, false, 0), true);
     assert.equal(canReadModule(1, false, 0), false);
     assert.equal(canReadModule(1, true, 0), true);
+    assert.equal(canReadModule(0, false, 2), true);
+    assert.equal(canReadModule(1, false, 2), true);
+    assert.equal(canReadModule(2, false, 2), true);
+    assert.equal(canReadModule(3, false, 2), false);
     const options201 = courseCheckoutParams({
       userId: "user_1",
       origin: "https://news.algoswamp.com",
@@ -284,8 +288,17 @@ describe("course checkout", () => {
         : "",
       "Options 201: Vertical Spreads",
     );
-    assert.equal(courseOffer("options-201")?.freeThroughIndex, 0);
+    assert.equal(courseOffer("options-201")?.freeThroughIndex, 2);
+    assert.equal(courseOffer("options-201")?.priceUsd, 39);
+    assert.equal(courseOffer("options-201")?.includedWithDesk, true);
+    assert.equal(courseOffer("options-201")?.prerequisiteCourseId, null);
     assert.equal(courseOffer("options-101")?.freeThroughIndex, 1);
+    assert.equal(
+      options201.line_items[0] && "price_data" in options201.line_items[0]
+        ? options201.line_items[0].price_data.unit_amount
+        : 0,
+      3900,
+    );
     assert.equal(courseOffer("options-201")?.id === "options-101", false);
     assert.equal(
       courseCheckoutOwner({
