@@ -223,8 +223,8 @@ function MarketHome() {
               </h3>
               <p className="mt-2 max-w-xl text-sm text-pretty text-muted">
                 Bull call, bear put, and credit spreads, with max loss and
-                break-even math and thinkorswim walkthroughs. Modules 1–3 are
-                free.
+                break-even math and thinkorswim walkthroughs. Modules 1–2 are
+                free. $39 once.
               </p>
               <Link
                 to="/learn/options-201/$moduleId"

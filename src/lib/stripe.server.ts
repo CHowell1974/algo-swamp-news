@@ -15,6 +15,7 @@ import {
   courseCheckoutParams,
   courseFulfillmentDecision,
   courseOffer,
+  deskCoversCourse,
   resolveCoursePriceId,
 } from "@/lib/course/access";
 import {
@@ -345,7 +346,7 @@ export async function createCourseCheckoutUrl(userId: string, courseId: string):
   }
   const { readMembership } = await import("@/lib/membership.functions");
   const membership = await readMembership(userId);
-  if (offer.includedWithDesk && membership.active) {
+  if (deskCoversCourse(offer.includedWithDesk, membership.active)) {
     throw new Error(`${offer.shortName} is included with your desk.`);
   }
   const stripe = stripeClient();

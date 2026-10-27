@@ -9,12 +9,12 @@ export const OPTIONS_201_PRICE_USD = OPTIONS_201_PRICE_CENTS / 100;
 /** Live one-time price for Options 201. STRIPE_PRICE_OPTIONS_201 overrides it. */
 export const OPTIONS_201_STRIPE_PRICE_ID = "price_1UV9vCLAdDbAQPuJWWlzGRUu";
 /**
- * Chris, 2026-10-27. Modules 1–3 are the free Options 201 preview.
+ * Chris, 2026-10-27. Modules 1 and 2 are the free Options 201 preview.
  * Change this together with the landing copy, robots, sitemap, and JSON-LD.
  */
-export const OPTIONS_201_FREE_MODULE_COUNT = 3;
-/** Active desk members get Options 201 the same way they get Options 101. */
-export const OPTIONS_201_INCLUDED_WITH_DESK = true;
+export const OPTIONS_201_FREE_MODULE_COUNT = 2;
+/** Options 201 is a separate $39 purchase. The desk and the 7-day trial do not cover it. */
+export const OPTIONS_201_INCLUDED_WITH_DESK = false;
 /**
  * Options 101 is recommended before Options 201 and is not required.
  * Set this to "options-101" to lock paid 201 modules until that exam is passed.
@@ -29,7 +29,7 @@ export type CourseOffer = {
   shortName: string;
   priceCents: number;
   priceUsd: number;
-  /** Last free module index, inclusive. Options 101 is 1 (modules 1–2). Options 201 is 2 (modules 1–3). */
+  /** Last free module index, inclusive. Options 101 and Options 201 are both 1 (modules 1–2). */
   freeThroughIndex: number;
   includedWithDesk: boolean;
   /** Null means the earlier course is recommended, not required. */
@@ -93,8 +93,33 @@ export function courseEntitled(input: { membershipActive: boolean; purchased: bo
 }
 
 /**
+ * Desk membership only opens a course when that course is included with the desk.
+ * A purchase always opens it. Options 101 is included. Options 201 is not.
+ */
+export function resolveCourseAccess(input: {
+  includedWithDesk: boolean;
+  membershipActive: boolean;
+  purchased: boolean;
+  prerequisiteMet?: boolean;
+}): { entitled: boolean; accessVia: "purchase" | "desk" | null } {
+  const prerequisiteMet = input.prerequisiteMet !== false;
+  const desk = input.includedWithDesk && input.membershipActive;
+  const entitled =
+    prerequisiteMet && courseEntitled({ membershipActive: desk, purchased: input.purchased });
+  return {
+    entitled,
+    accessVia: entitled ? (input.purchased ? "purchase" : "desk") : null,
+  };
+}
+
+/** True when checkout should refuse because the desk already covers this course. */
+export function deskCoversCourse(includedWithDesk: boolean, membershipActive: boolean): boolean {
+  return includedWithDesk && membershipActive;
+}
+
+/**
  * Free preview is per course. `freeThroughIndex` is inclusive.
- * Options 101 opens indexes 0 and 1. Options 201 opens indexes 0, 1, and 2.
+ * Options 101 and Options 201 both open indexes 0 and 1.
  */
 export function canReadModule(index: number, entitled: boolean, freeThroughIndex = 1): boolean {
   return index <= freeThroughIndex || entitled;

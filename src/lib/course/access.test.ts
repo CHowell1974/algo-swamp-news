@@ -15,6 +15,8 @@ import {
   courseEntitled,
   courseFulfillmentDecision,
   courseOffer,
+  deskCoversCourse,
+  resolveCourseAccess,
   examPassed,
   OPTIONS_201_STRIPE_PRICE_ID,
   resolveCoursePriceId,
@@ -89,6 +91,47 @@ describe("options 101 content", () => {
 });
 
 describe("course access", () => {
+  it("keeps Options 201 modules 1–2 free and sells the rest for $39", () => {
+    const offer = courseOffer("options-201");
+    assert.equal(offer?.freeThroughIndex, 1);
+    assert.equal(offer?.includedWithDesk, false);
+    assert.equal(offer?.priceUsd, 39);
+    assert.equal(offer && resolveCoursePriceId(offer.id, null), "price_1UV9vCLAdDbAQPuJWWlzGRUu");
+    const deskOnly = resolveCourseAccess({
+      includedWithDesk: false,
+      membershipActive: true,
+      purchased: false,
+    });
+    assert.equal(deskOnly.entitled, false);
+    assert.equal(deskOnly.accessVia, null);
+    assert.equal(deskCoversCourse(false, true), false);
+    for (let index = 0; index < 8; index += 1) {
+      assert.equal(canReadModule(index, deskOnly.entitled, offer?.freeThroughIndex), index <= 1);
+    }
+    const buyer = resolveCourseAccess({
+      includedWithDesk: false,
+      membershipActive: true,
+      purchased: true,
+    });
+    assert.equal(buyer.entitled, true);
+    assert.equal(buyer.accessVia, "purchase");
+    assert.equal(canReadModule(2, true, offer?.freeThroughIndex), true);
+    assert.equal(canReadModule(7, true, offer?.freeThroughIndex), true);
+    const desk101 = resolveCourseAccess({
+      includedWithDesk: true,
+      membershipActive: true,
+      purchased: false,
+    });
+    assert.equal(desk101.entitled, true);
+    assert.equal(desk101.accessVia, "desk");
+    assert.equal(
+      deskCoversCourse(courseOffer("options-101")?.includedWithDesk === true, true),
+      true,
+    );
+    assert.equal(courseOffer("options-101")?.freeThroughIndex, 1);
+    assert.equal(courseOffer("options-101")?.includedWithDesk, true);
+  });
+
   it("keeps modules 1 and 2 open and locks the rest until the desk or a purchase", () => {
     assert.equal(canReadModule(0, false), true);
     assert.equal(canReadModule(1, false), true);
@@ -312,9 +355,9 @@ describe("course checkout", () => {
       "https://news.algoswamp.com/learn/options-201?session_id={CHECKOUT_SESSION_ID}",
     );
     assert.equal(livePrice.cancel_url, "https://news.algoswamp.com/learn/options-201");
-    assert.equal(courseOffer("options-201")?.freeThroughIndex, 2);
+    assert.equal(courseOffer("options-201")?.freeThroughIndex, 1);
     assert.equal(courseOffer("options-201")?.priceUsd, 39);
-    assert.equal(courseOffer("options-201")?.includedWithDesk, true);
+    assert.equal(courseOffer("options-201")?.includedWithDesk, false);
     assert.equal(courseOffer("options-201")?.prerequisiteCourseId, null);
     assert.equal(courseOffer("options-101")?.freeThroughIndex, 1);
     assert.equal(

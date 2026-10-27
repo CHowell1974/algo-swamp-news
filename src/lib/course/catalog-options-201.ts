@@ -9,7 +9,7 @@ import {
 export const COURSE_201_ID = "options-201";
 export const COURSE_201_PATH = "/learn/options-201";
 export const COURSE_201_URL = `${SITE_ORIGIN}${COURSE_201_PATH}`;
-/** Chris, 2026-10-27: Modules 1–3. */
+/** Chris, 2026-10-27: Modules 1 and 2. Module 3 is paid. */
 export const FREE_201_MODULE_COUNT = OPTIONS_201_FREE_MODULE_COUNT;
 export { OPTIONS_201_PRICE_USD, OPTIONS_201_INCLUDED_WITH_DESK };
 
@@ -33,7 +33,7 @@ export const MODULE_SEO_201: ModuleSeo[] = [
     h1: "Credit Spreads: Bull Put Spread and Bear Call Spread",
     title: "Bull Put & Bear Call Credit Spreads Explained — Options 201",
     description:
-      "Bull put and bear call credit spreads: max profit, max loss, break-even, and why max loss is often several times the credit. Free Options 201 lesson.",
+      "Bull put and bear call credit spreads: max profit, max loss, break-even, and why max loss is often several times the credit. Options 201, Module 3.",
   },
   {
     id: "m4-strikes-width-expiration",

@@ -67,7 +67,7 @@ function ClassesPage() {
           <article className="rounded-card border border-line bg-surface p-6">
             <h2 className="font-display text-3xl text-fg">Options 201: Vertical Spreads</h2>
             <p className="mt-3 text-sm text-pretty text-muted">
-              Intermediate · 8 modules · Modules 1–3 free · $39 once or included with the desk
+              Intermediate · 8 modules · Modules 1–2 free · $39 once
             </p>
             <p className="mt-2 text-sm text-fg">Recommended first: Options 101</p>
             <div className="mt-4 flex flex-col items-start">
