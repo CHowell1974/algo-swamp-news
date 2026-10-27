@@ -1,4 +1,4 @@
-import { SITE_ORIGIN } from "@/lib/seo";
+import { SITE_ORIGIN } from "@/lib/site";
 
 export type ModuleSeo = {
   id: string;

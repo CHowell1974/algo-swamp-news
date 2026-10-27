@@ -258,7 +258,8 @@ describe("news route head", () => {
     assert.equal(faq201?.mainEntity?.length, 8);
     assert.equal(COURSE_201_FAQ.length, 8);
     assert.match(COURSE_201_FAQ[0]?.answer ?? "", /\$39 once, or included with/);
-    assert.match(COURSE_201_FAQ[1]?.answer ?? "", /^Options 101 is the prerequisite\./);
+    assert.match(COURSE_201_FAQ[1]?.answer ?? "", /^No\. Options 101 is recommended/);
+    assert.doesNotMatch(JSON.stringify(COURSE_201_FAQ), /prerequisite|required/i);
     assert.equal(OPTIONS_201_PAGE.title.length, 52);
     assert.equal(
       OPTIONS_201_PAGE.description,

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -17,7 +17,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 describe("options 201 SEO catalog", () => {
   it("matches the course module ids and indexes modules 1–3", () => {
     const file = JSON.parse(readFileSync(join(root, "src/content/options-201.json"), "utf8")) as {
-      course: { modules: { id: string }[] };
+      course: { intro: string; modules: { id: string }[] };
     };
     assert.deepEqual(
       MODULE_SEO_201.map((module) => module.id),
@@ -27,6 +27,7 @@ describe("options 201 SEO catalog", () => {
     assert.equal(OPTIONS_201_INCLUDED_WITH_DESK, true);
     assert.equal(FREE_201_MODULE_COUNT, 3);
     assert.equal(courseOffer("options-201")?.prerequisiteCourseId, null);
+    assert.doesNotMatch(file.course.intro, /prerequisite|required/i);
     for (const module of MODULE_SEO_201) {
       assert.ok(module.h1.length > 0, `${module.id} is missing an H1`);
       assert.ok(module.title.length <= 60, `${module.id} title is ${module.title.length}`);
@@ -40,6 +41,20 @@ describe("options 201 SEO catalog", () => {
       const free = index < FREE_201_MODULE_COUNT;
       assert.equal(moduleRobots201(index), free ? undefined : "noindex,follow");
       assert.equal(canReadModule(index, false, freeThrough), free);
+    }
+  });
+
+  it("keeps prerequisite and required out of Options 201 user-facing copy", () => {
+    const banned = /prerequisite|required/i;
+    const copies = [
+      readFileSync(join(root, "src/content/options-201.json"), "utf8"),
+      readFileSync(join(root, "src/routes/learn/index.tsx"), "utf8"),
+      ...readdirSync(join(root, "src/routes/learn/options-201")).map((name) =>
+        readFileSync(join(root, "src/routes/learn/options-201", name), "utf8"),
+      ),
+    ];
+    for (const copy of copies) {
+      assert.doesNotMatch(copy, banned);
     }
   });
 });

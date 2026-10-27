@@ -354,7 +354,7 @@ export const COURSE_201_FAQ: { question: string; answer: string }[] = [
   {
     question: "Do I need to take Options 101 first?",
     answer:
-      "Options 101 is the prerequisite. Options 201 assumes you already know calls and puts, strike, expiration and premium, intrinsic and extrinsic value, the basic Greeks, how to read a thinkorswim option chain, and how to size a trade from max loss.",
+      "No. Options 101 is recommended, but you can start Options 201 without it. Options 201 assumes you already know calls and puts, strike, expiration and premium, intrinsic and extrinsic value, the basic Greeks, how to read a thinkorswim option chain, and how to size a trade from max loss. If any of that is new, start with Options 101. Modules 1 and 2 are free.",
   },
   {
     question: "What is a vertical spread?",

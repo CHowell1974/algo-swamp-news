@@ -344,7 +344,8 @@ describe("course checkout", () => {
     assert.equal(course201.modules.length, 8);
     assert.equal(course201.finalExam.passingScoreCount, 12);
     assert.equal(course201.finalExam.questions.length, 15);
-    assert.match(course201.intro, /Prerequisite/);
+    assert.match(course201.intro, /Recommended first/);
+    assert.doesNotMatch(course201.intro, /prerequisite|required/i);
     assert.match(course201.intro, /Options 101/);
     assert.equal(course201.closing.ctas[1]?.url, "");
     assert.equal(resolveCourseCta(course201.closing.ctas[1]).kind, "desk-trial");

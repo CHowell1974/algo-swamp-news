@@ -31,7 +31,9 @@ function ClassesPage() {
         <h1 className="font-display text-5xl text-balance text-fg md:text-7xl">
           Options Trading Classes
         </h1>
-        <p className="mt-3 font-display text-2xl text-signal italic md:text-3xl">Wait. Then Bite.</p>
+        <p className="mt-3 font-display text-2xl text-signal italic md:text-3xl">
+          Wait. Then Bite.
+        </p>
         <p className="mt-4 max-w-2xl text-sm text-pretty text-muted">
           Two self-paced options classes from ALGO Swamp. Start with Options 101 if you're new to
           options, then move on to Options 201: Vertical Spreads. Every class has short lessons,
@@ -67,7 +69,7 @@ function ClassesPage() {
             <p className="mt-3 text-sm text-pretty text-muted">
               Intermediate · 8 modules · Modules 1–3 free · $39 once or included with the desk
             </p>
-            <p className="mt-2 text-sm text-fg">Prerequisite: Options 101</p>
+            <p className="mt-2 text-sm text-fg">Recommended first: Options 101</p>
             <div className="mt-4 flex flex-col items-start">
               <Link
                 to="/learn/options-201"

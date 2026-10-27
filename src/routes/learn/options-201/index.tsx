@@ -40,17 +40,17 @@ function Options201Page() {
       faqTitle="Options 201 FAQ"
       faq={COURSE_201_FAQ}
       lead={
-        <section className="mt-8" aria-labelledby="options-201-prereq">
-          <h2 id="options-201-prereq" className="font-display text-3xl text-fg">
-            Before you start: Options 101
+        <section className="mt-8" aria-labelledby="options-201-recommended">
+          <h2 id="options-201-recommended" className="font-display text-3xl text-fg">
+            Recommended first: Options 101
           </h2>
           <p className="mt-3 max-w-2xl text-sm text-pretty text-fg">
             Options 201 assumes you know calls and puts, strike and expiration, the basic Greeks,
-            and how to size a trade from max loss.{" "}
+            and how to size a trade from max loss. If that's new, start with{" "}
             <Link to="/learn/options-101" className={`font-medium text-signal ${focusRing}`}>
-              Take Options 101: Options Trading for Beginners
-            </Link>{" "}
-            first, or{" "}
+              Options 101: Options Trading for Beginners
+            </Link>
+            , or{" "}
             <Link
               to="/learn/options-101/$moduleId"
               params={{ moduleId: "m2-calls-and-puts" }}
