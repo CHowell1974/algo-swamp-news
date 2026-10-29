@@ -34,7 +34,11 @@ describe("mother bar products", () => {
     assert.equal(MOTHER_BAR_BUNDLE.forSale, false);
     assert.equal(MOTHER_BAR_BUNDLE.priceUsd, 39);
     assert.equal(courseOffer(MOTHER_BAR_BUNDLE.id), null);
-    assert.equal(MOTHER_BAR_SWEEP_SCAN_IMAGE, null);
+    assert.equal(MOTHER_BAR_SWEEP_SCAN_IMAGE, "/mother-bar-sweep-scan-results.webp");
+    assert.equal(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY.placeholder, null);
+    assert.equal(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY.images[0]?.width, 1920);
+    assert.equal(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY.images[0]?.height, 988);
+    assert.match(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY.images[0]?.caption ?? "", /Not a list of picks/);
     assert.match(BUNDLE_LINE, /\$39/);
     assert.match(BUNDLE_LINE, /coming soon/);
 
@@ -44,6 +48,8 @@ describe("mother bar products", () => {
       "/mother-bar-levels-daily.webp",
       "/mother-bar-levels-15m.webp",
       "/og-mother-bar-levels.jpg",
+      "/mother-bar-sweep-scan-results.webp",
+      "/og-mother-bar-sweep-scan.jpg",
     ]) {
       assert.ok(names.includes(asset), asset);
     }

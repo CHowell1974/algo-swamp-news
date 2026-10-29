@@ -25,11 +25,8 @@ export const MOTHER_BAR_LEVELS_INTRADAY_IMAGE = "/mother-bar-levels-15m.webp";
 export const MOTHER_BAR_LEVELS_OG_PATH = "/og-mother-bar-levels.jpg";
 export const MOTHER_BAR_SWEEP_SCAN_OG_PATH = "/og-mother-bar-sweep-scan.jpg";
 
-/**
- * Public path for a scan screenshot. Null keeps the on-page placeholder.
- * Swap this for a path under public/ when a real scan image exists.
- */
-export const MOTHER_BAR_SWEEP_SCAN_IMAGE: string | null = null;
+/** Public path for the Stock Hacker results screenshot. */
+export const MOTHER_BAR_SWEEP_SCAN_IMAGE = "/mother-bar-sweep-scan-results.webp";
 
 export const STUDY_FAQ = [
   {
@@ -99,6 +96,7 @@ export type StudyImage = {
   alt: string;
   width: number;
   height: number;
+  caption?: string;
 };
 
 export type StudyPageCopy = {
@@ -187,8 +185,16 @@ export const MOTHER_BAR_SWEEP_SCAN_PAGE_COPY: StudyPageCopy = {
   install: SCAN_INSTALL,
   faqs: SCAN_FAQ,
   downloadLabel: "Download MotherBarSweepScan.ts",
-  images: [],
-  placeholder: "Scan example coming soon",
+  images: [
+    {
+      src: MOTHER_BAR_SWEEP_SCAN_IMAGE,
+      alt: "Mother Bar Sweep Scan results in thinkorswim Stock Hacker, S&P 500",
+      width: 1920,
+      height: 988,
+      caption: "Example of scan output. Not a list of picks or a recommendation.",
+    },
+  ],
+  placeholder: null,
   ogPath: MOTHER_BAR_SWEEP_SCAN_OG_PATH,
   relatedHref: "/tools/mother-bar-levels",
   relatedLabel: "Mother Bar Levels — the thinkorswim mother bar indicator",

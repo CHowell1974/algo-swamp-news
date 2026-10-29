@@ -111,6 +111,11 @@ export function StudyProductPage({
                 height={image.height}
                 className="w-full"
               />
+              {image.caption ? (
+                <figcaption className="px-4 py-3 text-sm text-pretty text-muted">
+                  {image.caption}
+                </figcaption>
+              ) : null}
             </figure>
           ))}
           {copy.placeholder ? (

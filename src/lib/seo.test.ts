@@ -421,12 +421,15 @@ describe("news route head", () => {
       pageUrl("/mother-bar-levels-daily.webp"),
       pageUrl("/mother-bar-levels-15m.webp"),
     ]);
-    assert.equal(
-      meta(motherBarSweepScanPage(), "og:image", "property").endsWith(
-        "/og-mother-bar-sweep-scan.jpg",
-      ),
-      true,
-    );
+    const scanOg = pageUrl("/og-mother-bar-sweep-scan.jpg");
+    assert.equal(meta(motherBarSweepScanPage(), "og:image", "property"), scanOg);
+    const scanProduct = JSON.parse(
+      routeHead(motherBarSweepScanPage()).scripts?.[0]?.children ?? "{}",
+    ) as { "@graph": Array<{ "@type": string; image?: string[] }> };
+    assert.deepEqual(scanProduct["@graph"].find((node) => node["@type"] === "Product")?.image, [
+      scanOg,
+      pageUrl("/mother-bar-sweep-scan-results.webp"),
+    ]);
     assert.doesNotMatch(
       JSON.stringify(routeHead(motherBarLevelsPage())),
       /spy_daily_mother_bar_levels\.png/,
