@@ -165,7 +165,10 @@ function ToolsPage() {
       </main>
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-6 text-xs text-muted md:px-8">
-          <p>Not financial advice. A chart study or scan, not a recommendation to trade.</p>
+          <p>
+            Not financial advice. A chart study or scan, not a recommendation to trade. Not
+            affiliated with or endorsed by Charles Schwab or thinkorswim.
+          </p>
           <Link to="/learn" className={`inline-flex min-h-11 items-center ${focusRing}`}>
             Classes
           </Link>

@@ -191,11 +191,33 @@ export function StudyProductPage({
         </section>
 
         <p className="mt-10 max-w-2xl text-sm text-pretty text-fg">{BUNDLE_LINE}</p>
-        <p className="mt-3 text-sm text-fg">
-          <Link to={copy.relatedHref} className={`font-medium text-signal ${focusRing}`}>
-            {copy.relatedLabel}
-          </Link>
-        </p>
+        <section className="mt-8 max-w-3xl" aria-labelledby="study-related">
+          <h2 id="study-related" className="font-display text-2xl text-fg">
+            Related
+          </h2>
+          <ul className="mt-3 space-y-2 text-sm text-fg">
+            <li>
+              <Link to={copy.relatedHref} className={`font-medium text-signal ${focusRing}`}>
+                {copy.relatedLabel}
+              </Link>
+            </li>
+            <li>
+              <Link to="/tools" className={`font-medium text-signal ${focusRing}`}>
+                Road Map — free thinkorswim study that paints inside and outside bars
+              </Link>
+            </li>
+            <li>
+              New to options?{" "}
+              <Link to="/learn/options-101" className={`font-medium text-signal ${focusRing}`}>
+                Options 101
+              </Link>{" "}
+              ·{" "}
+              <Link to="/learn/options-201" className={`font-medium text-signal ${focusRing}`}>
+                Options 201: Vertical Spreads
+              </Link>
+            </li>
+          </ul>
+        </section>
       </main>
     </CourseShell>
   );

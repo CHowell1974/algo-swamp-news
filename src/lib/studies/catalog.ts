@@ -126,10 +126,10 @@ export type StudyPageCopy = {
 export const MOTHER_BAR_LEVELS_PAGE_COPY: StudyPageCopy = {
   id: MOTHER_BAR_LEVELS_ID,
   pathname: "/tools/mother-bar-levels",
-  eyebrow: "thinkorswim study",
-  title: "Mother Bar Levels thinkorswim Study — $29 — ALGO Swamp",
+  eyebrow: "thinkorswim mother bar indicator",
+  title: "Mother Bar Levels: thinkorswim Mother Bar Indicator — $29",
   description:
-    "Mark the mother bar on any thinkorswim chart. Solid dark orange high and low, dashed open and close, and an alert when the close crosses. $29 once.",
+    "A thinkorswim mother bar indicator. Marks the bar before an inside bar with high, low, open, and close lines, and alerts when the close crosses. $29 once.",
   h1: "Mother Bar Levels",
   hook: "Mark the mother bar. Watch the break.",
   lede: "The study marks the most recent mother bar, a bar followed by an inside bar. The next bar's high is below this bar's high, and the next bar's low is above this bar's low.",
@@ -162,16 +162,16 @@ export const MOTHER_BAR_LEVELS_PAGE_COPY: StudyPageCopy = {
   placeholder: null,
   ogPath: MOTHER_BAR_LEVELS_OG_PATH,
   relatedHref: "/tools/mother-bar-sweep-scan",
-  relatedLabel: "Mother Bar Sweep Scan",
+  relatedLabel: "Mother Bar Sweep Scan — an inside bar scan for thinkorswim Stock Hacker",
 };
 
 export const MOTHER_BAR_SWEEP_SCAN_PAGE_COPY: StudyPageCopy = {
   id: MOTHER_BAR_SWEEP_SCAN_ID,
   pathname: "/tools/mother-bar-sweep-scan",
-  eyebrow: "thinkorswim scan",
-  title: "Mother Bar Sweep Scan for thinkorswim — $29 — ALGO Swamp",
+  eyebrow: "inside bar scan for thinkorswim",
+  title: "Mother Bar Sweep Scan: Inside Bar Scan for thinkorswim — $29",
   description:
-    "Stock Hacker scan for a mother-bar sweep. A bar trades through the mother low or high and closes back through it, within 10 bars. $29 once.",
+    "An inside bar scan for thinkorswim Stock Hacker. Finds a bar that sweeps the mother bar low or high and closes back through it within 10 bars. $29 once.",
   h1: "Mother Bar Sweep Scan",
   hook: "Find a sweep of the mother bar.",
   lede: "This is a Stock Hacker scan query. It does not draw lines. A symbol passes when a later bar trades through the mother bar and closes back through that same level.",
@@ -191,7 +191,7 @@ export const MOTHER_BAR_SWEEP_SCAN_PAGE_COPY: StudyPageCopy = {
   placeholder: "Scan example coming soon",
   ogPath: MOTHER_BAR_SWEEP_SCAN_OG_PATH,
   relatedHref: "/tools/mother-bar-levels",
-  relatedLabel: "Mother Bar Levels",
+  relatedLabel: "Mother Bar Levels — the thinkorswim mother bar indicator",
 };
 
 export function studyPageCopy(id: string): StudyPageCopy | null {

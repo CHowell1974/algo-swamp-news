@@ -769,6 +769,10 @@ export function moduleJsonLd(index: number, seo: ModuleSeo) {
 function studyProductPage(copy: StudyPageCopy): PageSeo {
   const url = pageUrl(copy.pathname);
   const price = studyPriceUsd(copy.id).toFixed(2);
+  const org = { "@id": `${SITE_ORIGIN}/#org` };
+  const images = [copy.ogPath, ...copy.images.map((image) => image.src)].map(
+    (src) => `${SITE_ORIGIN}${src}`,
+  );
   return {
     title: copy.title,
     description: copy.description,
@@ -778,19 +782,30 @@ function studyProductPage(copy: StudyPageCopy): PageSeo {
       "@context": "https://schema.org",
       "@graph": [
         {
+          "@type": "Organization",
+          "@id": `${SITE_ORIGIN}/#org`,
+          name: "ALGO Swamp",
+          url: `${SITE_ORIGIN}/`,
+          logo: `${SITE_ORIGIN}/favicon.svg`,
+        },
+        {
           "@type": "Product",
           "@id": `${url}#product`,
           name: copy.h1,
           description: copy.description,
-          image: `${SITE_ORIGIN}${copy.ogPath}`,
+          category: copy.pathname.endsWith("-scan") ? "thinkorswim scan" : "thinkorswim study",
+          image: images,
           brand: { "@type": "Brand", name: "ALGO Swamp" },
+          manufacturer: org,
           url,
           offers: {
             "@type": "Offer",
             price,
             priceCurrency: "USD",
             availability: "https://schema.org/InStock",
+            itemCondition: "https://schema.org/NewCondition",
             url,
+            seller: org,
           },
         },
         {
@@ -825,9 +840,9 @@ export function motherBarSweepScanPage(): PageSeo {
 }
 
 export const TOOLS_PAGE: PageSeo = {
-  title: "Road Map thinkorswim Study — Tools — ALGO Swamp News",
+  title: "Road Map & Mother Bar thinkorswim Studies — ALGO Swamp",
   description:
-    "Road Map paints inside bars yellow and outside bars orange in thinkorswim. Free by email, or Pro $39 once — colors, alerts, scan. Not trading advice.",
+    "thinkorswim studies and scans: Road Map paints inside and outside bars (free or Pro $39), plus the Mother Bar Levels study and sweep scan, $29 each.",
   pathname: "/tools",
   jsonLd: {
     "@context": "https://schema.org",
