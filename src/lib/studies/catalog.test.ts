@@ -40,6 +40,18 @@ describe("mother bar products", () => {
 
     const publicFiles = walk(join(root, "public"));
     const names = publicFiles.map((path) => path.slice(join(root, "public").length));
+    for (const asset of [
+      "/mother-bar-levels-daily.webp",
+      "/mother-bar-levels-15m.webp",
+      "/og-mother-bar-levels.jpg",
+    ]) {
+      assert.ok(names.includes(asset), asset);
+    }
+    assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.images[0]?.width, 1920);
+    assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.images[0]?.height, 988);
+    assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.images[1]?.width, 1920);
+    assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.images[1]?.height, 988);
+    assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.ogPath, "/og-mother-bar-levels.jpg");
     assert.equal(
       names.some((name) => name.endsWith("spy_daily_mother_bar_levels.png")),
       false,

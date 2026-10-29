@@ -149,14 +149,14 @@ export const MOTHER_BAR_LEVELS_PAGE_COPY: StudyPageCopy = {
     {
       src: MOTHER_BAR_LEVELS_DAILY_IMAGE,
       alt: "SPY daily chart with Mother Bar Levels. Dark orange lines mark the mother bar high, low, open, and close. A later bar trades below the mother low.",
-      width: 1600,
-      height: 900,
+      width: 1920,
+      height: 988,
     },
     {
       src: MOTHER_BAR_LEVELS_INTRADAY_IMAGE,
       alt: "SPY 15-minute chart on October 29, 2026, with Mother Bar Levels drawing dark orange high, low, open, and close lines out to the right.",
-      width: 1600,
-      height: 900,
+      width: 1920,
+      height: 988,
     },
   ],
   placeholder: null,

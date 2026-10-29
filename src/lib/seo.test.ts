@@ -369,6 +369,7 @@ describe("news route head", () => {
         "@graph": Array<{
           "@type": string;
           name?: string;
+          image?: string;
           offers?: { price?: string; priceCurrency?: string };
         }>;
       };
@@ -377,9 +378,14 @@ describe("news route head", () => {
       assert.equal(product?.offers?.priceCurrency, "USD");
       assert.ok(graph["@graph"].some((node) => node["@type"] === "FAQPage"));
     }
+    const levelsOg = pageUrl("/og-mother-bar-levels.jpg");
+    assert.equal(meta(motherBarLevelsPage(), "og:image", "property"), levelsOg);
+    const levelsProduct = JSON.parse(
+      routeHead(motherBarLevelsPage()).scripts?.[0]?.children ?? "{}",
+    ) as { "@graph": Array<{ "@type": string; image?: string }> };
     assert.equal(
-      meta(motherBarLevelsPage(), "og:image", "property").endsWith("/og-mother-bar-levels.jpg"),
-      true,
+      levelsProduct["@graph"].find((node) => node["@type"] === "Product")?.image,
+      levelsOg,
     );
     assert.equal(
       meta(motherBarSweepScanPage(), "og:image", "property").endsWith(
