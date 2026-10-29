@@ -117,6 +117,7 @@ export type StudyPageCopy = {
   images: readonly StudyImage[];
   placeholder: string | null;
   ogPath: string;
+  ogImageAlt: string;
   relatedHref: "/tools/mother-bar-levels" | "/tools/mother-bar-sweep-scan";
   relatedLabel: string;
 };
@@ -152,13 +153,14 @@ export const MOTHER_BAR_LEVELS_PAGE_COPY: StudyPageCopy = {
     },
     {
       src: MOTHER_BAR_LEVELS_INTRADAY_IMAGE,
-      alt: "SPY 15-minute chart on October 29, 2026, with Mother Bar Levels drawing dark orange high, low, open, and close lines out to the right.",
+      alt: "SPY 15-minute chart with Mother Bar Levels drawing dark orange high, low, open, and close lines out to the right.",
       width: 1920,
       height: 988,
     },
   ],
   placeholder: null,
   ogPath: MOTHER_BAR_LEVELS_OG_PATH,
+  ogImageAlt: "Mother Bar Levels thinkorswim study by ALGO Swamp",
   relatedHref: "/tools/mother-bar-sweep-scan",
   relatedLabel: "Mother Bar Sweep Scan — an inside bar scan for thinkorswim Stock Hacker",
 };
@@ -196,6 +198,7 @@ export const MOTHER_BAR_SWEEP_SCAN_PAGE_COPY: StudyPageCopy = {
   ],
   placeholder: null,
   ogPath: MOTHER_BAR_SWEEP_SCAN_OG_PATH,
+  ogImageAlt: "Mother Bar Sweep Scan for thinkorswim by ALGO Swamp",
   relatedHref: "/tools/mother-bar-levels",
   relatedLabel: "Mother Bar Levels — the thinkorswim mother bar indicator",
 };

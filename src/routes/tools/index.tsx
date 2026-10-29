@@ -33,8 +33,11 @@ function ToolsPage() {
       <main>
         <section className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-14">
           <p className="text-xs font-medium tracking-widest text-muted uppercase">Tools</p>
-          <h1 className="mt-3 max-w-3xl font-display text-5xl text-balance text-fg">Road Map</h1>
-          <p className="mt-4 max-w-xl text-base text-pretty text-muted">
+          <h1 className="mt-3 max-w-3xl font-display text-5xl text-balance text-fg">
+            thinkorswim Studies & Scans
+          </h1>
+          <h2 className="mt-8 font-display text-3xl text-fg">Road Map</h2>
+          <p className="mt-3 max-w-xl text-base text-pretty text-muted">
             A thinkorswim study. Inside bars and outside bars get their own colors.
           </p>
           <img

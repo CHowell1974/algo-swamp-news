@@ -114,6 +114,36 @@ test("platform chrome overwrites share-card metas and always sets og:title", () 
   assert.doesNotMatch(out, /property="og:image"/);
 });
 
+test("a React apostrophe in a share description is encoded once", () => {
+  const ctx = {
+    host: "news.algoswamp.com",
+    cwd: blankWorkspace(),
+    site: { title: "ALGO Swamp News", card: "custom" },
+  };
+  const html =
+    "<html><head><title>Scan</title>" +
+    '<meta name="description" content="the mother bar&#x27;s low">' +
+    '<meta property="og:description" content="the mother bar&#x27;s low">' +
+    '<meta name="twitter:description" content="the mother bar&#x27;s low">' +
+    "</head></html>";
+  const out = injectGrokPwaHead(html, ctx);
+  assert.match(out, /property="og:description" content="the mother bar&#39;s low"/);
+  assert.match(out, /name="twitter:description" content="the mother bar&#39;s low"/);
+  assert.doesNotMatch(out, /property="og:description" content="[^"]*&amp;#x27;/);
+  assert.doesNotMatch(out, /name="twitter:description" content="[^"]*&amp;#x27;/);
+  assert.equal(out.split('property="og:description"').length - 1, 1);
+  const twice = injectGrokPwaHead(out, ctx);
+  assert.equal(twice, out);
+
+  const doubled =
+    "<html><head><title>Scan</title>" +
+    '<meta name="description" content="the mother bar&amp;#x27;s low">' +
+    "</head></html>";
+  const fixed = injectGrokPwaHead(doubled, ctx);
+  assert.match(fixed, /property="og:description" content="the mother bar&#39;s low"/);
+  assert.doesNotMatch(fixed, /property="og:description" content="[^"]*&amp;/);
+});
+
 test("page description fills og and twitter text without replacing the host og:image", () => {
   const empty = mkdtempSync(join(tmpdir(), "grok-og-desc-"));
   const html =
