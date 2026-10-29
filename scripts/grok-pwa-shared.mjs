@@ -37,9 +37,19 @@ export function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-/** Inverse of escapeHtml. Decode &amp; last so a single pass undoes one encode. */
+/**
+ * Inverse of one HTML encode. Decode the double-encoded apostrophe forms
+ * before the single forms, and decode &amp; last so "&amp;lt;" stays "&lt;".
+ * React writes apostrophes as &#x27;; leaving that in place makes escapeHtml
+ * turn the leading ampersand into &amp;#x27;.
+ */
 function unescapeHtml(value) {
   return String(value)
+    .replaceAll("&amp;#x27;", "'")
+    .replaceAll("&amp;#X27;", "'")
+    .replaceAll("&amp;#39;", "'")
+    .replaceAll("&#x27;", "'")
+    .replaceAll("&#X27;", "'")
     .replaceAll("&lt;", "<")
     .replaceAll("&gt;", ">")
     .replaceAll("&quot;", '"')

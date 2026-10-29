@@ -434,5 +434,27 @@ describe("news route head", () => {
       JSON.stringify(routeHead(motherBarLevelsPage())),
       /spy_daily_mother_bar_levels\.png/,
     );
+    assert.equal(
+      meta(motherBarLevelsPage(), "og:image:alt", "property"),
+      "Mother Bar Levels thinkorswim study by ALGO Swamp",
+    );
+    assert.equal(
+      meta(motherBarLevelsPage(), "twitter:image:alt"),
+      "Mother Bar Levels thinkorswim study by ALGO Swamp",
+    );
+    assert.equal(
+      meta(motherBarSweepScanPage(), "og:image:alt", "property"),
+      "Mother Bar Sweep Scan for thinkorswim by ALGO Swamp",
+    );
+    assert.equal(
+      meta(motherBarSweepScanPage(), "twitter:image:alt"),
+      "Mother Bar Sweep Scan for thinkorswim by ALGO Swamp",
+    );
+    const toolsSource = readFileSync(join(root, "src/routes/tools/index.tsx"), "utf8");
+    assert.match(toolsSource, /<h1[^>]*>\s*thinkorswim Studies & Scans\s*<\/h1>/);
+    assert.match(toolsSource, /<h2[^>]*>\s*Road Map\s*<\/h2>/);
+    assert.doesNotMatch(toolsSource, /<h1[^>]*>\s*Road Map\s*<\/h1>/);
+    assert.match(TOOLS_PAGE.title, /Road Map/);
+    assert.match(TOOLS_PAGE.description, /Mother Bar Levels/);
   });
 });

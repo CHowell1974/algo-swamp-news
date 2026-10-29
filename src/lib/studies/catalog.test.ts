@@ -57,6 +57,10 @@ describe("mother bar products", () => {
     assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.images[0]?.height, 988);
     assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.images[1]?.width, 1920);
     assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.images[1]?.height, 988);
+    assert.doesNotMatch(
+      MOTHER_BAR_LEVELS_PAGE_COPY.images.map((image) => image.alt).join("\n"),
+      /October 29, 2026/,
+    );
     assert.equal(MOTHER_BAR_LEVELS_PAGE_COPY.ogPath, "/og-mother-bar-levels.jpg");
     assert.equal(
       names.some((name) => name.endsWith("spy_daily_mother_bar_levels.png")),

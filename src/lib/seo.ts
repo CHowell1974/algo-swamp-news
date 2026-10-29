@@ -34,6 +34,8 @@ export type PageSeo = {
   jsonLd?: unknown;
   ogType?: string;
   ogImage?: string;
+  /** Alt text for og:image and twitter:image. */
+  ogImageAlt?: string;
 };
 
 export function pageUrl(pathname: string): string {
@@ -63,6 +65,10 @@ export function routeHead(page: PageSeo): {
     { name: "twitter:description", content: page.description },
     { name: "twitter:image", content: image },
   ];
+  if (page.ogImageAlt) {
+    meta.push({ property: "og:image:alt", content: page.ogImageAlt });
+    meta.push({ name: "twitter:image:alt", content: page.ogImageAlt });
+  }
   if (page.robots) meta.push({ name: "robots", content: page.robots });
   return {
     meta,
@@ -778,6 +784,7 @@ function studyProductPage(copy: StudyPageCopy): PageSeo {
     description: copy.description,
     pathname: copy.pathname,
     ogImage: `${SITE_ORIGIN}${copy.ogPath}`,
+    ogImageAlt: copy.ogImageAlt,
     jsonLd: {
       "@context": "https://schema.org",
       "@graph": [
