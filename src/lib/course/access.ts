@@ -8,6 +8,14 @@ export const OPTIONS_201_PRICE_CENTS = 3900;
 export const OPTIONS_201_PRICE_USD = OPTIONS_201_PRICE_CENTS / 100;
 /** Live one-time price for Options 201. STRIPE_PRICE_OPTIONS_201 overrides it. */
 export const OPTIONS_201_STRIPE_PRICE_ID = "price_1UV9vCLAdDbAQPuJWWlzGRUu";
+/** Live one-time price for Mother Bar Levels. STRIPE_PRICE_MOTHER_BAR_LEVELS overrides it. */
+export const MOTHER_BAR_LEVELS_STRIPE_PRICE_ID = "price_1UVrUkLAdDbAQPuJwSy32dJb";
+/** Live one-time price for Mother Bar Sweep Scan. STRIPE_PRICE_MOTHER_BAR_SWEEP_SCAN overrides it. */
+export const MOTHER_BAR_SWEEP_SCAN_STRIPE_PRICE_ID = "price_1UVrXsLAdDbAQPuJZiWi1Wsz";
+export const MOTHER_BAR_LEVELS_ID = "mother-bar-levels";
+export const MOTHER_BAR_SWEEP_SCAN_ID = "mother-bar-sweep-scan";
+export const MOTHER_BAR_LEVELS_PRICE_CENTS = 2900;
+export const MOTHER_BAR_SWEEP_SCAN_PRICE_CENTS = 2900;
 /**
  * Chris, 2026-10-27. Modules 1 and 2 are the free Options 201 preview.
  * Change this together with the landing copy, robots, sitemap, and JSON-LD.
@@ -29,15 +37,30 @@ export type CourseOffer = {
   shortName: string;
   priceCents: number;
   priceUsd: number;
-  /** Last free module index, inclusive. Options 101 and Options 201 are both 1 (modules 1–2). */
+  /**
+   * Last free module index, inclusive. Options 101 and Options 201 are both 1 (modules 1–2).
+   * Downloads have no free preview, so this is -1.
+   */
   freeThroughIndex: number;
   includedWithDesk: boolean;
   /** Null means the earlier course is recommended, not required. */
   prerequisiteCourseId: string | null;
-  homePath: "/learn/options-101" | "/learn/options-201";
+  homePath:
+    | "/learn/options-101"
+    | "/learn/options-201"
+    | "/tools/mother-bar-levels"
+    | "/tools/mother-bar-sweep-scan";
   productName: string;
   productDescription: string;
-  integrationPrefix: "algo_swamp_course_" | "algo_swamp_c201_";
+  integrationPrefix:
+    "algo_swamp_course_" | "algo_swamp_c201_" | "algo_swamp_mbl_" | "algo_swamp_mbscan_";
+  /** Courses have lessons. Downloads are a gated thinkorswim file. */
+  kind: "course" | "download";
+  /** Env var that overrides the Dashboard price. Empty falls through to defaultStripePriceId. */
+  stripePriceEnv: string;
+  /** Null uses inline price_data at priceCents. */
+  defaultStripePriceId: string | null;
+  downloadFilename: string | null;
 };
 
 const COURSE_OFFERS: Record<string, CourseOffer> = {
@@ -53,6 +76,10 @@ const COURSE_OFFERS: Record<string, CourseOffer> = {
     productName: "Options 101",
     productDescription: "ALGO Swamp beginner options course. One-time purchase.",
     integrationPrefix: "algo_swamp_course_",
+    kind: "course",
+    stripePriceEnv: "STRIPE_PRICE_OPTIONS_101",
+    defaultStripePriceId: null,
+    downloadFilename: null,
   },
   [OPTIONS_201_ID]: {
     id: OPTIONS_201_ID,
@@ -66,6 +93,51 @@ const COURSE_OFFERS: Record<string, CourseOffer> = {
     productName: "Options 201: Vertical Spreads",
     productDescription: "ALGO Swamp vertical spreads course. One-time purchase.",
     integrationPrefix: "algo_swamp_c201_",
+    kind: "course",
+    stripePriceEnv: "STRIPE_PRICE_OPTIONS_201",
+    defaultStripePriceId: OPTIONS_201_STRIPE_PRICE_ID,
+    downloadFilename: null,
+  },
+  /**
+   * Same Checkout, webhook, and course_purchases row as Options 201.
+   * Desk membership does not include these. The $39 study + scan bundle
+   * is not an offer yet — see MOTHER_BAR_BUNDLE in studies/catalog.ts.
+   */
+  [MOTHER_BAR_LEVELS_ID]: {
+    id: MOTHER_BAR_LEVELS_ID,
+    shortName: "Mother Bar Levels",
+    priceCents: MOTHER_BAR_LEVELS_PRICE_CENTS,
+    priceUsd: MOTHER_BAR_LEVELS_PRICE_CENTS / 100,
+    freeThroughIndex: -1,
+    includedWithDesk: false,
+    prerequisiteCourseId: null,
+    homePath: "/tools/mother-bar-levels",
+    productName: "Mother Bar Levels",
+    productDescription:
+      "ALGO Swamp thinkorswim study. Marks the latest mother bar. One-time purchase. Educational tool, not financial advice.",
+    integrationPrefix: "algo_swamp_mbl_",
+    kind: "download",
+    stripePriceEnv: "STRIPE_PRICE_MOTHER_BAR_LEVELS",
+    defaultStripePriceId: MOTHER_BAR_LEVELS_STRIPE_PRICE_ID,
+    downloadFilename: "MotherBarLevels.ts",
+  },
+  [MOTHER_BAR_SWEEP_SCAN_ID]: {
+    id: MOTHER_BAR_SWEEP_SCAN_ID,
+    shortName: "Mother Bar Sweep Scan",
+    priceCents: MOTHER_BAR_SWEEP_SCAN_PRICE_CENTS,
+    priceUsd: MOTHER_BAR_SWEEP_SCAN_PRICE_CENTS / 100,
+    freeThroughIndex: -1,
+    includedWithDesk: false,
+    prerequisiteCourseId: null,
+    homePath: "/tools/mother-bar-sweep-scan",
+    productName: "Mother Bar Sweep Scan",
+    productDescription:
+      "ALGO Swamp thinkorswim Stock Hacker scan. Finds a sweep of the mother bar. One-time purchase. Educational tool, not financial advice.",
+    integrationPrefix: "algo_swamp_mbscan_",
+    kind: "download",
+    stripePriceEnv: "STRIPE_PRICE_MOTHER_BAR_SWEEP_SCAN",
+    defaultStripePriceId: MOTHER_BAR_SWEEP_SCAN_STRIPE_PRICE_ID,
+    downloadFilename: "MotherBarSweepScan.ts",
   },
 };
 
@@ -75,8 +147,8 @@ export function courseOffer(id: string | null | undefined): CourseOffer | null {
 }
 
 /**
- * Options 201 uses the live Dashboard price unless STRIPE_PRICE_OPTIONS_201 is set.
- * Options 101 stays on its env price, and an empty result falls back to inline price_data.
+ * A non-empty env price wins. Otherwise the offer's Dashboard price is used.
+ * Options 101 has no default price id, so an empty result falls back to inline price_data.
  */
 export function resolveCoursePriceId(
   courseId: string,
@@ -84,8 +156,11 @@ export function resolveCoursePriceId(
 ): string | null {
   const override = envPrice?.trim() || "";
   if (override) return override;
-  if (courseId === OPTIONS_201_ID) return OPTIONS_201_STRIPE_PRICE_ID;
-  return null;
+  return courseOffer(courseId)?.defaultStripePriceId ?? null;
+}
+
+export function isDownloadOffer(id: string | null | undefined): boolean {
+  return courseOffer(id)?.kind === "download";
 }
 
 export function courseEntitled(input: { membershipActive: boolean; purchased: boolean }): boolean {

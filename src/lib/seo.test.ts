@@ -25,6 +25,8 @@ import {
   COURSE_FAQ,
   joinPage,
   moduleJsonLd,
+  motherBarLevelsPage,
+  motherBarSweepScanPage,
   options201ModuleJsonLd,
   pageUrl,
   routeHead,
@@ -71,6 +73,8 @@ describe("news route head", () => {
       ACCOUNT_PAGE,
       joinPage("monthly"),
       joinPage("annual"),
+      motherBarLevelsPage(),
+      motherBarSweepScanPage(),
     ];
     const titles = new Set(pages.map((page) => page.title));
     assert.equal(titles.size, pages.length);
@@ -102,7 +106,15 @@ describe("news route head", () => {
       new RegExp(
         `<loc>https://news\\.algoswamp\\.com${path.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}</loc>`,
       );
-    for (const path of ["/", "/desk", "/tools"]) assert.match(sitemap, loc(path));
+    for (const path of [
+      "/",
+      "/desk",
+      "/tools",
+      "/tools/mother-bar-levels",
+      "/tools/mother-bar-sweep-scan",
+    ]) {
+      assert.match(sitemap, loc(path));
+    }
     for (const path of [
       "/learn",
       "/learn/options-101",
@@ -348,5 +360,79 @@ describe("news route head", () => {
     assert.equal(rendered.includes('"price":"0.00"'), false);
     assert.equal(LOGIN_PAGE.description.includes("your classes"), true);
     assert.equal(ACCOUNT_PAGE.description.includes("class progress"), true);
+
+    for (const page of [motherBarLevelsPage(), motherBarSweepScanPage()]) {
+      assert.ok(page.title.length <= 60, page.title);
+      assert.ok(page.description.length <= 155, `${page.description.length} ${page.description}`);
+      // grok-pwa-shared.mjs re-encodes React's &#x27; in og/twitter descriptions.
+      assert.doesNotMatch(page.description, /'/);
+      const script = routeHead(page).scripts?.[0];
+      const graph = JSON.parse(script?.children ?? "{}") as {
+        "@graph": Array<{
+          "@type": string;
+          name?: string;
+          image?: string[];
+          url?: string;
+          brand?: { name?: string };
+          aggregateRating?: unknown;
+          review?: unknown;
+          itemListElement?: Array<{ position: number; item: string }>;
+          offers?: {
+            price?: string;
+            priceCurrency?: string;
+            availability?: string;
+            url?: string;
+            seller?: { "@id"?: string };
+          };
+        }>;
+      };
+      const product = graph["@graph"].find((node) => node["@type"] === "Product");
+      const url = pageUrl(page.pathname);
+      assert.equal(product?.offers?.price, "29.00");
+      assert.equal(product?.offers?.priceCurrency, "USD");
+      assert.equal(product?.offers?.availability, "https://schema.org/InStock");
+      assert.equal(product?.offers?.url, url);
+      assert.equal(product?.url, url);
+      assert.equal(product?.brand?.name, "ALGO Swamp");
+      assert.equal(product?.offers?.seller?.["@id"], pageUrl("/#org"));
+      assert.ok(graph["@graph"].some((node) => node["@type"] === "Organization"));
+      assert.equal(product?.aggregateRating, undefined);
+      assert.equal(product?.review, undefined);
+      assert.ok((product?.image ?? []).every((src) => src.startsWith("https://")));
+      const crumbs = graph["@graph"].find((node) => node["@type"] === "BreadcrumbList");
+      assert.deepEqual(
+        crumbs?.itemListElement?.map((crumb) => crumb.item),
+        [pageUrl("/"), pageUrl("/tools"), url],
+      );
+      assert.ok(graph["@graph"].some((node) => node["@type"] === "FAQPage"));
+    }
+    assert.match(motherBarLevelsPage().title, /thinkorswim Mother Bar Indicator/);
+    assert.match(motherBarSweepScanPage().title, /Inside Bar Scan for thinkorswim/);
+    assert.ok(TOOLS_PAGE.title.length <= 60, TOOLS_PAGE.title);
+    assert.ok(TOOLS_PAGE.description.length <= 155, TOOLS_PAGE.description);
+    assert.match(TOOLS_PAGE.description, /Mother Bar/);
+    const levelsOg = pageUrl("/og-mother-bar-levels.jpg");
+    assert.equal(meta(motherBarLevelsPage(), "og:image", "property"), levelsOg);
+    const levelsProduct = JSON.parse(
+      routeHead(motherBarLevelsPage()).scripts?.[0]?.children ?? "{}",
+    ) as { "@graph": Array<{ "@type": string; image?: string[] }> };
+    assert.deepEqual(levelsProduct["@graph"].find((node) => node["@type"] === "Product")?.image, [
+      levelsOg,
+      pageUrl("/mother-bar-levels-daily.webp"),
+      pageUrl("/mother-bar-levels-15m.webp"),
+    ]);
+    const scanOg = pageUrl("/og-mother-bar-sweep-scan.jpg");
+    assert.equal(meta(motherBarSweepScanPage(), "og:image", "property"), scanOg);
+    const scanProduct = JSON.parse(
+      routeHead(motherBarSweepScanPage()).scripts?.[0]?.children ?? "{}",
+    ) as { "@graph": Array<{ "@type": string; image?: string[] }> };
+    assert.deepEqual(scanProduct["@graph"].find((node) => node["@type"] === "Product")?.image, [
+      scanOg,
+      pageUrl("/mother-bar-sweep-scan-results.webp"),
+    ]);
+    assert.doesNotMatch(
+      JSON.stringify(routeHead(motherBarLevelsPage())),
+      /spy_daily_mother_bar_levels\.png/,
+    );
   });
 });

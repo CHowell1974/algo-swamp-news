@@ -315,10 +315,8 @@ function purchaseFromSession(session: Stripe.Checkout.Session, userId: string) {
 }
 
 function coursePriceId(courseId: string): string | null {
-  const raw =
-    courseId === "options-201"
-      ? process.env.STRIPE_PRICE_OPTIONS_201
-      : process.env.STRIPE_PRICE_OPTIONS_101;
+  const envName = courseOffer(courseId)?.stripePriceEnv;
+  const raw = envName ? process.env[envName] : undefined;
   return resolveCoursePriceId(courseId, raw);
 }
 

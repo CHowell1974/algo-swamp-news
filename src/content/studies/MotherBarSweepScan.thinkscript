@@ -1,0 +1,14 @@
+# Mother bar sweep scan
+input bullish = yes;      # yes = sweep of mother low, no = sweep of mother high
+input lookback = 10;      # max bars since the inside bar
+
+def inside = high < high[1] and low > low[1];
+def motherLow  = if inside then low[1]  else motherLow[1];
+def motherHigh = if inside then high[1] else motherHigh[1];
+def barsSince  = if inside then 0 else barsSince[1] + 1;
+
+def bullSweep = low < motherLow and close > motherLow;
+def bearSweep = high > motherHigh and close < motherHigh;
+
+plot scan = barsSince >= 1 and barsSince <= lookback and
+            (if bullish then bullSweep else bearSweep);

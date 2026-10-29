@@ -24,9 +24,16 @@ function courseError(cause: unknown, fallback: string): Error {
   return new Error(fallback);
 }
 
-function courseIdOf(input: { courseId?: string } | undefined): string {
+function offerIdOf(input: { courseId?: string } | undefined): string {
   const courseId = input?.courseId?.trim() || COURSE_ID;
   if (!courseOffer(courseId)) throw new Error("That course is not available.");
+  return courseId;
+}
+
+/** Lesson, exam, and certificate calls stay on courses. Downloads use the same checkout. */
+function courseIdOf(input: { courseId?: string } | undefined): string {
+  const courseId = offerIdOf(input);
+  if (courseOffer(courseId)?.kind !== "course") throw new Error("That course is not available.");
   return courseId;
 }
 
@@ -118,7 +125,7 @@ export const submitFinalExam = createServerFn({ method: "POST" })
 export const beginCourseCheckout = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((input: { courseId?: string } | undefined) => ({
-    courseId: courseIdOf(input),
+    courseId: offerIdOf(input),
   }))
   .handler(async ({ context, data }) => {
     try {

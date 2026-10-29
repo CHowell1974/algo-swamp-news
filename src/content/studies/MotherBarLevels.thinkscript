@@ -1,0 +1,34 @@
+# Mother Bar Levels - dark orange H/L/O/C lines + cross alerts
+def bn = BarNumber();
+def isMother = !IsNaN(high[-1]) and high[-1] < high and low[-1] > low;
+
+def lastMother = HighestAll(if isMother then bn else 0);
+def mbH = HighestAll(if bn == lastMother then high  else 0);
+def mbL = HighestAll(if bn == lastMother then low   else 0);
+def mbO = HighestAll(if bn == lastMother then open  else 0);
+def mbC = HighestAll(if bn == lastMother then close else 0);
+
+def show = lastMother > 0 and (bn >= lastMother or IsNaN(close));
+
+plot MotherHigh  = if show then mbH else Double.NaN;
+plot MotherLow   = if show then mbL else Double.NaN;
+plot MotherOpen  = if show then mbO else Double.NaN;
+plot MotherClose = if show then mbC else Double.NaN;
+
+MotherHigh.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+MotherLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+MotherOpen.SetPaintingStrategy(PaintingStrategy.DASHES);
+MotherClose.SetPaintingStrategy(PaintingStrategy.DASHES);
+MotherHigh.SetDefaultColor(Color.DARK_ORANGE);
+MotherLow.SetDefaultColor(Color.DARK_ORANGE);
+MotherOpen.SetDefaultColor(Color.DARK_ORANGE);
+MotherClose.SetDefaultColor(Color.DARK_ORANGE);
+MotherHigh.SetLineWeight(2);
+MotherLow.SetLineWeight(2);
+
+# Alerts: price crossing the mother bar high or low
+def ok = lastMother > 0 and bn > lastMother;
+Alert(ok and close crosses above mbH, "Crossed ABOVE mother bar high", Alert.BAR, Sound.Ding);
+Alert(ok and close crosses below mbH, "Crossed BELOW mother bar high", Alert.BAR, Sound.Ding);
+Alert(ok and close crosses below mbL, "Crossed BELOW mother bar low", Alert.BAR, Sound.Bell);
+Alert(ok and close crosses above mbL, "Crossed back ABOVE mother bar low", Alert.BAR, Sound.Bell);

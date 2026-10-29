@@ -20,9 +20,13 @@ import { Route as LearnIndexRouteImport } from './routes/learn/index'
 import { Route as LearnModuleIdRouteImport } from './routes/learn/$moduleId'
 import { Route as LearnCertificateRouteImport } from './routes/learn/certificate'
 import { Route as LearnExamRouteImport } from './routes/learn/exam'
+import { Route as ToolsIndexRouteImport } from './routes/tools/index'
+import { Route as ToolsMotherBarLevelsRouteImport } from './routes/tools/mother-bar-levels'
+import { Route as ToolsMotherBarSweepScanRouteImport } from './routes/tools/mother-bar-sweep-scan'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCronPremarketWireRouteImport } from './routes/api/cron/premarket-wire'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
+import { Route as ApiStudiesProductIdRouteImport } from './routes/api/studies/$productId'
 import { Route as ApiWirePreviewRouteImport } from './routes/api/wire/preview'
 import { Route as LearnOptions101IndexRouteImport } from './routes/learn/options-101/index'
 import { Route as LearnOptions101ModuleIdRouteImport } from './routes/learn/options-101/$moduleId'
@@ -88,6 +92,21 @@ const LearnExamRoute = LearnExamRouteImport.update({
   path: '/learn/exam',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsIndexRoute = ToolsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ToolsRoute,
+} as any)
+const ToolsMotherBarLevelsRoute = ToolsMotherBarLevelsRouteImport.update({
+  id: '/mother-bar-levels',
+  path: '/mother-bar-levels',
+  getParentRoute: () => ToolsRoute,
+} as any)
+const ToolsMotherBarSweepScanRoute = ToolsMotherBarSweepScanRouteImport.update({
+  id: '/mother-bar-sweep-scan',
+  path: '/mother-bar-sweep-scan',
+  getParentRoute: () => ToolsRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -101,6 +120,11 @@ const ApiCronPremarketWireRoute = ApiCronPremarketWireRouteImport.update({
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   id: '/api/stripe/webhook',
   path: '/api/stripe/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStudiesProductIdRoute = ApiStudiesProductIdRouteImport.update({
+  id: '/api/studies/$productId',
+  path: '/api/studies/$productId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWirePreviewRoute = ApiWirePreviewRouteImport.update({
@@ -157,15 +181,19 @@ export interface FileRoutesByFullPath {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
-  '/tools': typeof ToolsRoute
+  '/tools': typeof ToolsRouteWithChildren
   '/wire.xml': typeof WireDotxmlRoute
   '/learn/$moduleId': typeof LearnModuleIdRoute
   '/learn/certificate': typeof LearnCertificateRoute
   '/learn/exam': typeof LearnExamRoute
+  '/tools/mother-bar-levels': typeof ToolsMotherBarLevelsRoute
+  '/tools/mother-bar-sweep-scan': typeof ToolsMotherBarSweepScanRoute
   '/learn/': typeof LearnIndexRoute
+  '/tools/': typeof ToolsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/studies/$productId': typeof ApiStudiesProductIdRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
   '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
   '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
@@ -182,15 +210,18 @@ export interface FileRoutesByTo {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
-  '/tools': typeof ToolsRoute
   '/wire.xml': typeof WireDotxmlRoute
   '/learn/$moduleId': typeof LearnModuleIdRoute
   '/learn/certificate': typeof LearnCertificateRoute
   '/learn/exam': typeof LearnExamRoute
+  '/tools/mother-bar-levels': typeof ToolsMotherBarLevelsRoute
+  '/tools/mother-bar-sweep-scan': typeof ToolsMotherBarSweepScanRoute
   '/learn': typeof LearnIndexRoute
+  '/tools': typeof ToolsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/studies/$productId': typeof ApiStudiesProductIdRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
   '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
   '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
@@ -208,15 +239,19 @@ export interface FileRoutesById {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
-  '/tools': typeof ToolsRoute
+  '/tools': typeof ToolsRouteWithChildren
   '/wire.xml': typeof WireDotxmlRoute
   '/learn/$moduleId': typeof LearnModuleIdRoute
   '/learn/certificate': typeof LearnCertificateRoute
   '/learn/exam': typeof LearnExamRoute
+  '/tools/mother-bar-levels': typeof ToolsMotherBarLevelsRoute
+  '/tools/mother-bar-sweep-scan': typeof ToolsMotherBarSweepScanRoute
   '/learn/': typeof LearnIndexRoute
+  '/tools/': typeof ToolsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/premarket-wire': typeof ApiCronPremarketWireRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/studies/$productId': typeof ApiStudiesProductIdRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
   '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
   '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
@@ -240,10 +275,14 @@ export interface FileRouteTypes {
     | '/learn/$moduleId'
     | '/learn/certificate'
     | '/learn/exam'
+    | '/tools/mother-bar-levels'
+    | '/tools/mother-bar-sweep-scan'
     | '/learn/'
+    | '/tools/'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
+    | '/api/studies/$productId'
     | '/api/wire/preview'
     | '/learn/options-101/$moduleId'
     | '/learn/options-101/certificate'
@@ -260,15 +299,18 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
-    | '/tools'
     | '/wire.xml'
     | '/learn/$moduleId'
     | '/learn/certificate'
     | '/learn/exam'
+    | '/tools/mother-bar-levels'
+    | '/tools/mother-bar-sweep-scan'
     | '/learn'
+    | '/tools'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
+    | '/api/studies/$productId'
     | '/api/wire/preview'
     | '/learn/options-101/$moduleId'
     | '/learn/options-101/certificate'
@@ -290,10 +332,14 @@ export interface FileRouteTypes {
     | '/learn/$moduleId'
     | '/learn/certificate'
     | '/learn/exam'
+    | '/tools/mother-bar-levels'
+    | '/tools/mother-bar-sweep-scan'
     | '/learn/'
+    | '/tools/'
     | '/api/auth/$'
     | '/api/cron/premarket-wire'
     | '/api/stripe/webhook'
+    | '/api/studies/$productId'
     | '/api/wire/preview'
     | '/learn/options-101/$moduleId'
     | '/learn/options-101/certificate'
@@ -311,7 +357,7 @@ export interface RootRouteChildren {
   DeskRoute: typeof DeskRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
-  ToolsRoute: typeof ToolsRoute
+  ToolsRoute: typeof ToolsRouteWithChildren
   WireDotxmlRoute: typeof WireDotxmlRoute
   LearnModuleIdRoute: typeof LearnModuleIdRoute
   LearnCertificateRoute: typeof LearnCertificateRoute
@@ -320,6 +366,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPremarketWireRoute: typeof ApiCronPremarketWireRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
+  ApiStudiesProductIdRoute: typeof ApiStudiesProductIdRoute
   ApiWirePreviewRoute: typeof ApiWirePreviewRoute
   LearnOptions101ModuleIdRoute: typeof LearnOptions101ModuleIdRoute
   LearnOptions101CertificateRoute: typeof LearnOptions101CertificateRoute
@@ -410,6 +457,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnExamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/': {
+      id: '/tools/'
+      path: '/'
+      fullPath: '/tools/'
+      preLoaderRoute: typeof ToolsIndexRouteImport
+      parentRoute: typeof ToolsRoute
+    }
+    '/tools/mother-bar-levels': {
+      id: '/tools/mother-bar-levels'
+      path: '/mother-bar-levels'
+      fullPath: '/tools/mother-bar-levels'
+      preLoaderRoute: typeof ToolsMotherBarLevelsRouteImport
+      parentRoute: typeof ToolsRoute
+    }
+    '/tools/mother-bar-sweep-scan': {
+      id: '/tools/mother-bar-sweep-scan'
+      path: '/mother-bar-sweep-scan'
+      fullPath: '/tools/mother-bar-sweep-scan'
+      preLoaderRoute: typeof ToolsMotherBarSweepScanRouteImport
+      parentRoute: typeof ToolsRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -429,6 +497,13 @@ declare module '@tanstack/react-router' {
       path: '/api/stripe/webhook'
       fullPath: '/api/stripe/webhook'
       preLoaderRoute: typeof ApiStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/studies/$productId': {
+      id: '/api/studies/$productId'
+      path: '/api/studies/$productId'
+      fullPath: '/api/studies/$productId'
+      preLoaderRoute: typeof ApiStudiesProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/wire/preview': {
@@ -497,13 +572,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ToolsRouteChildren {
+  ToolsMotherBarLevelsRoute: typeof ToolsMotherBarLevelsRoute
+  ToolsMotherBarSweepScanRoute: typeof ToolsMotherBarSweepScanRoute
+  ToolsIndexRoute: typeof ToolsIndexRoute
+}
+
+const ToolsRouteChildren: ToolsRouteChildren = {
+  ToolsMotherBarLevelsRoute: ToolsMotherBarLevelsRoute,
+  ToolsMotherBarSweepScanRoute: ToolsMotherBarSweepScanRoute,
+  ToolsIndexRoute: ToolsIndexRoute,
+}
+
+const ToolsRouteWithChildren = ToolsRoute._addFileChildren(ToolsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
   DeskRoute: DeskRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
-  ToolsRoute: ToolsRoute,
+  ToolsRoute: ToolsRouteWithChildren,
   WireDotxmlRoute: WireDotxmlRoute,
   LearnModuleIdRoute: LearnModuleIdRoute,
   LearnCertificateRoute: LearnCertificateRoute,
@@ -512,6 +601,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPremarketWireRoute: ApiCronPremarketWireRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
+  ApiStudiesProductIdRoute: ApiStudiesProductIdRoute,
   ApiWirePreviewRoute: ApiWirePreviewRoute,
   LearnOptions101ModuleIdRoute: LearnOptions101ModuleIdRoute,
   LearnOptions101CertificateRoute: LearnOptions101CertificateRoute,

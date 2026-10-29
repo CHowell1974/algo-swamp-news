@@ -8,6 +8,12 @@ import {
   OPTIONS_201_PATH,
   OPTIONS_201_PRICE_USD,
 } from "@/lib/course/catalog-options-201";
+import {
+  MOTHER_BAR_LEVELS_PAGE_COPY,
+  MOTHER_BAR_SWEEP_SCAN_PAGE_COPY,
+  studyPriceUsd,
+  type StudyPageCopy,
+} from "@/lib/studies/catalog";
 
 export { SITE_ORIGIN } from "./site.ts";
 
@@ -760,10 +766,83 @@ export function moduleJsonLd(index: number, seo: ModuleSeo) {
   };
 }
 
+function studyProductPage(copy: StudyPageCopy): PageSeo {
+  const url = pageUrl(copy.pathname);
+  const price = studyPriceUsd(copy.id).toFixed(2);
+  const org = { "@id": `${SITE_ORIGIN}/#org` };
+  const images = [copy.ogPath, ...copy.images.map((image) => image.src)].map(
+    (src) => `${SITE_ORIGIN}${src}`,
+  );
+  return {
+    title: copy.title,
+    description: copy.description,
+    pathname: copy.pathname,
+    ogImage: `${SITE_ORIGIN}${copy.ogPath}`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": `${SITE_ORIGIN}/#org`,
+          name: "ALGO Swamp",
+          url: `${SITE_ORIGIN}/`,
+          logo: `${SITE_ORIGIN}/favicon.svg`,
+        },
+        {
+          "@type": "Product",
+          "@id": `${url}#product`,
+          name: copy.h1,
+          description: copy.description,
+          category: copy.pathname.endsWith("-scan") ? "thinkorswim scan" : "thinkorswim study",
+          image: images,
+          brand: { "@type": "Brand", name: "ALGO Swamp" },
+          manufacturer: org,
+          url,
+          offers: {
+            "@type": "Offer",
+            price,
+            priceCurrency: "USD",
+            availability: "https://schema.org/InStock",
+            itemCondition: "https://schema.org/NewCondition",
+            url,
+            seller: org,
+          },
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": `${url}#breadcrumb`,
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "ALGO Swamp", item: `${SITE_ORIGIN}/` },
+            { "@type": "ListItem", position: 2, name: "Tools", item: `${SITE_ORIGIN}/tools` },
+            { "@type": "ListItem", position: 3, name: copy.h1, item: url },
+          ],
+        },
+        {
+          "@type": "FAQPage",
+          "@id": `${url}#faq`,
+          mainEntity: copy.faqs.map((item) => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: { "@type": "Answer", text: item.answer },
+          })),
+        },
+      ],
+    },
+  };
+}
+
+export function motherBarLevelsPage(): PageSeo {
+  return studyProductPage(MOTHER_BAR_LEVELS_PAGE_COPY);
+}
+
+export function motherBarSweepScanPage(): PageSeo {
+  return studyProductPage(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY);
+}
+
 export const TOOLS_PAGE: PageSeo = {
-  title: "Road Map thinkorswim Study — Tools — ALGO Swamp News",
+  title: "Road Map & Mother Bar thinkorswim Studies — ALGO Swamp",
   description:
-    "Road Map paints inside bars yellow and outside bars orange in thinkorswim. Free by email, or Pro $39 once — colors, alerts, scan. Not trading advice.",
+    "thinkorswim studies and scans: Road Map paints inside and outside bars (free or Pro $39), plus the Mother Bar Levels study and sweep scan, $29 each.",
   pathname: "/tools",
   jsonLd: {
     "@context": "https://schema.org",
