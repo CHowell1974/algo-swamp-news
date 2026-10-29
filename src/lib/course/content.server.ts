@@ -13,7 +13,7 @@ const cached = new Map<string, Course>();
 
 export function getCourse(courseId: string = COURSE_ID): Course {
   const offer = courseOffer(courseId);
-  if (!offer) throw new Error("That course is not available.");
+  if (!offer || offer.kind !== "course") throw new Error("That course is not available.");
   const existing = cached.get(offer.id);
   if (existing) return existing;
   const raw = rawById[offer.id];

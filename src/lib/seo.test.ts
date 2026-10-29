@@ -25,6 +25,8 @@ import {
   COURSE_FAQ,
   joinPage,
   moduleJsonLd,
+  motherBarLevelsPage,
+  motherBarSweepScanPage,
   options201ModuleJsonLd,
   pageUrl,
   routeHead,
@@ -71,6 +73,8 @@ describe("news route head", () => {
       ACCOUNT_PAGE,
       joinPage("monthly"),
       joinPage("annual"),
+      motherBarLevelsPage(),
+      motherBarSweepScanPage(),
     ];
     const titles = new Set(pages.map((page) => page.title));
     assert.equal(titles.size, pages.length);
@@ -102,7 +106,15 @@ describe("news route head", () => {
       new RegExp(
         `<loc>https://news\\.algoswamp\\.com${path.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}</loc>`,
       );
-    for (const path of ["/", "/desk", "/tools"]) assert.match(sitemap, loc(path));
+    for (const path of [
+      "/",
+      "/desk",
+      "/tools",
+      "/tools/mother-bar-levels",
+      "/tools/mother-bar-sweep-scan",
+    ]) {
+      assert.match(sitemap, loc(path));
+    }
     for (const path of [
       "/learn",
       "/learn/options-101",
@@ -348,5 +360,36 @@ describe("news route head", () => {
     assert.equal(rendered.includes('"price":"0.00"'), false);
     assert.equal(LOGIN_PAGE.description.includes("your classes"), true);
     assert.equal(ACCOUNT_PAGE.description.includes("class progress"), true);
+
+    for (const page of [motherBarLevelsPage(), motherBarSweepScanPage()]) {
+      assert.ok(page.title.length <= 70, page.title);
+      assert.ok(page.description.length <= 155, `${page.description.length} ${page.description}`);
+      const script = routeHead(page).scripts?.[0];
+      const graph = JSON.parse(script?.children ?? "{}") as {
+        "@graph": Array<{
+          "@type": string;
+          name?: string;
+          offers?: { price?: string; priceCurrency?: string };
+        }>;
+      };
+      const product = graph["@graph"].find((node) => node["@type"] === "Product");
+      assert.equal(product?.offers?.price, "29.00");
+      assert.equal(product?.offers?.priceCurrency, "USD");
+      assert.ok(graph["@graph"].some((node) => node["@type"] === "FAQPage"));
+    }
+    assert.equal(
+      meta(motherBarLevelsPage(), "og:image", "property").endsWith("/og-mother-bar-levels.jpg"),
+      true,
+    );
+    assert.equal(
+      meta(motherBarSweepScanPage(), "og:image", "property").endsWith(
+        "/og-mother-bar-sweep-scan.jpg",
+      ),
+      true,
+    );
+    assert.doesNotMatch(
+      JSON.stringify(routeHead(motherBarLevelsPage())),
+      /spy_daily_mother_bar_levels\.png/,
+    );
   });
 });

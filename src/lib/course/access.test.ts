@@ -434,3 +434,74 @@ describe("course checkout", () => {
     assert.equal(formatCertificateDate("2026-10-27T03:30:00.000Z"), "October 26, 2026");
   });
 });
+
+describe("thinkorswim downloads", () => {
+  it("sells each file once for $29 and leaves the desk out of it", () => {
+    const products = [
+      ["mother-bar-levels", "price_1UVrUkLAdDbAQPuJwSy32dJb", "/tools/mother-bar-levels"],
+      ["mother-bar-sweep-scan", "price_1UVrXsLAdDbAQPuJZiWi1Wsz", "/tools/mother-bar-sweep-scan"],
+    ] as const;
+    for (const [id, priceId, path] of products) {
+      const offer = courseOffer(id);
+      assert.equal(offer?.kind, "download");
+      assert.equal(offer?.priceUsd, 29);
+      assert.equal(offer?.priceCents, 2900);
+      assert.equal(offer?.includedWithDesk, false);
+      assert.equal(deskCoversCourse(false, true), false);
+      assert.equal(resolveCoursePriceId(id, undefined), priceId);
+      assert.equal(resolveCoursePriceId(id, "  price_override  "), "price_override");
+      const params = courseCheckoutParams({
+        userId: "user_1",
+        origin: "https://news.algoswamp.com",
+        priceId: resolveCoursePriceId(id, null),
+        customerId: null,
+        integrationId: `${offer?.integrationPrefix ?? ""}aaaaaaaa`,
+        courseId: id,
+      });
+      assert.equal(params.mode, "payment");
+      assert.equal("payment_method_types" in params, false);
+      assert.deepEqual(params.line_items[0], { price: priceId, quantity: 1 });
+      assert.equal(
+        params.success_url,
+        `https://news.algoswamp.com${path}?session_id={CHECKOUT_SESSION_ID}`,
+      );
+      assert.equal(params.cancel_url, `https://news.algoswamp.com${path}`);
+      assert.equal(params.metadata.course_id, id);
+      assert.equal(params.payment_intent_data.metadata.course_id, id);
+      assert.equal(
+        courseFulfillmentDecision({ mode: "payment", paymentStatus: "paid", courseId: id }),
+        "grant",
+      );
+      assert.equal(
+        courseFulfillmentDecision({
+          mode: "payment",
+          paymentStatus: "unpaid",
+          courseId: id,
+        }),
+        "skip",
+      );
+      const denied = resolveCourseAccess({
+        includedWithDesk: false,
+        membershipActive: true,
+        purchased: false,
+      });
+      assert.equal(denied.entitled, false);
+      const buyer = resolveCourseAccess({
+        includedWithDesk: false,
+        membershipActive: true,
+        purchased: true,
+      });
+      assert.equal(buyer.entitled, true);
+      assert.equal(buyer.accessVia, "purchase");
+    }
+    assert.equal(courseOffer("mother-bar-bundle"), null);
+    assert.equal(
+      courseFulfillmentDecision({
+        mode: "payment",
+        paymentStatus: "paid",
+        courseId: "mother-bar-bundle",
+      }),
+      "skip",
+    );
+  });
+});

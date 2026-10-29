@@ -8,6 +8,12 @@ import {
   OPTIONS_201_PATH,
   OPTIONS_201_PRICE_USD,
 } from "@/lib/course/catalog-options-201";
+import {
+  MOTHER_BAR_LEVELS_PAGE_COPY,
+  MOTHER_BAR_SWEEP_SCAN_PAGE_COPY,
+  studyPriceUsd,
+  type StudyPageCopy,
+} from "@/lib/studies/catalog";
 
 export { SITE_ORIGIN } from "./site.ts";
 
@@ -758,6 +764,64 @@ export function moduleJsonLd(index: number, seo: ModuleSeo) {
       breadcrumb,
     ],
   };
+}
+
+function studyProductPage(copy: StudyPageCopy): PageSeo {
+  const url = pageUrl(copy.pathname);
+  const price = studyPriceUsd(copy.id).toFixed(2);
+  return {
+    title: copy.title,
+    description: copy.description,
+    pathname: copy.pathname,
+    ogImage: `${SITE_ORIGIN}${copy.ogPath}`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Product",
+          "@id": `${url}#product`,
+          name: copy.h1,
+          description: copy.description,
+          image: `${SITE_ORIGIN}${copy.ogPath}`,
+          brand: { "@type": "Brand", name: "ALGO Swamp" },
+          url,
+          offers: {
+            "@type": "Offer",
+            price,
+            priceCurrency: "USD",
+            availability: "https://schema.org/InStock",
+            url,
+          },
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": `${url}#breadcrumb`,
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "ALGO Swamp", item: `${SITE_ORIGIN}/` },
+            { "@type": "ListItem", position: 2, name: "Tools", item: `${SITE_ORIGIN}/tools` },
+            { "@type": "ListItem", position: 3, name: copy.h1, item: url },
+          ],
+        },
+        {
+          "@type": "FAQPage",
+          "@id": `${url}#faq`,
+          mainEntity: copy.faqs.map((item) => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: { "@type": "Answer", text: item.answer },
+          })),
+        },
+      ],
+    },
+  };
+}
+
+export function motherBarLevelsPage(): PageSeo {
+  return studyProductPage(MOTHER_BAR_LEVELS_PAGE_COPY);
+}
+
+export function motherBarSweepScanPage(): PageSeo {
+  return studyProductPage(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY);
 }
 
 export const TOOLS_PAGE: PageSeo = {

@@ -22,6 +22,17 @@ Card payments are fulfilled on `checkout.session.completed` when `payment_status
 
 The database and sign-in are provisioned by the host. `DATABASE_URL` must be set in production.
 
+## thinkorswim studies
+
+Mother Bar Levels and Mother Bar Sweep Scan are separate $29 one-time Checkout payments. A desk plan does not include them. Purchases use the same `course_purchases` row and webhook as Options 201 (`checkout.session.completed` / `checkout.session.async_payment_succeeded` when paid, and `charge.refunded` for a full refund).
+
+Live prices:
+
+- Mother Bar Levels — `price_1UVrUkLAdDbAQPuJwSy32dJb`. Override with `STRIPE_PRICE_MOTHER_BAR_LEVELS`.
+- Mother Bar Sweep Scan — `price_1UVrXsLAdDbAQPuJZiWi1Wsz`. Override with `STRIPE_PRICE_MOTHER_BAR_SWEEP_SCAN`.
+
+The `.ts` files are served only to the buyer from `GET /api/studies/:productId`. A $39 bundle of the two files is not for sale yet.
+
 ## Pre-market wire
 
 Weekday cron hits `GET /api/cron/premarket-wire` at 12:00 and 13:00 UTC. The handler sends on the first call that lands between 8:00 and 9:20am America/New_York on a trading day. Set:
