@@ -67,14 +67,20 @@ export function etParts(now: Date): EtParts {
   return { year, month, day, hour, minute, weekday, ymd, label };
 }
 
+/** Inclusive pre-market window, minutes since midnight in America/New_York. */
+const SEND_START_MINUTES = 7 * 60;
+const SEND_END_MINUTES = 9 * 60 + 20;
+
 /**
- * 8:00–9:20am America/New_York, inclusive of 9:20.
- * Hobby cron fires any time in the scheduled UTC hour, so the window is the
- * whole 8am hour plus a short overlap into 9am.
+ * 7:00–9:20am America/New_York, inclusive of 9:20.
+ * The weekday schedule is 8:10am Eastern. Vercel may start it a few minutes
+ * later (about a minute on Pro, up to 15 on Hobby). The wider gate still
+ * accepts that delivery, a 7am run, and a slip toward 9:20, and it rejects
+ * anything outside the pre-market morning.
  */
 export function inSendWindow(parts: EtParts): boolean {
-  if (parts.hour === 8) return true;
-  return parts.hour === 9 && parts.minute <= 20;
+  const minutes = parts.hour * 60 + parts.minute;
+  return minutes >= SEND_START_MINUTES && minutes <= SEND_END_MINUTES;
 }
 
 export function isWeekday(parts: EtParts): boolean {
@@ -193,8 +199,8 @@ export type SendGate =
   | { ok: false; reason: "weekend" | "nyse-holiday" | "outside-send-window"; tradingDay: string };
 
 /**
- * Weekday, not an NYSE holiday, and inside 8:00–9:20am Eastern.
- * A miss here must not write the once-a-day row: the other UTC hour may be the one that lands in the window.
+ * Weekday, not an NYSE holiday, and inside 7:00–9:20am Eastern.
+ * A miss here must not write the once-a-day row: a later delivery the same morning can still send.
  */
 export function gateSend(now: Date): SendGate {
   const parts = etParts(now);

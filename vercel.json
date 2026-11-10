@@ -2,14 +2,12 @@
   "framework": null,
   "buildCommand": "npm run build",
   "installCommand": "npm install --omit=dev --no-audit --no-fund",
-  "crons": [
-    {
+  "schedules": {
+    "premarket-wire": {
       "path": "/api/cron/premarket-wire",
-      "schedule": "0 12 * * 1-5"
-    },
-    {
-      "path": "/api/cron/premarket-wire",
-      "schedule": "0 13 * * 1-5"
+      "schedule": "10 8 * * 1-5",
+      "timezone": "America/New_York",
+      "requestMethod": "GET"
     }
-  ]
+  }
 }

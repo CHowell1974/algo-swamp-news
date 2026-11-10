@@ -1,8 +1,11 @@
 import { getSql } from "@/lib/db";
 import { loadPublicTape } from "@/lib/news.functions";
+import { OPEN_TAPE } from "@/lib/plans";
 import {
   blocksAnotherSend,
   etParts,
+  FRESH_HOURS,
+  freshCount,
   gateSend,
   kitBroadcastPayload,
   tapeIsFresh,
@@ -12,6 +15,7 @@ import {
   wirePreviewText,
   wireRss,
   wireSubject,
+  type EtParts,
 } from "@/lib/wire-email";
 
 const KIT_BROADCASTS = "https://api.kit.com/v4/broadcasts";
@@ -45,10 +49,20 @@ export async function renderWireFeed(now = new Date()): Promise<{ status: number
   return { status: 200, xml: wireRss(tape.stories, now) };
 }
 
+function etClock(parts: Pick<EtParts, "hour" | "minute">): string {
+  return `${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
+}
+
+function errorDetail(error: unknown, fallback: string): string {
+  const message = error instanceof Error ? error.message : fallback;
+  return message.slice(0, 300);
+}
+
 export async function runPremarketWire(now = new Date()): Promise<WireRun> {
   const gate = gateSend(now);
+  const clock = etClock(gate.ok ? gate.parts : etParts(now));
   if (!gate.ok) {
-    console.log(`[premarket-wire] skip ${gate.tradingDay}: ${gate.reason}`);
+    console.log(`[premarket-wire] skip ${gate.tradingDay} ${clock} ET: ${gate.reason}`);
     return {
       ok: true,
       action: "skipped",
@@ -59,55 +73,91 @@ export async function runPremarketWire(now = new Date()): Promise<WireRun> {
   }
 
   const { parts } = gate;
+  try {
+    return await deliverWire(parts, now, clock);
+  } catch (error) {
+    const detail = errorDetail(error, "wire failed");
+    console.log(`[premarket-wire] fail ${parts.ymd} ${clock} ET: ${detail}`);
+    return {
+      ok: false,
+      action: "skipped",
+      reason: "wire-error",
+      tradingDay: parts.ymd,
+      subject: null,
+    };
+  }
+}
+
+async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<WireRun> {
   const tradingDay = parts.ymd;
   const tape = await loadPublicTape();
   if (!tape.ok) {
-    console.log(`[premarket-wire] skip ${tradingDay}: wire-unavailable`);
+    console.log(`[premarket-wire] skip ${tradingDay} ${clock} ET: wire-unavailable`);
     return { ok: false, action: "skipped", reason: "wire-unavailable", tradingDay, subject: null };
   }
   if (!tapeIsFresh(tape.stories, now)) {
-    console.log(`[premarket-wire] skip ${tradingDay}: lines-not-fresh`);
+    const lines = tape.stories.slice(0, OPEN_TAPE);
+    const fresh = freshCount(lines, now);
+    console.log(
+      `[premarket-wire] skip ${tradingDay} ${clock} ET: lines-not-fresh (${fresh}/${lines.length} within ${FRESH_HOURS}h)`,
+    );
     return { ok: true, action: "skipped", reason: "lines-not-fresh", tradingDay, subject: null };
   }
 
   const subject = wireSubject(parts, tape.stories[0]?.title ?? "Markets");
   if (process.env.KIT_SEND_ENABLED !== "true") {
-    console.log(`[premarket-wire] dry-run ${tradingDay}: ${subject}`);
+    console.log(`[premarket-wire] dry-run ${tradingDay} ${clock} ET: ${subject}`);
     return { ok: true, action: "dry_run", reason: "send-disabled", tradingDay, subject };
   }
 
   const apiKey = process.env.KIT_API_KEY;
   if (!apiKey) {
-    console.log(`[premarket-wire] fail ${tradingDay}: KIT_API_KEY missing`);
+    console.log(`[premarket-wire] fail ${tradingDay} ${clock} ET: KIT_API_KEY missing`);
     return { ok: false, action: "skipped", reason: "missing-api-key", tradingDay, subject };
   }
 
-  const claimed = await claimDay(tradingDay, subject);
-  if (!claimed) {
-    console.log(`[premarket-wire] skip ${tradingDay}: already-recorded`);
+  const claim = await claimDay(tradingDay, subject);
+  if (!claim.claimed) {
+    console.log(
+      `[premarket-wire] skip ${tradingDay} ${clock} ET: already-recorded (${claim.status ?? "missing"})`,
+    );
     return { ok: true, action: "skipped", reason: "already-recorded", tradingDay, subject };
   }
 
+  let broadcastId: string;
   try {
-    const broadcastId = await createKitBroadcast(apiKey, {
+    broadcastId = await createKitBroadcast(apiKey, {
       subject,
       content: wireEmailFragment(tape.stories, parts),
       description: wireDescription(parts),
       previewText: wirePreviewText(),
       now,
     });
-    await markSent(tradingDay, broadcastId);
-    console.log(`[premarket-wire] sent ${tradingDay} broadcast ${broadcastId}`);
-    return { ok: true, action: "sent", reason: "broadcast-created", tradingDay, subject };
   } catch (error) {
-    const detail = error instanceof Error ? error.message : "Kit request failed";
-    console.log(`[premarket-wire] fail ${tradingDay}: ${detail}`);
+    const detail = errorDetail(error, "Kit request failed");
+    console.log(`[premarket-wire] fail ${tradingDay} ${clock} ET: ${detail}`);
     await releaseClaim(tradingDay);
     return { ok: false, action: "skipped", reason: "kit-error", tradingDay, subject };
   }
+
+  try {
+    await markSent(tradingDay, broadcastId);
+  } catch (error) {
+    const detail = errorDetail(error, "could not record the send");
+    console.log(
+      `[premarket-wire] fail ${tradingDay} ${clock} ET: broadcast ${broadcastId} created, record failed: ${detail}`,
+    );
+    return { ok: false, action: "skipped", reason: "record-failed", tradingDay, subject };
+  }
+
+  console.log(`[premarket-wire] sent ${tradingDay} ${clock} ET broadcast ${broadcastId}`);
+  return { ok: true, action: "sent", reason: "broadcast-created", tradingDay, subject };
 }
 
-async function claimDay(tradingDay: string, subject: string): Promise<boolean> {
+async function claimDay(
+  tradingDay: string,
+  subject: string,
+): Promise<{ claimed: boolean; status: string | null }> {
   const sql = await getSql();
   const inserted = await sql<{ trading_day: string }>`
     insert into wire_sends (trading_day, status, subject)
@@ -115,13 +165,13 @@ async function claimDay(tradingDay: string, subject: string): Promise<boolean> {
     on conflict (trading_day) do nothing
     returning trading_day::text
   `;
-  if (inserted.length > 0) return true;
+  if (inserted.length > 0) return { claimed: true, status: "pending" };
 
   const rows = await sql<{ status: string }>`
     select status from wire_sends where trading_day = ${tradingDay}::date
   `;
-  const status = rows[0]?.status;
-  if (!status || blocksAnotherSend(status)) return false;
+  const status = rows[0]?.status ?? null;
+  if (!status || blocksAnotherSend(status)) return { claimed: false, status };
 
   const retried = await sql<{ trading_day: string }>`
     update wire_sends
@@ -129,7 +179,7 @@ async function claimDay(tradingDay: string, subject: string): Promise<boolean> {
     where trading_day = ${tradingDay}::date and status = ${status}
     returning trading_day::text
   `;
-  return retried.length > 0;
+  return { claimed: retried.length > 0, status };
 }
 
 async function markSent(tradingDay: string, broadcastId: string): Promise<void> {
