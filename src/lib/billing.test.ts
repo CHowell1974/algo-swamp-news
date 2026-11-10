@@ -89,6 +89,16 @@ describe("checkout commercials", () => {
     assert.equal(monthly.allowPromotionCodes, false);
   });
 
+  it("can lengthen the monthly trial and still collect a card", () => {
+    const trial = checkoutCommercials("monthly", null, 30);
+    assert.equal(trial.trialPeriodDays, 30);
+    assert.equal(trial.paymentMethodCollection, "always");
+    assert.equal(trial.promotionCode, null);
+    assert.equal(trial.allowPromotionCodes, true);
+    const annual = checkoutCommercials("annual", null, 30);
+    assert.equal(annual.trialPeriodDays, null);
+  });
+
   it("lets the customer type a code when the founder deal is absent, and never trials annual", () => {
     const monthly = checkoutCommercials("monthly", null);
     assert.equal(monthly.trialPeriodDays, 7);

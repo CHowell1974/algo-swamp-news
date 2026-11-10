@@ -1,4 +1,5 @@
 import { getSql } from "@/lib/db";
+import { refundPaidPurchases } from "./refund";
 import { certificateName } from "./access";
 
 /** Same id as `DEV_USER_ID` in verify.server.ts. Local so checkout does not import auth. */
@@ -85,7 +86,7 @@ export async function savePaidCoursePurchase(input: {
       ${input.stripePaymentIntentId}, ${input.stripeCustomerId}, ${input.amountCents},
       ${input.currency}, 'paid'
     )
-    on conflict (stripe_checkout_session_id) do update set
+    on conflict (stripe_checkout_session_id, course_id) do update set
       status = case
         when course_purchases.status = 'refunded' then course_purchases.status
         else 'paid'
@@ -99,11 +100,7 @@ export async function savePaidCoursePurchase(input: {
 
 export async function markCourseRefunded(paymentIntentId: string): Promise<void> {
   const sql = await getSql();
-  await sql`
-    update course_purchases
-    set status = 'refunded', updated_at = now()
-    where stripe_payment_intent_id = ${paymentIntentId} and status = 'paid'
-  `;
+  await refundPaidPurchases(sql, paymentIntentId);
 }
 
 export async function listModuleProgress(

@@ -5,8 +5,8 @@ import { Masthead } from "@/components/masthead";
 import { ROAD_MAP_FORM_ID } from "@/lib/kit-subscribe";
 import { MONTHLY_TRIAL_DAYS, formatMoney } from "@/lib/plans";
 import { TOOLS_PAGE, routeHead } from "@/lib/seo";
+import { STARTER_KIT_LIST_USD, starterKitPriceUsd } from "@/lib/starter-kit";
 import {
-  BUNDLE_LINE,
   MOTHER_BAR_LEVELS_PAGE_COPY,
   MOTHER_BAR_SWEEP_SCAN_PAGE_COPY,
   studyPriceUsd,
@@ -49,6 +49,31 @@ function ToolsPage() {
           />
 
           <div className="mt-8 grid items-stretch gap-4 md:grid-cols-2">
+            <article className="flex h-full flex-col rounded-card border border-signal/40 bg-surface px-5 py-5 md:col-span-2">
+              <p className="text-xs font-medium tracking-widest text-signal uppercase">
+                One-time bundle
+              </p>
+              <h2 className="mt-2 font-display text-3xl text-fg">Swamp Starter Kit</h2>
+              <p className="mt-4 flex flex-wrap items-end gap-x-3">
+                <span className="font-display text-2xl text-muted line-through tabular-nums">
+                  {formatMoney(STARTER_KIT_LIST_USD)}
+                </span>
+                <span className="font-display text-4xl text-fg tabular-nums">
+                  {formatMoney(starterKitPriceUsd())}
+                  <span className="ml-2 font-sans text-sm font-medium text-muted">once</span>
+                </span>
+              </p>
+              <p className="mt-4 max-w-2xl text-sm text-pretty text-fg">
+                Options 101, Options 201: Vertical Spreads, Mother Bar Levels, and the Mother Bar
+                Sweep Scan.
+              </p>
+              <Link
+                to="/starter-kit"
+                className={`mt-6 inline-flex min-h-11 w-fit items-center justify-center rounded-full bg-signal px-4 text-sm font-semibold text-bg ${focusRing}`}
+              >
+                See the Swamp Starter Kit
+              </Link>
+            </article>
             <KitEmailForm
               className="h-full"
               formId={ROAD_MAP_FORM_ID}
@@ -138,7 +163,6 @@ function ToolsPage() {
               </Link>
             </article>
           </div>
-          <p className="mt-4 max-w-2xl text-sm text-pretty text-muted">{BUNDLE_LINE}</p>
 
           <div className="mt-8 max-w-2xl border-t border-line pt-6">
             <p className="text-sm text-pretty text-fg">

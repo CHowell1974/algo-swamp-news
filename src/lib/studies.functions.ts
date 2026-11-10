@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware, optionalAuthMiddleware } from "@/lib/auth/middleware";
-import { courseOffer, isDownloadOffer } from "@/lib/course/access";
+import { STARTER_KIT_ID, courseOffer, isDownloadOffer } from "@/lib/course/access";
 
 function productIdOf(input: { productId?: string } | undefined): string {
   const productId = input?.productId?.trim() ?? "";
@@ -46,6 +46,9 @@ export const confirmStudyCheckout = createServerFn({ method: "POST" })
     try {
       const { confirmCourseCheckoutSession } = await import("./stripe.server");
       const productId = await confirmCourseCheckoutSession(context.userId, data.sessionId);
+      if (productId === STARTER_KIT_ID) {
+        throw new Error("This checkout is for the Swamp Starter Kit.");
+      }
       if (!courseOffer(productId) || !isDownloadOffer(productId)) {
         throw new Error("That product is not available.");
       }

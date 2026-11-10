@@ -16,6 +16,13 @@ export const MOTHER_BAR_LEVELS_ID = "mother-bar-levels";
 export const MOTHER_BAR_SWEEP_SCAN_ID = "mother-bar-sweep-scan";
 export const MOTHER_BAR_LEVELS_PRICE_CENTS = 2900;
 export const MOTHER_BAR_SWEEP_SCAN_PRICE_CENTS = 2900;
+export const STARTER_KIT_ID = "starter-kit";
+export const STARTER_KIT_PRICE_CENTS = 4900;
+export const STARTER_KIT_PRICE_USD = STARTER_KIT_PRICE_CENTS / 100;
+/** Live one-time price for the Swamp Starter Kit. STRIPE_PRICE_STARTER_KIT overrides it. */
+export const STARTER_KIT_STRIPE_PRICE_ID = "price_1UaHLoLAdDbAQPuJ3Hhbov0V";
+/** Live product that owns that price. Checkout charges the price, not this id. */
+export const STARTER_KIT_STRIPE_PRODUCT_ID = "prod_VbUKC5p7JdywzJ";
 /**
  * Chris, 2026-10-27. Modules 1 and 2 are the free Options 201 preview.
  * Change this together with the landing copy, robots, sitemap, and JSON-LD.
@@ -49,13 +56,18 @@ export type CourseOffer = {
     | "/learn/options-101"
     | "/learn/options-201"
     | "/tools/mother-bar-levels"
-    | "/tools/mother-bar-sweep-scan";
+    | "/tools/mother-bar-sweep-scan"
+    | "/starter-kit";
   productName: string;
   productDescription: string;
   integrationPrefix:
-    "algo_swamp_course_" | "algo_swamp_c201_" | "algo_swamp_mbl_" | "algo_swamp_mbscan_";
-  /** Courses have lessons. Downloads are a gated thinkorswim file. */
-  kind: "course" | "download";
+    | "algo_swamp_course_"
+    | "algo_swamp_c201_"
+    | "algo_swamp_mbl_"
+    | "algo_swamp_mbscan_"
+    | "algo_swamp_kit_";
+  /** Courses have lessons. Downloads are a gated file. A bundle grants several offers. */
+  kind: "course" | "download" | "bundle";
   /** Env var that overrides the Dashboard price. Empty falls through to defaultStripePriceId. */
   stripePriceEnv: string;
   /** Null uses inline price_data at priceCents. */
@@ -138,6 +150,29 @@ const COURSE_OFFERS: Record<string, CourseOffer> = {
     stripePriceEnv: "STRIPE_PRICE_MOTHER_BAR_SWEEP_SCAN",
     defaultStripePriceId: MOTHER_BAR_SWEEP_SCAN_STRIPE_PRICE_ID,
     downloadFilename: "MotherBarSweepScan.ts",
+  },
+  /**
+   * One Checkout session. Fulfillment writes this row plus a paid row for each
+   * included product, so existing access checks treat the buyer as if they had
+   * purchased each item. The $39 mother-bar bundle stays unsold.
+   */
+  [STARTER_KIT_ID]: {
+    id: STARTER_KIT_ID,
+    shortName: "Swamp Starter Kit",
+    priceCents: STARTER_KIT_PRICE_CENTS,
+    priceUsd: STARTER_KIT_PRICE_USD,
+    freeThroughIndex: -1,
+    includedWithDesk: false,
+    prerequisiteCourseId: null,
+    homePath: "/starter-kit",
+    productName: "Swamp Starter Kit",
+    productDescription:
+      "ALGO Swamp one-time bundle: Options 101, Options 201, Mother Bar Levels, and Mother Bar Sweep Scan.",
+    integrationPrefix: "algo_swamp_kit_",
+    kind: "bundle",
+    stripePriceEnv: "STRIPE_PRICE_STARTER_KIT",
+    defaultStripePriceId: STARTER_KIT_STRIPE_PRICE_ID,
+    downloadFilename: null,
   },
 };
 

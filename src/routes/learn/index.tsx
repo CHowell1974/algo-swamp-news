@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { CourseShell, focusRing } from "@/components/course-ui";
+import { formatMoney } from "@/lib/plans";
 import { CLASSES_PAGE, routeHead } from "@/lib/seo";
+import { STARTER_KIT_LIST_USD, starterKitPriceUsd } from "@/lib/starter-kit";
 
 export const Route = createFileRoute("/learn/")({
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => {
@@ -87,6 +89,23 @@ function ClassesPage() {
             </div>
           </article>
         </div>
+        <article className="mt-6 rounded-card border border-line bg-surface p-6">
+          <p className="text-xs font-medium tracking-widest text-signal uppercase">
+            One-time bundle
+          </p>
+          <h2 className="mt-2 font-display text-3xl text-fg">Swamp Starter Kit</h2>
+          <p className="mt-3 max-w-2xl text-sm text-pretty text-muted">
+            Options 101, Options 201: Vertical Spreads, Mother Bar Levels, and the Mother Bar Sweep
+            Scan. <span className="line-through">{formatMoney(STARTER_KIT_LIST_USD)}</span> value,{" "}
+            {formatMoney(starterKitPriceUsd())} once.
+          </p>
+          <Link
+            to="/starter-kit"
+            className={`mt-4 inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
+          >
+            See the Swamp Starter Kit
+          </Link>
+        </article>
         <section className="mt-12" aria-labelledby="which-class">
           <h2 id="which-class" className="font-display text-3xl text-fg">
             Which class should I take?

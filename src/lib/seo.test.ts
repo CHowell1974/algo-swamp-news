@@ -19,6 +19,7 @@ import {
   OG_LEARN_IMAGE,
   OG_LEARN_201_IMAGE,
   OPTIONS_201_PAGE,
+  STARTER_KIT_PAGE,
   TOOLS_PAGE,
   CLASSES_PAGE,
   COURSE_201_FAQ,
@@ -75,6 +76,7 @@ describe("news route head", () => {
       joinPage("annual"),
       motherBarLevelsPage(),
       motherBarSweepScanPage(),
+      STARTER_KIT_PAGE,
     ];
     const titles = new Set(pages.map((page) => page.title));
     assert.equal(titles.size, pages.length);
@@ -112,6 +114,7 @@ describe("news route head", () => {
       "/tools",
       "/tools/mother-bar-levels",
       "/tools/mother-bar-sweep-scan",
+      "/starter-kit",
     ]) {
       assert.match(sitemap, loc(path));
     }
