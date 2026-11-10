@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { cronAuthorized } from "./cron-auth.ts";
 import type { Story } from "./scan.ts";
@@ -45,38 +46,93 @@ const parts: EtParts = {
 };
 
 describe("gateSend", () => {
-  it("accepts the whole 8:00–9:20am Eastern window", () => {
-    const open = gateSend(new Date("2026-07-15T12:00:00Z"));
+  it("accepts 7:00–9:20am Eastern and rejects the minutes on either side", () => {
+    const open = gateSend(new Date("2026-07-15T11:00:00Z"));
+    const eight = gateSend(new Date("2026-07-15T12:00:00Z"));
     const last = gateSend(new Date("2026-07-15T13:20:00Z"));
     const after = gateSend(new Date("2026-07-15T13:21:00Z"));
+    const before = gateSend(new Date("2026-07-15T10:59:00Z"));
     assert.equal(open.ok, true);
     if (open.ok) {
       assert.equal(open.parts.ymd, "2026-07-15");
-      assert.equal(open.parts.hour, 8);
+      assert.equal(open.parts.hour, 7);
       assert.equal(open.parts.minute, 0);
     }
+    assert.equal(eight.ok, true);
+    if (eight.ok) {
+      assert.equal(eight.parts.hour, 8);
+      assert.equal(eight.parts.minute, 0);
+    }
     assert.equal(last.ok, true);
+    assert.deepEqual(before, {
+      ok: false,
+      reason: "outside-send-window",
+      tradingDay: "2026-07-15",
+    });
     assert.deepEqual(after, { ok: false, reason: "outside-send-window", tradingDay: "2026-07-15" });
   });
 
-  it("covers every minute of the 12:00 UTC hour during EDT and the 13:00 UTC hour during EST", () => {
+  it("covers the 7am and 8am hours in both EDT and EST", () => {
     for (let minute = 0; minute < 60; minute += 1) {
       const mm = String(minute).padStart(2, "0");
+      // EDT is UTC-4: 11:00 is 7:00am, 12:00 is 8:00am.
+      assert.equal(gateSend(new Date(`2026-07-15T11:${mm}:30Z`)).ok, true, `EDT 11:${mm}`);
       assert.equal(gateSend(new Date(`2026-07-15T12:${mm}:30Z`)).ok, true, `EDT 12:${mm}`);
+      // EST is UTC-5: 12:00 is 7:00am, 13:00 is 8:00am. 11:00 is 6:00am.
+      assert.equal(gateSend(new Date(`2026-01-15T12:${mm}:30Z`)).ok, true, `EST 12:${mm}`);
       assert.equal(gateSend(new Date(`2026-01-15T13:${mm}:30Z`)).ok, true, `EST 13:${mm}`);
-      assert.equal(gateSend(new Date(`2026-01-15T12:${mm}:30Z`)).ok, false, `EST 12:${mm}`);
+      assert.equal(gateSend(new Date(`2026-01-15T11:${mm}:30Z`)).ok, false, `EST 11:${mm}`);
     }
     assert.equal(gateSend(new Date("2026-07-15T13:20:59Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-07-15T13:21:00Z")).ok, false);
     assert.equal(gateSend(new Date("2026-01-15T14:20:00Z")).ok, true);
     assert.equal(gateSend(new Date("2026-01-15T14:21:00Z")).ok, false);
   });
 
   it("follows the DST switch in March and November", () => {
+    // Monday after the March start. Eastern is EDT, so 11:00 UTC is 7:00am.
+    assert.equal(gateSend(new Date("2026-03-09T10:59:00Z")).ok, false);
+    assert.equal(gateSend(new Date("2026-03-09T11:00:00Z")).ok, true);
     assert.equal(gateSend(new Date("2026-03-09T12:59:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-03-09T13:20:00Z")).ok, true);
     assert.equal(gateSend(new Date("2026-03-09T13:21:00Z")).ok, false);
-    assert.equal(gateSend(new Date("2026-11-02T12:59:00Z")).ok, false);
+    // Monday after the November end. Eastern is EST, so 12:00 UTC is 7:00am.
+    assert.equal(gateSend(new Date("2026-11-02T11:59:00Z")).ok, false);
+    assert.equal(gateSend(new Date("2026-11-02T12:00:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-11-02T12:59:00Z")).ok, true);
     assert.equal(gateSend(new Date("2026-11-02T13:00:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-11-02T13:10:00Z")).ok, true);
     assert.equal(gateSend(new Date("2026-11-02T13:59:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-11-02T14:20:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-11-02T14:21:00Z")).ok, false);
+  });
+
+  it("accepts 8:10am Eastern in both seasons, including the week of Nov 9 2026", () => {
+    const edt = gateSend(new Date("2026-07-15T12:10:00Z"));
+    const est = gateSend(new Date("2026-11-10T13:10:00Z"));
+    assert.equal(edt.ok, true);
+    if (edt.ok) {
+      assert.equal(edt.parts.hour, 8);
+      assert.equal(edt.parts.minute, 10);
+    }
+    assert.equal(est.ok, true);
+    if (est.ok) {
+      assert.equal(est.parts.ymd, "2026-11-10");
+      assert.equal(est.parts.hour, 8);
+      assert.equal(est.parts.minute, 10);
+      assert.equal(est.parts.weekday, 2);
+    }
+    assert.equal(gateSend(new Date("2026-11-06T12:05:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-11-06T13:10:00Z")).ok, true);
+    const monday = gateSend(new Date("2026-11-09T13:10:00Z"));
+    assert.equal(monday.ok, true);
+    if (monday.ok) {
+      assert.equal(monday.parts.ymd, "2026-11-09");
+      assert.equal(monday.parts.weekday, 1);
+    }
+    assert.equal(gateSend(new Date("2026-11-09T12:00:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-11-10T12:30:00Z")).ok, true);
+    assert.equal(gateSend(new Date("2026-11-10T14:21:00Z")).ok, false);
   });
 
   it("skips weekends without treating them as a holiday", () => {
@@ -214,6 +270,28 @@ describe("idempotency", () => {
     assert.equal(blocksAnotherSend("skipped"), false);
     assert.equal(blocksAnotherSend("failed"), false);
     assert.equal(blocksAnotherSend(null), false);
+  });
+});
+
+describe("schedule", () => {
+  it("runs once at 8:10am America/New_York on weekdays", () => {
+    const vercel = JSON.parse(
+      readFileSync(new URL("../../vercel.json", import.meta.url), "utf8"),
+    ) as {
+      crons?: unknown;
+      schedules?: Record<
+        string,
+        { path?: string; schedule?: string; timezone?: string; requestMethod?: string }
+      >;
+    };
+    assert.equal(vercel.crons, undefined);
+    assert.deepEqual(Object.keys(vercel.schedules ?? {}), ["premarket-wire"]);
+    assert.deepEqual(vercel.schedules?.["premarket-wire"], {
+      path: "/api/cron/premarket-wire",
+      schedule: "10 8 * * 1-5",
+      timezone: "America/New_York",
+      requestMethod: "GET",
+    });
   });
 });
 

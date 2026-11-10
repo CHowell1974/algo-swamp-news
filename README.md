@@ -35,7 +35,7 @@ The `.ts` files are served only to the buyer from `GET /api/studies/:productId`.
 
 ## Pre-market wire
 
-Weekday cron hits `GET /api/cron/premarket-wire` at 12:00 and 13:00 UTC. The handler sends on the first call that lands between 8:00 and 9:20am America/New_York on a trading day. Set:
+Weekday schedule calls `GET /api/cron/premarket-wire` at 8:10am America/New_York, including after the spring and fall clock changes. Vercel may start that run a minute or two later on Pro, and up to 15 minutes later on Hobby, which is still before 9:00am. The handler sends when the call lands between 7:00 and 9:20am Eastern on a trading day. `wire_sends` keeps it to one broadcast a day. Set:
 
 - `KIT_API_KEY` — Kit v4 API key. Developer settings → V4 Keys → Add a new key. Copy it once.
 - `KIT_SEND_ENABLED` — `true` sends the broadcast. Any other value logs a dry run and does not record the day, so a real send can still go out later that morning.
