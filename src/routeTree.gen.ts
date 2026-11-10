@@ -14,6 +14,7 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as DeskRouteImport } from './routes/desk'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as StarterKitRouteImport } from './routes/starter-kit'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as WireDotxmlRouteImport } from './routes/wire[.]xml'
 import { Route as LearnIndexRouteImport } from './routes/learn/index'
@@ -60,6 +61,11 @@ const JoinRoute = JoinRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StarterKitRoute = StarterKitRouteImport.update({
+  id: '/starter-kit',
+  path: '/starter-kit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsRoute = ToolsRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/starter-kit': typeof StarterKitRoute
   '/tools': typeof ToolsRouteWithChildren
   '/wire.xml': typeof WireDotxmlRoute
   '/learn/$moduleId': typeof LearnModuleIdRoute
@@ -210,6 +217,7 @@ export interface FileRoutesByTo {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/starter-kit': typeof StarterKitRoute
   '/wire.xml': typeof WireDotxmlRoute
   '/learn/$moduleId': typeof LearnModuleIdRoute
   '/learn/certificate': typeof LearnCertificateRoute
@@ -239,6 +247,7 @@ export interface FileRoutesById {
   '/desk': typeof DeskRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/starter-kit': typeof StarterKitRoute
   '/tools': typeof ToolsRouteWithChildren
   '/wire.xml': typeof WireDotxmlRoute
   '/learn/$moduleId': typeof LearnModuleIdRoute
@@ -270,6 +279,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/starter-kit'
     | '/tools'
     | '/wire.xml'
     | '/learn/$moduleId'
@@ -299,6 +309,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/starter-kit'
     | '/wire.xml'
     | '/learn/$moduleId'
     | '/learn/certificate'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/join'
     | '/login'
+    | '/starter-kit'
     | '/tools'
     | '/wire.xml'
     | '/learn/$moduleId'
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   DeskRoute: typeof DeskRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  StarterKitRoute: typeof StarterKitRoute
   ToolsRoute: typeof ToolsRouteWithChildren
   WireDotxmlRoute: typeof WireDotxmlRoute
   LearnModuleIdRoute: typeof LearnModuleIdRoute
@@ -413,6 +426,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/starter-kit': {
+      id: '/starter-kit'
+      path: '/starter-kit'
+      fullPath: '/starter-kit'
+      preLoaderRoute: typeof StarterKitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools': {
@@ -592,6 +612,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeskRoute: DeskRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  StarterKitRoute: StarterKitRoute,
   ToolsRoute: ToolsRouteWithChildren,
   WireDotxmlRoute: WireDotxmlRoute,
   LearnModuleIdRoute: LearnModuleIdRoute,

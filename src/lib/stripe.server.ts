@@ -11,6 +11,7 @@ import {
   type FounderOffer,
 } from "@/lib/billing";
 import {
+  STARTER_KIT_ID,
   courseCheckoutOwner,
   courseCheckoutParams,
   courseFulfillmentDecision,
@@ -18,6 +19,11 @@ import {
   deskCoversCourse,
   resolveCoursePriceId,
 } from "@/lib/course/access";
+import { deskTrialDays } from "@/lib/starter-kit";
+import {
+  markStarterKitDeskBonusRedeemed,
+  saveStarterKitPurchase,
+} from "@/lib/starter-kit.purchase";
 import {
   hasPaidCourse,
   markCourseRefunded,
@@ -189,9 +195,29 @@ async function syncSubscription(
     sub,
     customerId === undefined ? stripeId(sub.customer) : customerId,
   );
+  await rememberStarterKitTrial(owner, sub);
 }
 
-export async function createCheckoutUrl(userId: string, plan: PlanId): Promise<string> {
+async function rememberStarterKitTrial(userId: string, sub: Stripe.Subscription): Promise<void> {
+  if (sub.metadata?.starter_kit_trial !== "30" || !grantsDesk(sub.status)) return;
+  await markStarterKitDeskBonusRedeemed(userId);
+}
+
+export async function createCheckoutUrl(
+  userId: string,
+  plan: PlanId,
+  options?: { starterKitTrial?: boolean },
+): Promise<string> {
+  const starterKitTrial = Boolean(options?.starterKitTrial);
+  if (starterKitTrial) {
+    if (plan !== "monthly") throw new Error("The 30-day desk bonus is not on this account.");
+    const { loadStarterKitPage } = await import("@/lib/starter-kit.server");
+    const page = await loadStarterKitPage(userId);
+    if (page.deskTrial === "already-open") throw new Error("Your desk is already open.");
+    if (page.deskTrial !== "offer") {
+      throw new Error("The 30-day desk bonus is not on this account.");
+    }
+  }
   const stripe = stripeClient();
   const origin = requestOrigin();
   const sql = await getSql();
@@ -200,19 +226,27 @@ export async function createCheckoutUrl(userId: string, plan: PlanId): Promise<s
   `;
   const customer = rows[0]?.stripe_customer_id || undefined;
   const founder = plan === "monthly" ? await readFounderOffer() : null;
+  const trialDays = deskTrialDays(starterKitTrial);
 
   async function openCheckoutSession(applyFounder: boolean): Promise<string> {
     const promoId = applyFounder ? (process.env.STRIPE_FOUNDER_PROMO_ID?.trim() ?? "") : "";
-    const commercials = checkoutCommercials(plan, promoId || null);
+    const commercials = checkoutCommercials(plan, promoId || null, trialDays);
+    const metadata = {
+      user_id: userId,
+      plan,
+      ...(starterKitTrial ? { starter_kit_trial: "30" } : {}),
+    };
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: plan === "monthly" ? PRICE_MONTHLY : PRICE_ANNUAL, quantity: 1 }],
       success_url: `${origin}/desk?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/join?plan=${plan}`,
+      cancel_url: starterKitTrial ? `${origin}/starter-kit` : `${origin}/join?plan=${plan}`,
       client_reference_id: userId,
       ...(customer ? { customer } : {}),
-      metadata: { user_id: userId, plan },
-      integration_identifier: checkoutIntegrationId(),
+      metadata,
+      integration_identifier: starterKitTrial
+        ? courseCheckoutIntegrationId(Math.random, "algo_swamp_kitdesk_")
+        : checkoutIntegrationId(),
       ...(commercials.paymentMethodCollection
         ? { payment_method_collection: commercials.paymentMethodCollection }
         : {}),
@@ -222,7 +256,7 @@ export async function createCheckoutUrl(userId: string, plan: PlanId): Promise<s
           ? { allow_promotion_codes: true }
           : {}),
       subscription_data: {
-        metadata: { user_id: userId, plan },
+        metadata,
         ...(commercials.trialPeriodDays
           ? {
               trial_period_days: commercials.trialPeriodDays,
@@ -261,6 +295,7 @@ export async function confirmCheckoutSession(userId: string, sessionId: string):
         : null;
   if (!sub) throw new Error("Stripe did not return a subscription.");
   await upsertSubscription(userId, sub, stripeId(session.customer));
+  await rememberStarterKitTrial(userId, sub);
   if (membershipStatus(sub.status) !== "active") {
     throw new Error(
       "Payment is still processing. The desk opens when Stripe marks the subscription active.",
@@ -332,7 +367,12 @@ async function fulfillCourseFromSession(session: Stripe.Checkout.Session): Promi
     metadataUserId: session.metadata?.user_id ?? null,
   });
   if (!owner) return;
-  await savePaidCoursePurchase(purchaseFromSession(session, owner));
+  const purchase = purchaseFromSession(session, owner);
+  if (purchase.courseId === STARTER_KIT_ID) {
+    await saveStarterKitPurchase(purchase);
+    return;
+  }
+  await savePaidCoursePurchase(purchase);
 }
 
 export async function createCourseCheckoutUrl(userId: string, courseId: string): Promise<string> {
@@ -387,7 +427,12 @@ export async function confirmCourseCheckoutSession(
       `Payment is still processing. ${name} opens when Stripe marks the payment paid.`,
     );
   }
-  await savePaidCoursePurchase(purchaseFromSession(session, userId));
+  const purchase = purchaseFromSession(session, userId);
+  if (offer.id === STARTER_KIT_ID) {
+    await saveStarterKitPurchase(purchase);
+    return offer.id;
+  }
+  await savePaidCoursePurchase(purchase);
   return offer.id;
 }
 

@@ -39,8 +39,9 @@ describe("mother bar products", () => {
     assert.equal(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY.images[0]?.width, 1920);
     assert.equal(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY.images[0]?.height, 988);
     assert.match(MOTHER_BAR_SWEEP_SCAN_PAGE_COPY.images[0]?.caption ?? "", /Not a list of picks/);
-    assert.match(BUNDLE_LINE, /\$39/);
-    assert.match(BUNDLE_LINE, /coming soon/);
+    assert.match(BUNDLE_LINE, /\$49/);
+    assert.match(BUNDLE_LINE, /Starter Kit/);
+    assert.doesNotMatch(BUNDLE_LINE, /coming soon/);
 
     const publicFiles = walk(join(root, "public"));
     const names = publicFiles.map((path) => path.slice(join(root, "public").length));

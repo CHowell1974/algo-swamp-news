@@ -195,7 +195,12 @@ export function StudyProductPage({
           </div>
         </section>
 
-        <p className="mt-10 max-w-2xl text-sm text-pretty text-fg">{BUNDLE_LINE}</p>
+        <p className="mt-10 max-w-2xl text-sm text-pretty text-fg">
+          {BUNDLE_LINE}{" "}
+          <Link to="/starter-kit" className={`font-medium text-signal ${focusRing}`}>
+            See the Swamp Starter Kit
+          </Link>
+        </p>
         <section className="mt-8 max-w-3xl" aria-labelledby="study-related">
           <h2 id="study-related" className="font-display text-2xl text-fg">
             Related

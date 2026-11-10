@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware, optionalAuthMiddleware } from "@/lib/auth/middleware";
-import { COURSE_ID, courseOffer } from "@/lib/course/access";
+import { COURSE_ID, STARTER_KIT_ID, courseOffer } from "@/lib/course/access";
 
 function courseError(cause: unknown, fallback: string): Error {
   if (cause instanceof Error) {
@@ -148,6 +148,9 @@ export const confirmCourseCheckout = createServerFn({ method: "POST" })
     try {
       const { confirmCourseCheckoutSession } = await import("./stripe.server");
       const courseId = await confirmCourseCheckoutSession(context.userId, data.sessionId);
+      if (courseId === STARTER_KIT_ID) {
+        throw new Error("This checkout is for the Swamp Starter Kit.");
+      }
       const { loadCourseHome } = await import("./course/home.server");
       return loadCourseHome(context.userId, courseId);
     } catch (cause) {

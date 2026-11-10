@@ -100,10 +100,17 @@ export type CheckoutCommercials = {
 export function checkoutCommercials(
   plan: PlanId,
   founderPromoId: string | null,
+  trialPeriodDays?: number,
 ): CheckoutCommercials {
   const founder = plan === "monthly" && Boolean(founderPromoId);
+  const trial =
+    plan !== "monthly"
+      ? null
+      : typeof trialPeriodDays === "number" && trialPeriodDays > 0
+        ? trialPeriodDays
+        : MONTHLY_TRIAL_DAYS;
   return {
-    trialPeriodDays: plan === "monthly" ? MONTHLY_TRIAL_DAYS : null,
+    trialPeriodDays: trial,
     paymentMethodCollection: plan === "monthly" ? "always" : null,
     promotionCode: founder ? founderPromoId : null,
     allowPromotionCodes: !founder,

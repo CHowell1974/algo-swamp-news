@@ -14,6 +14,7 @@ import {
   studyPriceUsd,
   type StudyPageCopy,
 } from "@/lib/studies/catalog";
+import { STARTER_KIT_FAQ, STARTER_KIT_LIST_USD, starterKitPriceUsd } from "@/lib/starter-kit";
 
 export { SITE_ORIGIN } from "./site.ts";
 
@@ -24,6 +25,7 @@ export const OG_IMAGE = `${SITE_ORIGIN}/og.jpg`;
 export const OG_LEARN_IMAGE = `${SITE_ORIGIN}/og-learn.jpg`;
 export const OG_LEARN_201_IMAGE = `${SITE_ORIGIN}/og-learn-201.jpg`;
 export const OG_CLASSES_IMAGE = `${SITE_ORIGIN}/og-classes.jpg`;
+export const OG_STARTER_KIT_IMAGE = `${SITE_ORIGIN}/og-starter-kit.jpg`;
 
 export type PageSeo = {
   title: string;
@@ -867,6 +869,64 @@ export const TOOLS_PAGE: PageSeo = {
       availability: "https://schema.org/InStock",
       url: "https://news.algoswamp.com/tools",
     },
+  },
+};
+
+export const STARTER_KIT_PAGE: PageSeo = {
+  title: `Swamp Starter Kit: $${STARTER_KIT_LIST_USD} Value for $${starterKitPriceUsd()} — ALGO Swamp`,
+  description: `Options 101, Options 201, Mother Bar Levels, and the Mother Bar Sweep Scan. $${STARTER_KIT_LIST_USD} of classes and thinkorswim files for $${starterKitPriceUsd()} once.`,
+  pathname: "/starter-kit",
+  ogImage: OG_STARTER_KIT_IMAGE,
+  ogImageAlt: "Swamp Starter Kit by ALGO Swamp",
+  jsonLd: {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_ORIGIN}/#org`,
+        name: "ALGO Swamp",
+        url: `${SITE_ORIGIN}/`,
+        logo: `${SITE_ORIGIN}/favicon.svg`,
+      },
+      {
+        "@type": "Product",
+        "@id": `${SITE_ORIGIN}/starter-kit#product`,
+        name: "Swamp Starter Kit",
+        description:
+          "One-time bundle: Options 101, Options 201: Vertical Spreads, Mother Bar Levels, and Mother Bar Sweep Scan.",
+        image: [OG_STARTER_KIT_IMAGE],
+        brand: { "@type": "Brand", name: "ALGO Swamp" },
+        url: `${SITE_ORIGIN}/starter-kit`,
+        offers: {
+          "@type": "Offer",
+          price: starterKitPriceUsd().toFixed(2),
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          url: `${SITE_ORIGIN}/starter-kit`,
+          seller: { "@id": `${SITE_ORIGIN}/#org` },
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "ALGO Swamp", item: `${SITE_ORIGIN}/` },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Swamp Starter Kit",
+            item: `${SITE_ORIGIN}/starter-kit`,
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: STARTER_KIT_FAQ.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: { "@type": "Answer", text: item.answer },
+        })),
+      },
+    ],
   },
 };
 

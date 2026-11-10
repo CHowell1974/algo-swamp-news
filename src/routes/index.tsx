@@ -9,6 +9,7 @@ import {
   MONTHLY_TRIAL_DAYS,
   PLANS,
 } from "@/lib/plans";
+import { STARTER_KIT_LIST_USD, starterKitPriceUsd } from "@/lib/starter-kit";
 import type { Story } from "@/lib/scan";
 import { HOME_PAGE, routeHead } from "@/lib/seo";
 
@@ -238,6 +239,19 @@ function MarketHome() {
                 className={`inline-flex min-h-11 items-center text-sm font-medium text-fg ${focusRing}`}
               >
                 See all classes
+              </Link>
+              <h3 className="mt-6 font-display text-2xl text-fg">Swamp Starter Kit</h3>
+              <p className="mt-2 max-w-xl text-sm text-pretty text-muted">
+                Options 101, Options 201, Mother Bar Levels, and the Mother Bar
+                Sweep Scan.{" "}
+                <span className="line-through">{formatMoney(STARTER_KIT_LIST_USD)}</span>{" "}
+                value, {formatMoney(starterKitPriceUsd())} once.
+              </p>
+              <Link
+                to="/starter-kit"
+                className={`inline-flex min-h-11 items-center text-sm font-medium text-signal ${focusRing}`}
+              >
+                See the Swamp Starter Kit
               </Link>
             </div>
           </div>

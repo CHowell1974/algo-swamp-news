@@ -217,7 +217,7 @@ export function studyPriceUsd(id: string): number {
 }
 
 export const BUNDLE_LINE =
-  "A $39 bundle with Mother Bar Levels and the Mother Bar Sweep Scan is coming soon. Each file is $29 on its own until then.";
+  "Mother Bar Levels and the Mother Bar Sweep Scan are included in the Swamp Starter Kit, with Options 101 and Options 201, for $49 once.";
 
 export function studyFileHeader(kind: "study" | "scan"): string {
   const noun = kind === "study" ? "study" : "scan";
