@@ -73,14 +73,35 @@ const SEND_END_MINUTES = 9 * 60 + 20;
 
 /**
  * 7:00–9:20am America/New_York, inclusive of 9:20.
- * The weekday schedule is 8:10am Eastern. Vercel may start it a few minutes
- * later (about a minute on Pro, up to 15 on Hobby). The wider gate still
- * accepts that delivery, a 7am run, and a slip toward 9:20, and it rejects
- * anything outside the pre-market morning.
+ * Hobby cron fires once, any time inside each scheduled UTC hour.
+ * 12:00 UTC is 7:00–7:59am on standard time and 8:00–8:59am during daylight time.
+ * 13:00 UTC is one hour later. Both of those hours sit inside this window on
+ * standard time, and the noon hour does in both seasons, before the 9:00am show.
  */
 export function inSendWindow(parts: EtParts): boolean {
   const minutes = parts.hour * 60 + parts.minute;
   return minutes >= SEND_START_MINUTES && minutes <= SEND_END_MINUTES;
+}
+
+/** A cron expression from the scheduler, or null when the header is anything else. */
+export function safeCronSchedule(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (trimmed.length < 5 || trimmed.length > 64) return null;
+  if (!/^[\d*,\-/ ]+$/.test(trimmed)) return null;
+  return trimmed;
+}
+
+/** Join diagnostic notes and strip credential-shaped text. */
+export function wireTraceDetail(parts: Array<string | null | undefined>): string | null {
+  const text = parts
+    .filter((part): part is string => typeof part === "string" && part.trim().length > 0)
+    .join("; ")
+    .replace(/bearer\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(?:sk|rk|pk)_(?:live|test)_[A-Za-z0-9]+/g, "[redacted]")
+    .slice(0, 180)
+    .trim();
+  return text.length > 0 ? text : null;
 }
 
 export function isWeekday(parts: EtParts): boolean {

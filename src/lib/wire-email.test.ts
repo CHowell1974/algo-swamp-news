@@ -11,10 +11,12 @@ import {
   gateSend,
   isNyseHoliday,
   kitBroadcastPayload,
+  safeCronSchedule,
   tapeIsFresh,
   wireEmailFragment,
   wireRss,
   wireSubject,
+  wireTraceDetail,
   type EtParts,
 } from "./wire-email.ts";
 
@@ -133,6 +135,24 @@ describe("gateSend", () => {
     assert.equal(gateSend(new Date("2026-11-09T12:00:00Z")).ok, true);
     assert.equal(gateSend(new Date("2026-11-10T12:30:00Z")).ok, true);
     assert.equal(gateSend(new Date("2026-11-10T14:21:00Z")).ok, false);
+  });
+
+  it("lets both Hobby UTC hours through on Wednesday Nov 11 2026", () => {
+    assert.equal(isNyseHoliday("2026-11-11"), false);
+    for (const stamp of [
+      "2026-11-11T12:00:00Z",
+      "2026-11-11T12:59:30Z",
+      "2026-11-11T13:00:00Z",
+      "2026-11-11T13:10:00Z",
+      "2026-11-11T13:59:30Z",
+    ]) {
+      const gate = gateSend(new Date(stamp));
+      assert.equal(gate.ok, true, stamp);
+      if (gate.ok) {
+        assert.equal(gate.parts.ymd, "2026-11-11");
+        assert.equal(gate.parts.weekday, 3);
+      }
+    }
   });
 
   it("skips weekends without treating them as a holiday", () => {
@@ -274,24 +294,40 @@ describe("idempotency", () => {
 });
 
 describe("schedule", () => {
-  it("runs once at 8:10am America/New_York on weekdays", () => {
+  it("uses the two Hobby UTC hours and does not also declare a timezone schedule", () => {
     const vercel = JSON.parse(
       readFileSync(new URL("../../vercel.json", import.meta.url), "utf8"),
     ) as {
-      crons?: unknown;
-      schedules?: Record<
-        string,
-        { path?: string; schedule?: string; timezone?: string; requestMethod?: string }
-      >;
+      crons?: { path: string; schedule: string }[];
+      schedules?: unknown;
     };
-    assert.equal(vercel.crons, undefined);
-    assert.deepEqual(Object.keys(vercel.schedules ?? {}), ["premarket-wire"]);
-    assert.deepEqual(vercel.schedules?.["premarket-wire"], {
-      path: "/api/cron/premarket-wire",
-      schedule: "10 8 * * 1-5",
-      timezone: "America/New_York",
-      requestMethod: "GET",
-    });
+    assert.equal(vercel.schedules, undefined);
+    assert.deepEqual(vercel.crons, [
+      { path: "/api/cron/premarket-wire", schedule: "0 12 * * 1-5" },
+      { path: "/api/cron/premarket-wire", schedule: "0 13 * * 1-5" },
+    ]);
+  });
+});
+
+describe("wire trace", () => {
+  it("keeps a cron expression and drops credential-shaped text", () => {
+    assert.equal(safeCronSchedule("0 12 * * 1-5"), "0 12 * * 1-5");
+    assert.equal(safeCronSchedule("10 8 * * 1-5"), "10 8 * * 1-5");
+    assert.equal(safeCronSchedule("Bearer desk-secret"), null);
+    assert.equal(safeCronSchedule("0 12 * * 1-5; KIT_API_KEY=secret"), null);
+    const detail = wireTraceDetail([
+      "method=GET",
+      "schedule=0 12 * * 1-5",
+      "Authorization: Bearer desk-secret",
+      "key sk_live_abc123",
+      "fresh=2/6",
+    ]);
+    assert.equal(detail?.includes("desk-secret"), false);
+    assert.equal(detail?.includes("sk_live_abc123"), false);
+    assert.match(detail ?? "", /method=GET/);
+    assert.match(detail ?? "", /schedule=0 12 \* \* 1-5/);
+    assert.match(detail ?? "", /bearer \[redacted\]/);
+    assert.match(detail ?? "", /fresh=2\/6/);
   });
 });
 
