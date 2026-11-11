@@ -8,6 +8,7 @@ import {
   freshCount,
   gateSend,
   kitBroadcastPayload,
+  safeCronSchedule,
   tapeIsFresh,
   wireDescription,
   wireEmailFragment,
@@ -15,6 +16,7 @@ import {
   wirePreviewText,
   wireRss,
   wireSubject,
+  wireTraceDetail,
   type EtParts,
 } from "@/lib/wire-email";
 
@@ -58,18 +60,66 @@ function errorDetail(error: unknown, fallback: string): string {
   return message.slice(0, 300);
 }
 
-export async function runPremarketWire(now = new Date()): Promise<WireRun> {
+export type WireSource = { method?: string | null; schedule?: string | null };
+
+type Executed = { run: WireRun; note: string | null };
+
+function done(run: WireRun, note: string | null = null): Executed {
+  return { run, note };
+}
+
+export async function recordUnauthorizedWire(now = new Date()): Promise<void> {
+  const parts = etParts(now);
+  await persistWireRun(
+    now,
+    { ok: true, action: "skipped", reason: "unauthorized", tradingDay: parts.ymd, subject: null },
+    undefined,
+    null,
+  );
+}
+
+export async function runPremarketWire(now = new Date(), source?: WireSource): Promise<WireRun> {
+  const executed = await executePremarketWire(now);
+  await persistWireRun(now, executed.run, source, executed.note);
+  return executed.run;
+}
+
+async function persistWireRun(
+  now: Date,
+  run: WireRun,
+  source: WireSource | undefined,
+  note: string | null,
+): Promise<void> {
+  const method = source?.method === "POST" ? "POST" : source?.method === "GET" ? "GET" : null;
+  const schedule = safeCronSchedule(source?.schedule);
+  const detail = wireTraceDetail([
+    method ? `method=${method}` : null,
+    schedule ? `schedule=${schedule}` : null,
+    note,
+  ]);
+  try {
+    const sql = await getSql();
+    await sql`
+      insert into wire_runs (trading_day, et_clock, action, reason, detail)
+      values (${run.tradingDay}::date, ${etClock(etParts(now))}, ${run.action}, ${run.reason}, ${detail})
+    `;
+  } catch {
+    console.log("[premarket-wire] trace-failed");
+  }
+}
+
+async function executePremarketWire(now: Date): Promise<Executed> {
   const gate = gateSend(now);
   const clock = etClock(gate.ok ? gate.parts : etParts(now));
   if (!gate.ok) {
     console.log(`[premarket-wire] skip ${gate.tradingDay} ${clock} ET: ${gate.reason}`);
-    return {
+    return done({
       ok: true,
       action: "skipped",
       reason: gate.reason,
       tradingDay: gate.tradingDay,
       subject: null,
-    };
+    });
   }
 
   const { parts } = gate;
@@ -78,22 +128,28 @@ export async function runPremarketWire(now = new Date()): Promise<WireRun> {
   } catch (error) {
     const detail = errorDetail(error, "wire failed");
     console.log(`[premarket-wire] fail ${parts.ymd} ${clock} ET: ${detail}`);
-    return {
+    return done({
       ok: false,
       action: "skipped",
       reason: "wire-error",
       tradingDay: parts.ymd,
       subject: null,
-    };
+    });
   }
 }
 
-async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<WireRun> {
+async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<Executed> {
   const tradingDay = parts.ymd;
   const tape = await loadPublicTape();
   if (!tape.ok) {
     console.log(`[premarket-wire] skip ${tradingDay} ${clock} ET: wire-unavailable`);
-    return { ok: false, action: "skipped", reason: "wire-unavailable", tradingDay, subject: null };
+    return done({
+      ok: false,
+      action: "skipped",
+      reason: "wire-unavailable",
+      tradingDay,
+      subject: null,
+    });
   }
   if (!tapeIsFresh(tape.stories, now)) {
     const lines = tape.stories.slice(0, OPEN_TAPE);
@@ -101,19 +157,22 @@ async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<Wi
     console.log(
       `[premarket-wire] skip ${tradingDay} ${clock} ET: lines-not-fresh (${fresh}/${lines.length} within ${FRESH_HOURS}h)`,
     );
-    return { ok: true, action: "skipped", reason: "lines-not-fresh", tradingDay, subject: null };
+    return done(
+      { ok: true, action: "skipped", reason: "lines-not-fresh", tradingDay, subject: null },
+      `fresh=${fresh}/${lines.length}`,
+    );
   }
 
   const subject = wireSubject(parts, tape.stories[0]?.title ?? "Markets");
   if (process.env.KIT_SEND_ENABLED !== "true") {
     console.log(`[premarket-wire] dry-run ${tradingDay} ${clock} ET: ${subject}`);
-    return { ok: true, action: "dry_run", reason: "send-disabled", tradingDay, subject };
+    return done({ ok: true, action: "dry_run", reason: "send-disabled", tradingDay, subject });
   }
 
   const apiKey = process.env.KIT_API_KEY;
   if (!apiKey) {
     console.log(`[premarket-wire] fail ${tradingDay} ${clock} ET: KIT_API_KEY missing`);
-    return { ok: false, action: "skipped", reason: "missing-api-key", tradingDay, subject };
+    return done({ ok: false, action: "skipped", reason: "missing-api-key", tradingDay, subject });
   }
 
   const claim = await claimDay(tradingDay, subject);
@@ -121,7 +180,10 @@ async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<Wi
     console.log(
       `[premarket-wire] skip ${tradingDay} ${clock} ET: already-recorded (${claim.status ?? "missing"})`,
     );
-    return { ok: true, action: "skipped", reason: "already-recorded", tradingDay, subject };
+    return done(
+      { ok: true, action: "skipped", reason: "already-recorded", tradingDay, subject },
+      `row=${claim.status ?? "missing"}`,
+    );
   }
 
   let broadcastId: string;
@@ -137,7 +199,11 @@ async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<Wi
     const detail = errorDetail(error, "Kit request failed");
     console.log(`[premarket-wire] fail ${tradingDay} ${clock} ET: ${detail}`);
     await releaseClaim(tradingDay);
-    return { ok: false, action: "skipped", reason: "kit-error", tradingDay, subject };
+    const status = /^Kit (\d{3})\b/.exec(detail);
+    return done(
+      { ok: false, action: "skipped", reason: "kit-error", tradingDay, subject },
+      status ? `kit-status=${status[1]}` : null,
+    );
   }
 
   try {
@@ -147,11 +213,11 @@ async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<Wi
     console.log(
       `[premarket-wire] fail ${tradingDay} ${clock} ET: broadcast ${broadcastId} created, record failed: ${detail}`,
     );
-    return { ok: false, action: "skipped", reason: "record-failed", tradingDay, subject };
+    return done({ ok: false, action: "skipped", reason: "record-failed", tradingDay, subject });
   }
 
   console.log(`[premarket-wire] sent ${tradingDay} ${clock} ET broadcast ${broadcastId}`);
-  return { ok: true, action: "sent", reason: "broadcast-created", tradingDay, subject };
+  return done({ ok: true, action: "sent", reason: "broadcast-created", tradingDay, subject });
 }
 
 async function claimDay(
