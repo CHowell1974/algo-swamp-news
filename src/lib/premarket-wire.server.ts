@@ -1,3 +1,5 @@
+import { BrevoError, sendListCampaign, sendTestCampaign } from "@/lib/brevo.server";
+import { wireSendEnabled } from "@/lib/brevo";
 import { getSql } from "@/lib/db";
 import { loadPublicTape } from "@/lib/news.functions";
 import { OPEN_TAPE } from "@/lib/plans";
@@ -7,11 +9,10 @@ import {
   FRESH_HOURS,
   freshCount,
   gateSend,
-  kitBroadcastPayload,
   safeCronSchedule,
   tapeIsFresh,
+  wireCampaignDocument,
   wireDescription,
-  wireEmailFragment,
   wirePreviewDocument,
   wirePreviewText,
   wireRss,
@@ -20,11 +21,9 @@ import {
   type EtParts,
 } from "@/lib/wire-email";
 
-const KIT_BROADCASTS = "https://api.kit.com/v4/broadcasts";
-
 export type WireRun = {
   ok: boolean;
-  action: "sent" | "dry_run" | "skipped";
+  action: "sent" | "dry_run" | "skipped" | "test";
   reason: string;
   tradingDay: string;
   subject: string | null;
@@ -128,13 +127,16 @@ async function executePremarketWire(now: Date): Promise<Executed> {
   } catch (error) {
     const detail = errorDetail(error, "wire failed");
     console.log(`[premarket-wire] fail ${parts.ymd} ${clock} ET: ${detail}`);
-    return done({
-      ok: false,
-      action: "skipped",
-      reason: "wire-error",
-      tradingDay: parts.ymd,
-      subject: null,
-    });
+    return done(
+      {
+        ok: false,
+        action: "skipped",
+        reason: "wire-error",
+        tradingDay: parts.ymd,
+        subject: null,
+      },
+      detail,
+    );
   }
 }
 
@@ -164,14 +166,13 @@ async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<Ex
   }
 
   const subject = wireSubject(parts, tape.stories[0]?.title ?? "Markets");
-  if (process.env.KIT_SEND_ENABLED !== "true") {
+  if (!wireSendEnabled(process.env.BREVO_SEND_ENABLED)) {
     console.log(`[premarket-wire] dry-run ${tradingDay} ${clock} ET: ${subject}`);
     return done({ ok: true, action: "dry_run", reason: "send-disabled", tradingDay, subject });
   }
 
-  const apiKey = process.env.KIT_API_KEY;
-  if (!apiKey) {
-    console.log(`[premarket-wire] fail ${tradingDay} ${clock} ET: KIT_API_KEY missing`);
+  if (!process.env.BREVO_API_KEY?.trim()) {
+    console.log(`[premarket-wire] fail ${tradingDay} ${clock} ET: BREVO_API_KEY missing`);
     return done({ ok: false, action: "skipped", reason: "missing-api-key", tradingDay, subject });
   }
 
@@ -186,38 +187,119 @@ async function deliverWire(parts: EtParts, now: Date, clock: string): Promise<Ex
     );
   }
 
-  let broadcastId: string;
+  let campaignId: string;
+  let recipients = 0;
   try {
-    broadcastId = await createKitBroadcast(apiKey, {
+    const sent = await sendListCampaign({
+      name: wireDescription(parts),
       subject,
-      content: wireEmailFragment(tape.stories, parts),
-      description: wireDescription(parts),
+      htmlContent: wireCampaignDocument(tape.stories, parts),
       previewText: wirePreviewText(),
-      now,
     });
+    campaignId = sent.campaignId;
+    recipients = sent.recipients;
   } catch (error) {
-    const detail = errorDetail(error, "Kit request failed");
-    console.log(`[premarket-wire] fail ${tradingDay} ${clock} ET: ${detail}`);
-    await releaseClaim(tradingDay);
-    const status = /^Kit (\d{3})\b/.exec(detail);
+    const reason = error instanceof BrevoError ? error.reason : "brevo-error";
+    const note =
+      error instanceof BrevoError ? error.note : errorDetail(error, "Brevo request failed");
+    console.log(`[premarket-wire] fail ${tradingDay} ${clock} ET: ${note ?? reason}`);
+    const released = await releaseClaimQuiet(tradingDay);
     return done(
-      { ok: false, action: "skipped", reason: "kit-error", tradingDay, subject },
-      status ? `kit-status=${status[1]}` : null,
+      { ok: false, action: "skipped", reason, tradingDay, subject },
+      [note, released].filter(Boolean).join("; ") || null,
     );
   }
 
   try {
-    await markSent(tradingDay, broadcastId);
+    await markSent(tradingDay, campaignId);
   } catch (error) {
     const detail = errorDetail(error, "could not record the send");
     console.log(
-      `[premarket-wire] fail ${tradingDay} ${clock} ET: broadcast ${broadcastId} created, record failed: ${detail}`,
+      `[premarket-wire] fail ${tradingDay} ${clock} ET: campaign ${campaignId} sent, record failed: ${detail}`,
     );
-    return done({ ok: false, action: "skipped", reason: "record-failed", tradingDay, subject });
+    return done(
+      { ok: false, action: "skipped", reason: "record-failed", tradingDay, subject },
+      `campaign=${campaignId}`,
+    );
   }
 
-  console.log(`[premarket-wire] sent ${tradingDay} ${clock} ET broadcast ${broadcastId}`);
-  return done({ ok: true, action: "sent", reason: "broadcast-created", tradingDay, subject });
+  console.log(
+    `[premarket-wire] sent ${tradingDay} ${clock} ET campaign ${campaignId} recipients=${recipients}`,
+  );
+  return done(
+    { ok: true, action: "sent", reason: "campaign-sent", tradingDay, subject },
+    `campaign=${campaignId}; recipients=${recipients}`,
+  );
+}
+
+/**
+ * Send the current wire to one address. This does not write `wire_sends`, so it
+ * cannot take the day's list send. The daily send switch does not apply here.
+ */
+export async function runPremarketWireTest(to: string, now = new Date()): Promise<WireRun> {
+  const parts = etParts(now);
+  const executed = await executeWireTest(to, parts, now);
+  await persistWireRun(now, executed.run, undefined, executed.note);
+  return executed.run;
+}
+
+async function executeWireTest(to: string, parts: EtParts, now: Date): Promise<Executed> {
+  const tradingDay = parts.ymd;
+  if (!process.env.BREVO_API_KEY?.trim()) {
+    console.log(`[premarket-wire] test fail ${tradingDay}: BREVO_API_KEY missing`);
+    return done({
+      ok: false,
+      action: "test",
+      reason: "missing-api-key",
+      tradingDay,
+      subject: null,
+    });
+  }
+  const tape = await loadPublicTape();
+  if (!tape.ok || tape.stories.length === 0) {
+    console.log(`[premarket-wire] test fail ${tradingDay}: wire-unavailable`);
+    return done({
+      ok: false,
+      action: "test",
+      reason: "wire-unavailable",
+      tradingDay,
+      subject: null,
+    });
+  }
+  const subject = wireSubject(parts, tape.stories[0]?.title ?? "Markets");
+  try {
+    const sent = await sendTestCampaign({
+      to,
+      name: `TEST pre-market wire ${parts.ymd} ${now.toISOString()}`,
+      subject,
+      htmlContent: wireCampaignDocument(tape.stories, parts),
+      previewText: wirePreviewText(),
+    });
+    const note = `campaign=${sent.campaignId}; deleted=${sent.deleted ? 1 : 0}`;
+    if (!sent.deleted) {
+      console.log(
+        `[premarket-wire] test fail ${tradingDay}: campaign ${sent.campaignId} sent, delete failed`,
+      );
+    } else {
+      console.log(`[premarket-wire] test sent ${tradingDay} campaign ${sent.campaignId}`);
+    }
+    return done(
+      {
+        ok: sent.deleted,
+        action: "test",
+        reason: sent.deleted ? "sent" : "delete-failed",
+        tradingDay,
+        subject,
+      },
+      note,
+    );
+  } catch (error) {
+    const reason = error instanceof BrevoError ? error.reason : "brevo-error";
+    const note =
+      error instanceof BrevoError ? error.note : errorDetail(error, "Brevo request failed");
+    console.log(`[premarket-wire] test fail ${tradingDay}: ${note ?? reason}`);
+    return done({ ok: false, action: "test", reason, tradingDay, subject }, note);
+  }
 }
 
 async function claimDay(
@@ -265,30 +347,13 @@ async function releaseClaim(tradingDay: string): Promise<void> {
   `;
 }
 
-async function createKitBroadcast(
-  apiKey: string,
-  input: { subject: string; content: string; description: string; previewText: string; now: Date },
-): Promise<string> {
-  const res = await fetch(KIT_BROADCASTS, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "X-Kit-Api-Key": apiKey,
-    },
-    body: JSON.stringify(kitBroadcastPayload(input)),
-    signal: AbortSignal.timeout(20_000),
-  });
-  const text = await res.text();
-  if (!res.ok) throw new Error(`Kit ${res.status}: ${text.slice(0, 300)}`);
-  let broadcastId: unknown;
+async function releaseClaimQuiet(tradingDay: string): Promise<string | null> {
   try {
-    broadcastId = (JSON.parse(text) as { broadcast?: { id?: unknown } }).broadcast?.id;
-  } catch {
-    throw new Error("Kit returned a body that was not JSON");
+    await releaseClaim(tradingDay);
+    return null;
+  } catch (error) {
+    const detail = errorDetail(error, "could not release the day");
+    console.log(`[premarket-wire] fail ${tradingDay}: release ${detail}`);
+    return "release-failed";
   }
-  if (broadcastId === undefined || broadcastId === null || broadcastId === "") {
-    throw new Error("Kit did not return a broadcast id");
-  }
-  return String(broadcastId);
 }

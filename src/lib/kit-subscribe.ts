@@ -1,10 +1,12 @@
 /**
- * Key-free subscribe for Kit forms on algo-swamp.kit.com.
+ * Key-free subscribe for the Road Map Kit form on algo-swamp.kit.com.
  *
- * The pre-market wire is form 10083135. The free Road Map study is form 10084236
- * (public page uid 41181b4565). Both post to the same public subscriptions endpoint.
+ * The free pre-market wire used to post to form 10083135. That signup now goes
+ * through Brevo. The free Road Map study is form 10084236 (public page uid
+ * 41181b4565) and still posts here, because this form is what emails the study
+ * file. After Kit accepts it, the form also starts the Brevo wire confirmation.
  *
- * That endpoint answers browser posts with CORS (`access-control-allow-origin: *`)
+ * The endpoint answers browser posts with CORS (`access-control-allow-origin: *`)
  * when the request matches Kit's own form script: multipart fields plus
  * `Accept: application/json` and `X-CKJS-Version`. A server-side proxy from a
  * datacenter address is sent to Kit's captcha gate, so the browser posts directly.
@@ -27,7 +29,7 @@ const KIT_HOST = "app.kit.com";
 const VISITOR_KEY = "ckid";
 
 export type KitSubscribeOutcome =
-  | { kind: "success"; raw: unknown }
+  | { kind: "success"; raw: unknown; notice?: string }
   | { kind: "check"; url: string; raw: unknown }
   | { kind: "error"; raw: unknown };
 
@@ -125,8 +127,4 @@ export async function subscribeToKitForm(
     return { kind: "error", raw: null };
   }
   return interpretKitResponse(response.status, payload);
-}
-
-export function subscribeToFreeWire(email: string): Promise<KitSubscribeOutcome> {
-  return subscribeToKitForm(KIT_FORM_ID, email);
 }

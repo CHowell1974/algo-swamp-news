@@ -97,8 +97,10 @@ export function wireTraceDetail(parts: Array<string | null | undefined>): string
   const text = parts
     .filter((part): part is string => typeof part === "string" && part.trim().length > 0)
     .join("; ")
+    .replace(/xkeysib-[a-z0-9]+(?:-[a-z0-9]+)*/gi, "[redacted]")
     .replace(/bearer\s+\S+/gi, "bearer [redacted]")
     .replace(/\b(?:sk|rk|pk)_(?:live|test)_[A-Za-z0-9]+/g, "[redacted]")
+    .replace(/api-key["']?\s*[:=]\s*["']?[^\s"',}]+/gi, "api-key=[redacted]")
     .slice(0, 180)
     .trim();
   return text.length > 0 ? text : null;
@@ -293,9 +295,8 @@ function toneLabel(tone: Story["tone"]): string {
 }
 
 /**
- * HTML fragment for Kit's Classic template. The template wraps this body and adds
- * the unsubscribe link and the postal-address footer. Starting Point templates
- * are not used: the API will not send them unless the body already contains those tags.
+ * HTML body for the pre-market wire. `wireCampaignDocument` wraps this and adds
+ * Brevo's unsubscribe link. Headlines and links are escaped.
  */
 export function wireEmailFragment(stories: Story[], parts: EtParts): string {
   const lines = stories.slice(0, OPEN_TAPE);
@@ -345,7 +346,10 @@ export function wireEmailFragment(stories: Story[], parts: EtParts): string {
 </table>`;
 }
 
-/** Full document for the preview route. Kit receives the fragment, not this wrapper. */
+/** Brevo replaces this href with the contact's unsubscribe URL when a campaign sends. */
+export const BREVO_UNSUBSCRIBE_HREF = "{{ unsubscribe }}";
+
+/** Full document for the preview route. The sent campaign uses `wireCampaignDocument`. */
 export function wirePreviewDocument(stories: Story[], parts: EtParts): string {
   const subject = wireSubject(parts, stories[0]?.title ?? "Markets");
   return `<!doctype html>
@@ -357,6 +361,35 @@ export function wirePreviewDocument(stories: Story[], parts: EtParts): string {
 </head>
 <body style="margin:0;padding:0;background:#0c1410;">
 ${wireEmailFragment(stories, parts)}
+</body>
+</html>`;
+}
+
+/** Full document sent through Brevo. The unsubscribe href is Brevo's campaign tag. */
+export function wireCampaignDocument(stories: Story[], parts: EtParts): string {
+  const subject = wireSubject(parts, stories[0]?.title ?? "Markets");
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${escapeHtml(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background:#0c1410;">
+${wireEmailFragment(stories, parts)}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0c1410;margin:0;padding:0;">
+  <tr>
+    <td align="center" style="padding:0 16px 28px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+        <tr>
+          <td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;color:#8ea396;">
+            <a href="${BREVO_UNSUBSCRIBE_HREF}" style="color:#8ea396;text-decoration:underline;">Unsubscribe</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 </body>
 </html>`;
 }
@@ -385,41 +418,4 @@ ${items.join("\n")}
   </channel>
 </rss>
 `;
-}
-
-/**
- * Body for POST /v4/broadcasts.
- * `subscriber_filter: []` targets the whole account. Kit's filter only accepts
- * segment and tag ids, not a form id, and this account's list is form 10083135.
- * `public: false` keeps the wire off the creator profile. `send_at` is what schedules it.
- * The default Classic template supplies unsubscribe and the address footer.
- */
-export function kitBroadcastPayload(input: {
-  subject: string;
-  content: string;
-  description: string;
-  previewText: string;
-  now: Date;
-}): {
-  subject: string;
-  content: string;
-  description: string;
-  preview_text: string;
-  public: false;
-  published_at: string;
-  send_at: string;
-  email_address: string;
-  subscriber_filter: [];
-} {
-  return {
-    subject: input.subject,
-    content: input.content,
-    description: input.description,
-    preview_text: input.previewText,
-    public: false,
-    published_at: input.now.toISOString(),
-    send_at: new Date(input.now.getTime() + 60_000).toISOString(),
-    email_address: FROM_EMAIL,
-    subscriber_filter: [],
-  };
 }

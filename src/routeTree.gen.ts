@@ -29,6 +29,7 @@ import { Route as ApiCronPremarketWireRouteImport } from './routes/api/cron/prem
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiStudiesProductIdRouteImport } from './routes/api/studies/$productId'
 import { Route as ApiWirePreviewRouteImport } from './routes/api/wire/preview'
+import { Route as ApiWireTestRouteImport } from './routes/api/wire/test'
 import { Route as LearnOptions101IndexRouteImport } from './routes/learn/options-101/index'
 import { Route as LearnOptions101ModuleIdRouteImport } from './routes/learn/options-101/$moduleId'
 import { Route as LearnOptions101CertificateRouteImport } from './routes/learn/options-101/certificate'
@@ -138,6 +139,11 @@ const ApiWirePreviewRoute = ApiWirePreviewRouteImport.update({
   path: '/api/wire/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWireTestRoute = ApiWireTestRouteImport.update({
+  id: '/api/wire/test',
+  path: '/api/wire/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LearnOptions101IndexRoute = LearnOptions101IndexRouteImport.update({
   id: '/learn/options-101/',
   path: '/learn/options-101/',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/api/studies/$productId': typeof ApiStudiesProductIdRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
+  '/api/wire/test': typeof ApiWireTestRoute
   '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
   '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
   '/learn/options-101/exam': typeof LearnOptions101ExamRoute
@@ -231,6 +238,7 @@ export interface FileRoutesByTo {
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/api/studies/$productId': typeof ApiStudiesProductIdRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
+  '/api/wire/test': typeof ApiWireTestRoute
   '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
   '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
   '/learn/options-101/exam': typeof LearnOptions101ExamRoute
@@ -262,6 +270,7 @@ export interface FileRoutesById {
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/api/studies/$productId': typeof ApiStudiesProductIdRoute
   '/api/wire/preview': typeof ApiWirePreviewRoute
+  '/api/wire/test': typeof ApiWireTestRoute
   '/learn/options-101/$moduleId': typeof LearnOptions101ModuleIdRoute
   '/learn/options-101/certificate': typeof LearnOptions101CertificateRoute
   '/learn/options-101/exam': typeof LearnOptions101ExamRoute
@@ -294,6 +303,7 @@ export interface FileRouteTypes {
     | '/api/stripe/webhook'
     | '/api/studies/$productId'
     | '/api/wire/preview'
+    | '/api/wire/test'
     | '/learn/options-101/$moduleId'
     | '/learn/options-101/certificate'
     | '/learn/options-101/exam'
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/api/stripe/webhook'
     | '/api/studies/$productId'
     | '/api/wire/preview'
+    | '/api/wire/test'
     | '/learn/options-101/$moduleId'
     | '/learn/options-101/certificate'
     | '/learn/options-101/exam'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/api/stripe/webhook'
     | '/api/studies/$productId'
     | '/api/wire/preview'
+    | '/api/wire/test'
     | '/learn/options-101/$moduleId'
     | '/learn/options-101/certificate'
     | '/learn/options-101/exam'
@@ -381,6 +393,7 @@ export interface RootRouteChildren {
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
   ApiStudiesProductIdRoute: typeof ApiStudiesProductIdRoute
   ApiWirePreviewRoute: typeof ApiWirePreviewRoute
+  ApiWireTestRoute: typeof ApiWireTestRoute
   LearnOptions101ModuleIdRoute: typeof LearnOptions101ModuleIdRoute
   LearnOptions101CertificateRoute: typeof LearnOptions101CertificateRoute
   LearnOptions101ExamRoute: typeof LearnOptions101ExamRoute
@@ -533,6 +546,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWirePreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/wire/test': {
+      id: '/api/wire/test'
+      path: '/api/wire/test'
+      fullPath: '/api/wire/test'
+      preLoaderRoute: typeof ApiWireTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/learn/options-101/': {
       id: '/learn/options-101/'
       path: '/learn/options-101'
@@ -624,6 +644,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
   ApiStudiesProductIdRoute: ApiStudiesProductIdRoute,
   ApiWirePreviewRoute: ApiWirePreviewRoute,
+  ApiWireTestRoute: ApiWireTestRoute,
   LearnOptions101ModuleIdRoute: LearnOptions101ModuleIdRoute,
   LearnOptions101CertificateRoute: LearnOptions101CertificateRoute,
   LearnOptions101ExamRoute: LearnOptions101ExamRoute,
