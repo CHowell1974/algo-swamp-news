@@ -76,6 +76,7 @@ function ToolsPage() {
             </article>
             <KitEmailForm
               className="h-full"
+              joinWire
               formId={ROAD_MAP_FORM_ID}
               titleId="road-map-free-title"
               inputId="road-map-email"

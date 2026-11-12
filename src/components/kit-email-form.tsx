@@ -1,5 +1,7 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { isValidEmail, subscribeToKitForm } from "@/lib/kit-subscribe";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { isValidEmail, subscribeToKitForm, type KitSubscribeOutcome } from "@/lib/kit-subscribe";
+import { subscribeToFreeWire } from "@/lib/wire-subscribe.functions";
 
 const focusRing =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal";
@@ -32,8 +34,10 @@ export function KitEmailForm({
   buttonLabel,
   confirmTitle,
   className = "",
+  subscribe,
+  joinWire = false,
 }: {
-  formId: string;
+  formId?: string;
   titleId: string;
   inputId: string;
   statusId: string;
@@ -43,12 +47,28 @@ export function KitEmailForm({
   buttonLabel: string;
   confirmTitle: string;
   className?: string;
+  /** When set, this replaces the Kit form post. The free wire uses it for Brevo. */
+  subscribe?: (email: string) => Promise<KitSubscribeOutcome>;
+  /** Road Map still posts to Kit for the study file, then adds the address to the wire list. */
+  joinWire?: boolean;
 }) {
   const [email, setEmail] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [notice, setNotice] = useState("");
   const [checkUrl, setCheckUrl] = useState<string | null>(null);
   const [frameHeight, setFrameHeight] = useState(440);
+  const join = useServerFn(subscribeToFreeWire);
+  const joinWireQuietly = useCallback(
+    async (address: string) => {
+      if (!joinWire || subscribe) return;
+      try {
+        await join({ data: { email: address } });
+      } catch {
+        // The server function logs the provider failure.
+      }
+    },
+    [join, joinWire, subscribe],
+  );
 
   useEffect(() => {
     if (phase !== "check") return;
@@ -60,6 +80,7 @@ export function KitEmailForm({
         setFrameHeight(Math.min(560, Math.max(240, Math.ceil(message.height) + 8)));
       }
       if (message.name === "ckjs:guard:confirmed") {
+        void joinWireQuietly(email);
         setCheckUrl(null);
         setPhase("success");
         setNotice(SUCCESS);
@@ -67,7 +88,7 @@ export function KitEmailForm({
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [phase]);
+  }, [phase, email, joinWireQuietly]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,10 +100,15 @@ export function KitEmailForm({
     }
     setPhase("submitting");
     setNotice("");
-    const outcome = await subscribeToKitForm(formId, next);
+    const outcome = subscribe
+      ? await subscribe(next)
+      : formId
+        ? await subscribeToKitForm(formId, next)
+        : ({ kind: "error", raw: null } as const);
+    if (outcome.kind === "success") await joinWireQuietly(next);
     if (outcome.kind === "success") {
       setPhase("success");
-      setNotice(SUCCESS);
+      setNotice(outcome.notice ?? SUCCESS);
       return;
     }
     if (outcome.kind === "check") {

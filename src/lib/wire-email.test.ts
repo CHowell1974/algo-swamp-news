@@ -10,9 +10,10 @@ import {
   freshCount,
   gateSend,
   isNyseHoliday,
-  kitBroadcastPayload,
   safeCronSchedule,
   tapeIsFresh,
+  BREVO_UNSUBSCRIBE_HREF,
+  wireCampaignDocument,
   wireEmailFragment,
   wireRss,
   wireSubject,
@@ -248,20 +249,17 @@ describe("email", () => {
     assert.equal(escapeHtml(`a<b>"c"`), "a&lt;b&gt;&quot;c&quot;");
   });
 
-  it("schedules a private broadcast to the whole list", () => {
-    const now = new Date("2026-10-22T12:30:00Z");
-    const payload = kitBroadcastPayload({
-      subject: "Pre-market wire · Thu, Oct 22: Fed holds",
-      content: "<p>hi</p>",
-      description: "Pre-market wire 2026-10-22",
-      previewText: "Six scored headlines before the open.",
-      now,
-    });
-    assert.equal(payload.public, false);
-    assert.equal(payload.email_address, "chris@algoswamp.com");
-    assert.deepEqual(payload.subscriber_filter, []);
-    assert.equal(payload.send_at, "2026-10-22T12:31:00.000Z");
-    assert.equal(payload.content, "<p>hi</p>");
+  it("adds Brevo's unsubscribe link to the campaign document", () => {
+    const html = wireCampaignDocument(
+      [story({ title: "Fed holds", publishedAt: "2026-10-22T11:00:00Z" })],
+      parts,
+    );
+    assert.match(html, /Fed holds/);
+    assert.match(html, /Thu, Oct 22/);
+    assert.equal(html.includes("<script>"), false);
+    const href = `href="${BREVO_UNSUBSCRIBE_HREF}"`;
+    assert.equal(html.includes(href), true);
+    assert.equal(html.split(BREVO_UNSUBSCRIBE_HREF).length, 2);
   });
 
   it("publishes the same six lines as RSS", () => {
@@ -320,10 +318,12 @@ describe("wire trace", () => {
       "schedule=0 12 * * 1-5",
       "Authorization: Bearer desk-secret",
       "key sk_live_abc123",
+      "api-key=xkeysib-abc123def456-xyz789",
       "fresh=2/6",
     ]);
     assert.equal(detail?.includes("desk-secret"), false);
     assert.equal(detail?.includes("sk_live_abc123"), false);
+    assert.equal(detail?.includes("xkeysib-"), false);
     assert.match(detail ?? "", /method=GET/);
     assert.match(detail ?? "", /schedule=0 12 \* \* 1-5/);
     assert.match(detail ?? "", /bearer \[redacted\]/);
